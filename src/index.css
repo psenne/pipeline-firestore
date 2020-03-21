@@ -1,0 +1,119 @@
+.login-screen {
+    position: absolute;
+    width: 500px;
+    height: 250px;
+    top: calc(50vh - 125px);
+    left: calc(50vw - 250px);
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    flex-flow: column;
+}
+
+.form-hidden {
+    display: none !important;
+}
+
+.floated-right {
+    float: right;
+}
+.header-logo {
+    width: 200px !important;
+}
+
+.avatar {
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: normal;
+}
+
+.padded-span {
+    padding: 0.5em;
+}
+.status-archived {
+    background-color: rgba(0, 0, 0, 0.05) !important;
+    color: #444 !important;
+}
+.status-initial {
+    background-color: #fff !important;
+    color: #000 !important;
+}
+.status-active {
+    background-color: rgb(200, 225, 180) !important;
+    color: rgba(0, 0, 0, 0.9) !important;
+}
+.status-inactive {
+    background-color: #cccccc !important;
+    color: rgba(0, 0, 0, 0.5) !important;
+}
+.status-processing {
+    background-color: #97ccf8 !important;
+    color: rgba(0, 0, 0, 0.9) !important;
+}
+.status-interviewed {
+    background-color: #ffffc6 !important;
+    color: rgba(0, 0, 0, 0.9) !important;
+}
+.status-recruiting {
+    background-color: #ffc478 !important;
+    color: rgba(0, 0, 0, 0.9) !important;
+}
+
+.candidate-table-row a {
+    color: inherit;
+}
+.candidate-table-row {
+    cursor: pointer;
+}
+.candidate-table-field {
+    font-weight: bolder;
+    opacity: 0.75;
+}
+.ui.inverted.menu {
+    border-radius: 0 !important;
+}
+.candidate-table-row:hover .set-flag {
+    visibility: visible;
+}
+.set-flag {
+    position: relative;
+    visibility: hidden;
+    top: 7px;
+    z-index: 100;
+}
+.minitoolbar-inline {
+    position: absolute;
+    top: calc(50% - 35px);
+}
+.minitoolbar-switch {
+    border-color: transparent !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+}
+.minitoolbar-switch .icon {
+    color: #808080;
+}
+.minitoolbar-hidden {
+    display: none !important;
+}
+.minitoolbar-switch-flagged {
+    visibility: visible;
+}
+.minitoolbar-switch-flagged .icon {
+    color: red;
+}
+.minitoolbar-flag:hover .icon {
+    color: red;
+}
+.minitoolbar-archive:hover .icon {
+    color: red;
+}
+.minitoolbar-edit:hover .icon {
+    color: green;
+}
+
+@media print {
+    .no-print {
+        display: none !important;
+    }
+}
