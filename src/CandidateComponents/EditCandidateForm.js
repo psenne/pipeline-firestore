@@ -107,25 +107,21 @@ export default class EditCandidateForm extends React.Component {
 
     //callback for interview date.
     handleInterviewDateChange(date) {
-        //date is null if input is cleared
-        if (date) {
-            date = date.toJSON();
-        }
-        this.updateSelectedCandidate("interview_date", date);
-        if (this.state.candidate.status === "initial" && date) {
+        const newdate = date ? firebase.firestore.Timestamp.fromDate(date) : null;
+
+        this.updateSelectedCandidate("interview_date", newdate);
+        if (this.state.candidate.status === "initial" && newdate) {
             this.updateSelectedCandidate("status", "interviewed"); //if interview took place, set status to interviewed
         }
-        if (date === null) {
+        if (newdate === null) {
             this.updateSelectedCandidate("status", "initial"); //if no interview date has been entered, set status to initial
         }
     }
 
     //callback for LOI date.
     handleLOIDateChange(date) {
-        if (date) {
-            date = date.toJSON();
-        }
-        this.updateSelectedCandidate("loi_sent_date", date);
+        const newdate = date ? firebase.firestore.Timestamp.fromDate(date) : null;
+        this.updateSelectedCandidate("loi_sent_date", newdate);
     }
 
     HandleFileUpload(ev) {
@@ -248,8 +244,9 @@ export default class EditCandidateForm extends React.Component {
 
     render() {
         const { candidate } = this.state;
-        const interview_date = candidate.interview_date ? new Date(candidate.interview_date) : null;
-        const loi_sent_date = candidate.loi_sent_date ? new Date(candidate.loi_sent_date) : null;
+        console.log(candidate)
+        const interview_date = candidate.interview_date ? candidate.interview_date.toDate() : null;
+        const loi_sent_date = candidate.loi_sent_date ? candidate.loi_sent_date.toDate() : null;
         const salary = candidate.salary !== "" ? atob(candidate.salary) : "";
         const archiveLabel = candidate.archived === "archived" ? "Unarchive Candidate" : "Archive Candidate";
 

@@ -1,0 +1,18 @@
+{
+    "rules": {
+     	".read": "auth.token.email.matches(/.*@renegadetec.com$/)",
+     	".write": "auth.token.email.matches(/.*@renegadetec.com$/)",
+        "candidates": {
+            ".indexOn": ["create_date", "modified_date", "firstname"]
+        },
+        "auditing": {
+            ".indexOn": ["eventdate"]
+        },
+        "users":{
+          	".indexOn" : ["email"]
+        },
+        "positions":{
+          	".indexOn" : ["added_on"]
+        }
+    }
+}

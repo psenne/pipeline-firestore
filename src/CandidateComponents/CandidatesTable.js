@@ -35,13 +35,10 @@ function isFiltered(searchTerm) {
 class CandidatesTable extends Component {
     static contextType = CandidateSearchContext;
     render() {
-        const { archived, searchterm, status } = this.context;
+        const { searchterm, status } = this.context;
         const filteredCandidates = this.props.list
             .filter(isFiltered(status))
-            .filter(isSearched(searchterm))
-            .filter(item => {
-                return item.info.archived === archived;
-            });
+            .filter(isSearched(searchterm));
 
         return (
             <Grid columns={16} verticalAlign="middle" divided="vertically" className="hovered">

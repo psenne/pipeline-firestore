@@ -89,12 +89,21 @@ class CandidateProfile extends Component {
         let referedby = "";
         let company_info = "";
 
-        let interview_date = candidate.interview_date ? moment(candidate.interview_date).format("M/D/YYYY") : "";
-        let loi_sent_date = candidate.loi_sent_date ? moment(candidate.loi_sent_date).format("M/D/YYYY") : "";
+        let interview_date = candidate.interview_date ? format(candidate.interview_date.toDate(), "M/d/yyyy") : "";
+        let loi_sent_date = candidate.loi_sent_date ? `LOI was sent on ${format(candidate.loi_sent_date.toDate(), "M/d/yyyy")}.` : "";
         let salary = candidate.salary !== "" ? atob(candidate.salary) : "";
 
-        if (candidate.interviewed_by && candidate.interviewed_by.length > 0) {
+        if (interview_date && candidate.interviewed_by.length > 0) {
             interviewed = `Interviewed on ${interview_date} by ${candidate.interviewed_by.join(", ")}.`;
+        }
+        else if (interview_date) {
+            interviewed = `Interviewed on ${interview_date}.`;
+        }
+        else if (candidate.interviewed_by.length > 0) {
+            interviewed = `Interviewed by ${candidate.interviewed_by.join(", ")}.`;
+        }
+        else{
+            interviewed = "Candidate has not been interviewed.";
         }
 
         if (candidate.found_by) {
@@ -106,10 +115,12 @@ class CandidateProfile extends Component {
         }
 
         if (candidate.loi_status === "accepted") {
-            loi_message = `LOI was sent on ${loi_sent_date}. LOI was accepted.`;
-        } else if (candidate.loi_status === "sent") {
-            loi_message = `LOI was sent on ${loi_sent_date}.`;
-        } else {
+            loi_message = `${loi_sent_date} LOI was accepted.`;
+        } 
+        else if (candidate.loi_status === "sent") {
+            loi_message = `${loi_sent_date}`;
+        } 
+        else {
             loi_message = "LOI has not been sent.";
         }
         return (

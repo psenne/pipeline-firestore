@@ -1,4 +1,5 @@
-import React, { Component } from "react";
+import React, { Component, useState, useEffect, useContext } from "react";
+import CandidateSearchContext from "../contexts/CandidateSearchContext";
 import { fbCandidatesDB } from "../firebase.config";
 import { tmplCandidate } from "../constants/candidateInfo";
 import { Loader, Dimmer } from "semantic-ui-react";
@@ -6,57 +7,58 @@ import NavBar from "../NavBar";
 import CandidateToolbar from "./CandidateToolbar";
 import CandidatesTable from "./CandidatesTable";
 
-class CandidatesPage extends Component {
-    constructor(props) {
-        super(props);
 
-        // this.orderedCandidates = fbCandidatesDB.orderByChild("firstname"); //used for sorting and populating candidate table.
-        this.orderedCandidates = fbCandidatesDB.orderBy('firstname').where("archived","==","current");
-        this.state = {
-            candidateList: [],
-            pageLoading: false
+function CandidatesPage(props) {
+    const { archived } = useContext(CandidateSearchContext);
+    const [candidatesList, setcandidatesList] = useState([]);
+    const [pageloading, setpageloading] = useState(false);
+
+    useEffect(() => {
+        setpageloading(true);
+        const unsubscribe = fbCandidatesDB
+            .orderBy("firstname")
+            .where("archived", "==", archived)
+            .onSnapshot(
+                doc => {
+                    let tmpitems = [];
+                    doc.forEach(function(candidate) {
+                        tmpitems.push({ key: candidate.id, info: Object.assign({}, tmplCandidate, candidate.data()) });
+                    });
+
+                    setcandidatesList(tmpitems);
+                    setpageloading(false);
+                },
+                error => {
+                    setcandidatesList([]);
+                    setpageloading(false);
+                    console.error(error);
+                }
+            );
+        return () => {
+            unsubscribe();
         };
-    }
+    }, [archived]);
 
-    componentDidMount() {
-        this.setState({ pageLoading: true });
-        this.unsubscribe = this.orderedCandidates.onSnapshot(doc => {
-            let tmpitems = [];
-            doc.forEach(function(candidate) {
-                tmpitems.push({ key: candidate.id, info: Object.assign({}, tmplCandidate, candidate.data()) });
-            });
 
-            this.setState({ candidateList: tmpitems }, () => {
-                this.setState({ pageLoading: false });
-            });
-        });
-    }
+    const flaggedCandidates = candidatesList.filter(candidate => {
+        return candidate.info.isFlagged;
+    });
 
-    componentWillUnmount() {
-        this.unsubscribe();
-    }
+    const unflaggedCandidates = candidatesList.filter(candidate => {
+        return !candidate.info.isFlagged;
+    });
 
-    render() {
-        const { candidateList, pageLoading } = this.state;
-        const flaggedCandidates = candidateList.filter(candidate => {
-            return candidate.info.isFlagged;
-        });
-        const unflaggedCandidates = candidateList.filter(candidate => {
-            return !candidate.info.isFlagged;
-        });
-
-        return (
-            <>
-                <Dimmer active={pageLoading}>
-                    <Loader>Loading candidates...</Loader>
-                </Dimmer>
-                <NavBar active="candidates" />
-                <CandidateToolbar candidates={this.state.candidateList} />
-                <CandidatesTable list={flaggedCandidates} />
-                <CandidatesTable list={unflaggedCandidates} />
-            </>
-        );
-    }
+    return (
+        <>
+            <Dimmer active={pageloading}>
+                <Loader>Loading candidates...</Loader>
+            </Dimmer>
+            <NavBar active="candidates" />
+            <CandidateToolbar candidates={candidatesList} />
+            <CandidatesTable list={flaggedCandidates} />
+            <CandidatesTable list={unflaggedCandidates} />
+        </>
+    );
 }
 
 export default CandidatesPage;
