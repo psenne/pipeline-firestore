@@ -25,13 +25,9 @@ export default class AddCandidateForm extends React.Component {
     }
 
     updateSelectedCandidate(name, value) {
-        const { currentuser } = this.props;
-
         this.setState(prevState => {
             let candidateinfo = prevState.candidate; //get candidate info
             candidateinfo[name] = value; //update with onChange info
-            candidateinfo["created_by"] = currentuser.displayName;
-            candidateinfo["created_date"] = firebase.firestore.FieldValue.serverTimestamp();
 
             return { candidate: candidateinfo };
         });
@@ -73,6 +69,10 @@ export default class AddCandidateForm extends React.Component {
     //callback function when form editing is done.
     updateDB() {
         const { candidate, files } = this.state;
+        const { currentuser } = this.props;
+
+        candidate["created_by"] = currentuser.displayName;
+        candidate["created_date"] = firebase.firestore.FieldValue.serverTimestamp();
 
         fbCandidatesDB.add(candidate).then(newcandidate => {
             const key = newcandidate.id;
@@ -83,10 +83,9 @@ export default class AddCandidateForm extends React.Component {
                 const fileRef = fbStorage.child(key + "/" + file.name);
                 uploadedFiles.push(fileRef.put(file, { contentType: file.type })); //add file upload promise to array, so that we can use promise.all() for one returned promise
             }
-            Promise.all(uploadedFiles)
-                .then(() => {
-                    history.push("/candidates/" + key); //wait until all files have been uploaded, then go to profile page.
-                });
+            Promise.all(uploadedFiles).then(() => {
+                history.push("/candidates/" + key); //wait until all files have been uploaded, then go to profile page.
+            });
         });
     }
 

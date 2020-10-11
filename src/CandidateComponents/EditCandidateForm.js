@@ -46,7 +46,7 @@ export default class EditCandidateForm extends React.Component {
         const candidateID = this.props.match.params.id;
 
         this.unsubCandidate = fbCandidatesDB.doc(candidateID).onSnapshot(doc => {
-            if (doc.data()) {
+            if (doc.exists) {
                 this.setState({ candidate: Object.assign({}, tmplCandidate, doc.data(), { modified_fields: [] }), key: doc.id });
             } 
             else {
@@ -244,7 +244,6 @@ export default class EditCandidateForm extends React.Component {
 
     render() {
         const { candidate } = this.state;
-        console.log(candidate)
         const interview_date = candidate.interview_date ? candidate.interview_date.toDate() : null;
         const loi_sent_date = candidate.loi_sent_date ? candidate.loi_sent_date.toDate() : null;
         const salary = candidate.salary !== "" ? atob(candidate.salary) : "";
