@@ -45,7 +45,6 @@ export default class LastCreated extends Component {
                             return candidate.info.created_by;
                         })
                         .map(({ info, key }) => {
-                            console.log(key);
                             const created_date = info.created_date ? format(info.created_date.toDate(), "MMM d, yyyy") : "";
                             const skill = info.skill ? `(${info.skill})` : "";
                             const addedmsg = info.created_by ? `Added by ${info.created_by} on ${created_date}` : "";

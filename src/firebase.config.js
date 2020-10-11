@@ -62,14 +62,6 @@ const fbFlagNotes = firebase.database().ref("flagnotes");
 
 const fbauth = firebase.auth();
 
-/////// query to filter by data value ///////////
-// fbCandidatesDB
-//     .orderByChild("height")
-//     .equalTo(25)
-//     .on("value", function(candidates) {
-//         console.log(candidates.val());
-//     });
-
 //callback function for clicking Login Button
 const SignInWithGoogle = () => {
     const provider = new firebase.auth.GoogleAuthProvider(); //strictly use Google's Authentication service (built in to Firebase)
