@@ -22,7 +22,7 @@ export default class CandidateDropdown extends Component {
             const filteredData = [];
             doc.forEach(function(candidate) {
                 const info = candidate.data();
-                const key = candidate.key;
+                const key = candidate.id;
                 let meetsAllCriteria = true;
 
                 filters.forEach(filter => {
