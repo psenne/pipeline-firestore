@@ -52,8 +52,8 @@ export default function AddPositionForm() {
             const added_on = new Date();
             position.added_on = added_on;
 
-            fbPositionsDB.push(position).then(newposition => {
-                const pkey = newposition.key;
+            fbPositionsDB.add(position).then(newposition => {
+                const pkey = newposition.id;
                 var dbUpdate = {};
                 addedCandidates.forEach(submission => {
                     dbUpdate[`/candidates/${submission.key}/submitted_positions/${pkey}`] = {
@@ -68,8 +68,8 @@ export default function AddPositionForm() {
                     };
                 });
 
-                //prettier-ignore
-                firebase.database().ref().update(dbUpdate).then(() => {
+                // need to figure this out for firestore!!!
+                firebase.firestore().ref().update(dbUpdate).then(() => {
                         history.push("/positions/");
                     });
             });

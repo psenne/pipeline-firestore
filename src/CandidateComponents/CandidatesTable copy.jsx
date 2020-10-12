@@ -1,8 +1,9 @@
 import React, { Component } from "react";
-import UserContext from "../contexts/UserContext";
+import firebase from "../firebase.config";
 import CandidateSearchContext from "../contexts/CandidateSearchContext";
 import { Link } from "react-router-dom";
-import { Grid, Header } from "semantic-ui-react";
+import { Grid, Header, Segment, Label } from "semantic-ui-react";
+import { format, parseISO } from "date-fns";
 import classnames from "classnames";
 import MiniToolbar from "./MiniToolbar";
 
@@ -46,7 +47,6 @@ class CandidatesTable extends Component {
                     const potential_contracts = item.info.potential_contracts ? item.info.potential_contracts.join(", ") : "";
                     const company = item.info.company ? `with ${item.info.company}` : "";
                     const current_contract = item.info.current_contract ? `on ${item.info.current_contract}` : "";
-
                     return (
                         <Grid.Row key={item.key} columns={2} className={classnames("status-" + item.info.status, "candidate-table-row")}>
                             <Grid.Column textAlign="center" width={1}>
@@ -54,7 +54,7 @@ class CandidatesTable extends Component {
                             </Grid.Column>
                             <Grid.Column width={15}>
                                 <Link to={`/candidates/${item.key}`}>
-                                    <>
+                                    <Segment>
                                         <Header>
                                             <Header.Content>
                                                 {item.info.firstname} {item.info.lastname}
@@ -73,7 +73,8 @@ class CandidatesTable extends Component {
                                         <div>
                                             <span className="candidate-table-field">Next steps:</span> {item.info.next_steps}
                                         </div>
-                                    </>
+                                    </Segment>
+                                    {item.info.created_by && <Label attached="bottom">Created: {format(item.info.created_date.toDate(), "MMM d, yyyy")} by {item.info.created_by}</Label>}
                                 </Link>
                             </Grid.Column>
                         </Grid.Row>

@@ -4,7 +4,6 @@ import history from "../modules/history";
 import { Link } from "react-router-dom";
 import { Grid, Header, Segment } from "semantic-ui-react";
 import classnames from "classnames";
-import moment from "moment";
 import { fbFlagNotes, fbAuditTrailDB, fbCandidatesDB } from "../firebase.config";
 import FlagMessage from "../CandidateComponents/FlagMessage";
 import { tmplCandidate } from "../constants/candidateInfo";

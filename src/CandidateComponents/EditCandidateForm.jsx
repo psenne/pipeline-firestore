@@ -4,10 +4,10 @@ import classnames from "classnames";
 import { sentence } from "to-case";
 
 import NavBar from "../NavBar";
-import LOIStatusDropdown from "../CandidateComponents/LOIStatusDropdown";
-import ContractDropdown from "../CandidateComponents/ContractDropdown";
-import ManagerDropdown from "../CandidateComponents/ManagerDropdown";
-import Files from "../CandidateComponents/Files";
+import LOIStatusDropdown from "./LOIStatusDropdown";
+import ContractDropdown from "./ContractDropdown";
+import ManagerDropdown from "./ManagerDropdown";
+import Files from "./Files";
 import firebase, { fbCandidatesDB, fbStorage, fbFlagNotes } from "../firebase.config";
 import { tmplCandidate } from "../constants/candidateInfo";
 

@@ -82,7 +82,7 @@ export default class MiniToolbar extends React.Component {
     }
 
     render() {
-        const { ckey, candidate, attached } = this.props;
+        const { ckey, candidate } = this.props;
         const { flagOpen } = this.state;
         const flagDate = candidate.flagged_on ? format(parseISO(candidate.flagged_on), "M/d/yyyy") : "";
         const flagNote = `${candidate.flagged_by} (${flagDate}): ${candidate.flag_note}`;
@@ -90,7 +90,13 @@ export default class MiniToolbar extends React.Component {
         const setArchiveStatusText = candidate.archived === "archived" ? "Unarchive" : "Archive";
 
         return (
-                <Menu attached={attached} icon className={classnames("minitoolbar-inline")}>
+            <div className="set-flag" onMouseEnter={this.ShowMenu} onMouseLeave={this.HideMenu}>
+                <Menu icon borderless className={classnames({ "minitoolbar-switch-flagged": candidate.isFlagged }, "minitoolbar-switch")}>
+                    <Menu.Item>
+                        <Icon name="flag" />
+                    </Menu.Item>
+                </Menu>
+                <Menu icon className={classnames({ "minitoolbar-hidden": !this.state.visible }, "minitoolbar-inline")}>
                     <UserContext.Consumer>
                         {currentuser => (
                             <FlagMessagePopup open={flagOpen} flagkey={ckey} currentuser={currentuser} handleClose={this.closeFlagMessage}>
@@ -114,6 +120,7 @@ export default class MiniToolbar extends React.Component {
                         <Icon link name="archive" />
                     </Menu.Item>
                 </Menu>
+            </div>
         );
     }
 }

@@ -1,4 +1,4 @@
-import React, { Component, useState, useEffect, useContext } from "react";
+import React, {  useState, useEffect, useContext } from "react";
 import CandidateSearchContext from "../contexts/CandidateSearchContext";
 import { fbCandidatesDB } from "../firebase.config";
 import { tmplCandidate } from "../constants/candidateInfo";
