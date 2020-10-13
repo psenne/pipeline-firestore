@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import CandidateSearchContext from "../contexts/CandidateSearchContext";
 import { Link } from "react-router-dom";
-import { Dropdown, Input, Icon, Menu } from "semantic-ui-react";
+import { Dropdown, Input, Icon, Menu, Container } from "semantic-ui-react";
 import StatusDropdown from "./StatusDropdown";
 import ExportToExcel from "../modules/ExportToExcel";
 
@@ -41,33 +41,35 @@ class CandidateToolbar extends Component {
         const { searchterm, archived, status } = this.context;
 
         return (
-            <Menu className="no-print">
-                <Menu.Item title="Add new candidate" link>
-                    <Link to="/candidates/add">
-                        <Icon name="plus" />
-                    </Link>
-                </Menu.Item>
-                <Menu.Item>
-                    <StatusDropdown text="Filter by Status" value={status} onChange={(ev, data) => this.UpdateStatus(data.value)} />
-                </Menu.Item>
-                <Menu.Item>
-                    <Dropdown options={filterOptions} value={archived} onChange={(ev, data) => this.UpdateArchiveStatus(data.value)} />
-                </Menu.Item>
-                <Menu.Menu position="right">
-                    <Menu.Item>
-                        <Input placeholder="Search" value={searchterm} onChange={(ev, data) => this.UpdateSearchTerm(data.value)} />
+            <Container fluid>
+                <Menu className="no-print" style={{"margin": "1rem"}}>
+                    <Menu.Item title="Add new candidate" link>
+                        <Link to="/candidates/add">
+                            <Icon name="plus" />
+                        </Link>
                     </Menu.Item>
                     <Menu.Item>
-                        <Icon.Group onClick={this.ClearFilters} title="Clear filters">
-                            <Icon name="filter" size="large" link />
-                            <Icon name="dont" size="large" color="red" link />
-                        </Icon.Group>
+                        <StatusDropdown text="Filter by Status" value={status} onChange={(ev, data) => this.UpdateStatus(data.value)} />
                     </Menu.Item>
                     <Menu.Item>
-                        <Icon name="external" link onClick={() => ExportToExcel(this.props.candidates, archived)} title="Export to Excel" />
+                        <Dropdown options={filterOptions} value={archived} onChange={(ev, data) => this.UpdateArchiveStatus(data.value)} />
                     </Menu.Item>
-                </Menu.Menu>
-            </Menu>
+                    <Menu.Menu position="right">
+                        <Menu.Item>
+                            <Input placeholder="Search" value={searchterm} onChange={(ev, data) => this.UpdateSearchTerm(data.value)} />
+                        </Menu.Item>
+                        <Menu.Item>
+                            <Icon.Group onClick={this.ClearFilters} title="Clear filters">
+                                <Icon name="filter" size="large" link />
+                                <Icon name="dont" size="large" color="red" link />
+                            </Icon.Group>
+                        </Menu.Item>
+                        <Menu.Item>
+                            <Icon name="external" link onClick={() => ExportToExcel(this.props.candidates, archived)} title="Export to Excel" />
+                        </Menu.Item>
+                    </Menu.Menu>
+                </Menu>
+            </Container>
         );
     }
 }

@@ -1,9 +1,9 @@
 import React, { Component } from "react";
-import firebase from "../firebase.config";
+import firebase, { fbStatusesDB } from "../firebase.config";
 import CandidateSearchContext from "../contexts/CandidateSearchContext";
 import { Link } from "react-router-dom";
-import { Grid, Container, Header, Segment, Label } from "semantic-ui-react";
-import { format, parseISO } from "date-fns";
+import { Icon, Container, Header, Segment, Label } from "semantic-ui-react";
+import { format } from "date-fns";
 import classnames from "classnames";
 import MiniToolbar from "./MiniToolbar";
 
@@ -35,9 +35,36 @@ function isFiltered(searchTerm) {
 
 class CandidatesTable extends Component {
     static contextType = CandidateSearchContext;
+
+    constructor(props) {
+        super(props)
+    
+        this.state = {
+             statuses: []
+        }
+    }
+    
+
+    componentDidMount() {
+        this.listener = fbStatusesDB.on("value", data => {
+            let statuses = [];
+            data.forEach(function (status) {
+                statuses.push({ ...status.val() });
+            });
+            this.setState({
+                statuses
+            });
+        });
+    }
+
+    componentWillUnmount() {
+        fbStatusesDB.off("value", this.listener);
+    }
+
     render() {
         const { searchterm, status } = this.context;
         const filteredCandidates = this.props.list.filter(isFiltered(status)).filter(isSearched(searchterm));
+        const { statuses } = this.state
 
         return (
             <Container fluid className="hovered">
@@ -47,11 +74,12 @@ class CandidatesTable extends Component {
                     const current_contract = item.info.current_contract ? `on ${item.info.current_contract}` : "";
                     const created = item.info.created_by ? `Created on ${format(item.info.created_date.toDate(), "MMM d, yyyy")} by ${item.info.created_by}` : "";
                     const updated = item.info.modified_by ? `Updated on ${format(item.info.modified_date.toDate(), "MMM d, yyyy")} by ${item.info.modified_by}` : "";
-
+                    const status_color = statuses.filter(s => s.name === item.info.status)[0]
+                    
                     return (
-                        <div key={item.key} className={classnames("status-" + item.info.status, "candidate-table-row")}>
+                        <div key={item.key} className={classnames("candidate-table-row")}>
                             <MiniToolbar attached="top" ckey={item.key} candidate={item.info} />
-                            <Segment key={item.key} attached padded>
+                            <Segment key={item.key} attached padded color={status_color && status_color.color}>
                                 <Link to={`/candidates/${item.key}`}>
                                     <Header>
                                         <Header.Content>
@@ -62,18 +90,21 @@ class CandidatesTable extends Component {
                                             {item.info.level} {item.info.skill} {company} {current_contract}
                                         </Header.Subheader>
                                     </Header>
-                                    <div>
-                                        <span className="candidate-table-field">Potential contracts:</span> {potential_contracts}
+                                    <div className="candidate-table-row-info">
+                                        <div className="candidate-table-field">Potential contracts:</div> {potential_contracts}
                                     </div>
-                                    <div>
-                                        <span className="candidate-table-field">Notes:</span> {item.info.notes}
+                                    <div className="candidate-table-row-info">
+                                        <div className="candidate-table-field">Notes:</div> {item.info.notes}
                                     </div>
-                                    <div>
-                                        <span className="candidate-table-field">Next steps:</span> {item.info.next_steps}
+                                    <div className="candidate-table-row-info">
+                                        <div className="candidate-table-field">Next steps:</div> {item.info.next_steps}
                                     </div>
                                 </Link>
                             </Segment>
-                            <Header color="grey" textAlign="centered" icon="write" attached="bottom">{created} | {updated}</Header>
+                            <Header color="grey" size="tiny" textAlign="center" attached="bottom">
+                                <Icon name="wait" />
+                                {created} | {updated}
+                            </Header>
                         </div>
                     );
                 })}

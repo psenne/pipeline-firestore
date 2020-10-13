@@ -18,6 +18,10 @@
     --recruiting-text: rgba(0, 0, 0, 0.9) ;
 }
 
+body{
+    background-color: #FAFAFA !important;
+}
+
 .login-screen {
     position: absolute;
     width: 500px;
@@ -80,12 +84,14 @@
     color: inherit;
 }
 .candidate-table-row {
-    cursor: pointer;
     padding: 1rem;  
 }
 .candidate-table-field {
     font-weight: bolder;
     opacity: 0.75;
+}
+.candidate-table-row-info{
+    margin: 1em 0;
 }
 .ui.inverted.menu {
     border-radius: 0 !important;
@@ -116,6 +122,7 @@
 }
 .minitoolbar-switch-flagged {
     visibility: visible;
+    background-color: red;
 }
 .minitoolbar-switch-flagged .icon {
     color: red;

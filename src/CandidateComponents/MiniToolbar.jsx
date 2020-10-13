@@ -90,30 +90,30 @@ export default class MiniToolbar extends React.Component {
         const setArchiveStatusText = candidate.archived === "archived" ? "Unarchive" : "Archive";
 
         return (
-                <Menu attached={attached} icon className={classnames("minitoolbar-inline")}>
-                    <UserContext.Consumer>
-                        {currentuser => (
-                            <FlagMessagePopup open={flagOpen} flagkey={ckey} currentuser={currentuser} handleClose={this.closeFlagMessage}>
-                                <Menu.Item name="flag" className="minitoolbar-flag" title={title} onClick={this.openFlagMessage}>
-                                    <Icon link name="flag" />
-                                </Menu.Item>
-                            </FlagMessagePopup>
-                        )}
-                    </UserContext.Consumer>
-                    <Menu.Item
-                        name="edit"
-                        title="Edit candidate"
-                        className="minitoolbar-edit"
-                        onClick={ev => {
-                            ev.stopPropagation();
-                            history.push(`/candidates/${ckey}/edit`);
-                        }}>
-                        <Icon link name="edit" />
-                    </Menu.Item>
-                    <Menu.Item name="archive" className="minitoolbar-archive" title={`${setArchiveStatusText} candidate`} onClick={this.ArchiveCandidate}>
-                        <Icon link name="archive" />
-                    </Menu.Item>
-                </Menu>
+            <Menu attached={attached} icon className={classnames("minitoolbar-inline")}>
+                <UserContext.Consumer>
+                    {currentuser => (
+                        <FlagMessagePopup open={flagOpen} flagkey={ckey} currentuser={currentuser} handleClose={this.closeFlagMessage}>
+                            <Menu.Item name="flag" className={classnames({ "minitoolbar-switch-flagged": candidate.isFlagged }, "minitoolbar-flag")} title={title} onClick={this.openFlagMessage}>
+                                <Icon link name="flag" />
+                            </Menu.Item>
+                        </FlagMessagePopup>
+                    )}
+                </UserContext.Consumer>
+                <Menu.Item
+                    name="edit"
+                    title="Edit candidate"
+                    className="minitoolbar-edit"
+                    onClick={ev => {
+                        ev.stopPropagation();
+                        history.push(`/candidates/${ckey}/edit`);
+                    }}>
+                    <Icon link name="edit" />
+                </Menu.Item>
+                <Menu.Item name="archive" className="minitoolbar-archive" title={`${setArchiveStatusText} candidate`} onClick={this.ArchiveCandidate}>
+                    <Icon link name="archive" />
+                </Menu.Item>
+            </Menu>
         );
     }
 }
