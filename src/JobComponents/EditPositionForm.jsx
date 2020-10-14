@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { format, parseISO, formatISO } from "date-fns";
 import history from "../modules/history";
 import { Link } from "react-router-dom";
-import firebase, { fbPositionsDB } from "../firebase.config";
+import firebase, { fbPositionsDB, fbCandidatesDB } from "../firebase.config";
 import tmplPosition from "../constants/positionInfo";
 import NavBar from "../NavBar";
 import ContractDropdown from "../CandidateComponents/ContractDropdown";
@@ -18,9 +18,9 @@ export default function EditPositionForm({ match }) {
 
     useEffect(() => {
         const key = match.params.id;
-        const listener = fbPositionsDB.child(key).on("value", data => {
-            if (data.val()) {
-                const positioninfo = data.val();
+        const unsubPosition = fbPositionsDB.doc(key).onSnapshot(data => {
+            if (data.exists) {
+                const positioninfo = data.data();
                 setposition(
                     Object.assign({}, position, {
                         title: positioninfo.title,
@@ -33,34 +33,35 @@ export default function EditPositionForm({ match }) {
                         added_on: positioninfo.added_on
                     })
                 );
-            } else {
-                fbPositionsDB.off("value", listener);
+                if (positioninfo.candidates_submitted) {
+                    setaddedCandidates([...positioninfo.candidates_submitted]);
+                }
+            } 
+            else {
+                unsubPosition();
                 history.push("/positions/add");
             }
         });
         return () => {
-            fbPositionsDB.off("value", listener); 
-        };
-
-        // eslint-disable-next-line
-    }, [match.params.id]);
-
-    useEffect(() => {
-        const key = match.params.id;
-        const listener = fbPositionsDB
-            .child(`${key}/candidates_submitted/`)
-            .orderByChild("candidate_name")
-            .on("value", data => {
-                let tmpitems = [];
-                data.forEach(function(candidate) {
-                    tmpitems.push({ key: candidate.key, info: Object.assign({}, candidate.val()) });
-                });
-                setaddedCandidates([...tmpitems]);
-            });
-        return () => {
-            fbPositionsDB.off("value", listener);
+            unsubPosition(); 
         };
     }, [match.params.id]);
+
+    // useEffect(() => {
+    //     const key = match.params.id;
+    //     const unsubSubmitted = fbPositionsDB.doc(`${key}/candidates_submitted/`)
+    //         .orderByChild("candidate_name")
+    //         .onSnapshot(data => {
+    //             let tmpitems = [];
+    //             data.forEach(function(candidate) {
+    //                 tmpitems.push({ key: candidate.id, info: Object.assign({}, candidate.data()) });
+    //             });
+    //             setaddedCandidates([...tmpitems]);
+    //         });
+    //     return () => {
+    //         unsubSubmitted();
+    //     };
+    // }, [match.params.id]);
 
     const HandleTextInput = ev => {
         const name = ev.target.name;
@@ -79,7 +80,7 @@ export default function EditPositionForm({ match }) {
     };
 
     const AddCandidateToPosition = candidate => {
-        const submission_date = formatISO(new Date());
+        const submission_date = firebase.firestore.Timestamp.fromDate(new Date());
         const candidate_name = candidate.info.firstname + " " + candidate.info.lastname;
         const tmpCandidate = { key: candidate.key, info: { submission_date, candidate_name } };
         setaddedCandidates([{ ...tmpCandidate }, ...addedCandidates]);
@@ -96,34 +97,53 @@ export default function EditPositionForm({ match }) {
 
     const UpdatePosition = () => {
         if (position.title && position.contract) {
-            position.added_on = "";
-            //prettier-ignore
-            fbPositionsDB.child(key).update(position).then(() => {
-                    //add all of the candidate submission information
-                    var dbUpdate = {};
-                    addedCandidates.forEach(submission => {
-                        dbUpdate[`/candidates/${submission.key}/submitted_positions/${key}`] = {
-                            position_id: position.position_id,
-                            position_name: position.title,
-                            position_contract: position.contract,
-                            submission_date: submission.info.submission_date
-                        };
-                        dbUpdate[`/positions/${key}/candidates_submitted/${submission.key}`] = {
-                            submission_date: submission.info.submission_date,
-                            candidate_name: submission.info.candidate_name
-                        };
-                    });
+            fbPositionsDB.doc(key).update(position).then(() => {
+                //add all of the candidate submission information
+                // var dbUpdate = {};
+                var batch = firebase.firestore().batch();
+                
+                addedCandidates.forEach(submission => {
+                    // dbUpdate[`/candidates/${submission.key}/submitted_positions/${key}`] = {
+                    //     position_id: position.position_id,
+                    //     position_name: position.title,
+                    //     position_contract: position.contract,
+                    //     submission_date: submission.info.submission_date
+                    // };
+                    // dbUpdate[`/positions/${key}/candidates_submitted/${submission.key}`] = {
+                    //     submission_date: submission.info.submission_date,
+                    //     candidate_name: submission.info.candidate_name
+                    // };
 
-                    removedCandidates.forEach(submission => {
-                        dbUpdate[`/candidates/${submission.key}/submitted_positions/${key}`] = null;
-                        dbUpdate[`/positions/${key}/candidates_submitted/${submission.key}`] = null;
-                    });
+                    const ckey = submission.key; //candidate key
+                    const positionRef = fbPositionsDB.doc(key).collection("submitted_candidates").doc(ckey);
+                    const updatedCandidateInfo = {
+                        submission_date: submission.info.submission_date,
+                        candidate_name: submission.info.candidate_name
+                    };
+                    batch.set(positionRef, updatedCandidateInfo);
 
-                    //prettier-ignore
-                    firebase.database().ref().update(dbUpdate).then(() => {
-                        history.push("/positions/");
-                    });
+
+
+                    const candidateRef = fbCandidatesDB.doc(ckey).collection("submitted_positions").doc(key);
+                    const updatedPositionInfo = {
+                        position_id: position.position_id,
+                        position_name: position.title,
+                        position_contract: position.contract,
+                        submission_date: submission.info.submission_date
+                    };
+                    batch.set(candidateRef, updatedPositionInfo);
                 });
+
+                removedCandidates.forEach(submission => {
+                //     dbUpdate[`/candidates/${submission.key}/submitted_positions/${key}`] = null;
+                //     dbUpdate[`/positions/${key}/candidates_submitted/${submission.key}`] = null;
+                });
+
+                // firebase.firestore().collection().update(dbUpdate).then(() => {
+                //     history.push("/positions/");
+                // });
+                history.push("/positions/");
+            });
         } else {
             setformError(true);
         }
@@ -179,7 +199,7 @@ export default function EditPositionForm({ match }) {
                                 return (
                                     <p key={candidate.key}>
                                         <Link to={`/candidates/${candidate.key}`}>
-                                            {candidate.info.candidate_name} - submitted on {format(parseISO(candidate.info.submission_date), "MMMM d, yyyy")}
+                                            {candidate.info.candidate_name} - submitted on {format(candidate.info.submission_date.toDate(), "MMMM d, yyyy")}
                                         </Link>
                                         <Icon name="close" color="red" link onClick={() => RemoveCandidateFromPosition(candidate.key)} />
                                     </p>

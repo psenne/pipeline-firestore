@@ -15,16 +15,24 @@ export default function PositionsPage() {
 
     useEffect(() => {
         setpageloading(true);
-        const getPositions = fbPositionsDB.orderByChild("contract").on("value", data => {
+        const getPositions = fbPositionsDB.orderBy("contract").onSnapshot(data => {
             let tmpitems = [];
             data.forEach(function(position) {
-                tmpitems.push({ key: position.key, info: Object.assign({}, tmplPosition, position.val()) });
+                var positionInfo = { "key": position.id, "submitted_candidates":[], "info": {...tmplPosition, ...position.data()} };
+                tmpitems.push(positionInfo);
+
+                //add subcollection for submitted candidates, then update the state
+                position.ref.collection("submitted_candidates").get().then(candidates => {
+                    candidates.forEach(candidate =>{
+                        positionInfo["submitted_candidates"].push({"key":candidate.id, "info": candidate.data()})
+                    });
+                    updatePositions(tmpitems);
+                });
+                setpageloading(false);
             });
             setcontractsWithPositions([...new Set(tmpitems.map(item => item.info.contract))]); //send to contract dropdown to show only those contracts that have positions listed.
-            updatePositions(tmpitems);
-            setpageloading(false);
         });
-        return () => fbPositionsDB.off("value", getPositions);
+        return () => getPositions();
     }, []);
 
     const searchPositions = ev => {

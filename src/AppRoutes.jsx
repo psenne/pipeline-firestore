@@ -17,6 +17,7 @@ const PositionsPage = lazy(() => import("./JobComponents/PositionsPage"));
 const AddPositionForm = lazy(() => import("./JobComponents/AddPositionForm"));
 const EditPositionForm = lazy(() => import("./JobComponents/EditPositionForm"));
 const DisplayExportedCandidates = lazy(() => import("./DisplayExportedCandidates"));
+const DisplayExportedPositions = lazy(() => import("./DisplayExportedPositions"));
 const NoMatch = lazy(() => import("./nomatch"));
 
 export default function AppRoutes() {
@@ -42,7 +43,8 @@ export default function AppRoutes() {
                                 <Route exact path="/positions/:id" render={props => <EditPositionForm currentuser={currentuser} {...props} />} />
                                 <Route path="/positions" render={props => <PositionsPage {...props} />} />
                                 <Route path="/loginhistory" render={props => <LoginHistory {...props} />} />
-                                <Route path="/export" render={props => <DisplayExportedCandidates {...props} />} />
+                                <Route path="/exportcandidates" render={props => <DisplayExportedCandidates {...props} />} />
+                                <Route path="/exportpositions" render={props => <DisplayExportedPositions {...props} />} />
                                 <Route render={() => <NoMatch />} />
                             </Switch>
                         </>

@@ -24,8 +24,8 @@ function isSearched(s) {
 
 // filters candidates by status
 function isFiltered(searchTerm) {
-    return function(item) {
-        return !searchTerm || item.info.contract === searchTerm;
+    return function(position) {
+        return !searchTerm || position.info.contract === searchTerm;
     };
 }
 
@@ -36,38 +36,37 @@ export default function PositionsTable({ positions }) {
             {positions
                 .filter(isFiltered(selectedcontract))
                 .filter(isSearched(searchterm))
-                .map(item => {
-                    const position_id = item.info.position_id ? `(${item.info.position_id})` : "";
-                    const contract = item.info.contract ? `${item.info.contract} - ` : "";
-                    const level = item.info.level ? item.info.level : "";
-                    const dash = item.info.level && item.info.skill_summary ? "-" : "";
-                    const location = item.info.location ? `Location: ${item.info.location}` : "";
+                .map(position => {
+                    const position_id = position.info.position_id ? `(${position.info.position_id})` : "";
+                    const contract = position.info.contract ? `${position.info.contract} - ` : "";
+                    const level = position.info.level ? position.info.level : "";
+                    const dash = position.info.level && position.info.skill_summary ? "-" : "";
+                    const location = position.info.location ? `Location: ${position.info.location}` : "";
 
                     return (
-                        <Grid.Row columns={2} key={item.key} centered className={classnames({ "candidate-submitted": item.candidates_submitted }, "candidate-table-row")}>
+                        <Grid.Row columns={2} key={position.key} centered className={classnames({ "candidate-submitted": position.submitted_candidates.length > 0 }, "candidate-table-row")}>
                             <Grid.Column width={15}>
-                                <Link to={`/positions/${item.key}`}>
+                                <Link to={`/positions/${position.key}`}>
                                     <Header>
                                         <Header.Content>
-                                            {contract} {item.info.title} {position_id}
+                                            {contract} {position.info.title} {position_id}
                                         </Header.Content>
                                         <Header.Subheader>
                                             <div>
-                                                {level} {dash} {item.info.skill_summary}
+                                                {level} {dash} {position.info.skill_summary}
                                             </div>
                                             <div>{location}</div>
                                         </Header.Subheader>
                                     </Header>
-                                    <div>{item.info.description}</div>
+                                    <div>{position.info.description}</div>
                                 </Link>
-                                {item.info.candidates_submitted && (
+                                {position.submitted_candidates.length > 0 && (
                                     <Header sub>
                                         Candidates submitted:
-                                        {Object.keys(item.info.candidates_submitted).map(ckey => {
-                                            const candidate = item.info.candidates_submitted[ckey];
+                                        {position.submitted_candidates.map(candidate => {
                                             return (
-                                                <Link key={ckey} to={`/candidates/${ckey}`}>
-                                                    <Label color="blue" key={ckey} content={candidate.candidate_name} icon="user secret" />
+                                                <Link key={candidate.key} to={`/candidates/${candidate.key}`}>
+                                                    <Label color="blue" key={candidate.key} content={candidate.info.candidate_name} icon="user secret" />
                                                 </Link>
                                             );
                                         })}

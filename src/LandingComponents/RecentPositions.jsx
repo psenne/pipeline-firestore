@@ -13,17 +13,17 @@ const RecentPositions = () => {
     useEffect(() => {
         setpageloading(true);
         const getPositions = fbPositionsDB
-            .orderByChild("added_on")
+            .orderBy("added_on", "desc")
             .limitToLast(5)
-            .on("value", data => {
+            .onSnapshot(data => {
                 let tmpitems = [];
-                data.forEach(function(position) {
-                    tmpitems.push({ key: position.key, info: Object.assign({}, tmplPosition, position.val()) });
+                data.forEach(function (position) {
+                    tmpitems.push({ key: position.id, info: Object.assign({}, tmplPosition, position.data()) });
                 });
                 setorderedPositions(tmpitems);
                 setpageloading(false);
             });
-        return () => fbPositionsDB.off("value", getPositions);
+        return () => getPositions();
     }, []);
 
     return (
@@ -33,7 +33,7 @@ const RecentPositions = () => {
                 <ComponentPlaceholder lines="6" />
             ) : (
                 <List selection verticalAlign="middle" divided relaxed>
-                    {orderedPositions.reverse().map(({ info, key }) => {
+                    {orderedPositions.map(({ info, key }) => {
                         const added_on = info.added_on ? "added on " + format(parseISO(info.added_on), "MMM d, yyyy") : "";
 
                         return (

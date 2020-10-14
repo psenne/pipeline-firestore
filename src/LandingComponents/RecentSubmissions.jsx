@@ -11,11 +11,10 @@ const RecentSubmissions = () => {
 
     useEffect(() => {
         setpageloading(true);
-        let getSubmissions = null;
-        const getPositions = fbPositionsDB.on("value", data => {
+        const getPositions = fbPositionsDB.onSnapshot(data => {
             let tmpitems = [];
             data.forEach(function(positiondata) {
-                const positioninfo = positiondata.val();
+                const positioninfo = positiondata.data();
                 const submissions = positioninfo.candidates_submitted;
                 if (submissions) {
                     Object.keys(submissions).forEach(candidatekey => {
@@ -28,8 +27,7 @@ const RecentSubmissions = () => {
             setpageloading(false);
         });
         return () => {
-            fbPositionsDB.off("value", getPositions);
-            fbPositionsDB.off("value", getSubmissions);
+            getPositions();
         };
     }, []);
 

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { format, parseISO } from "date-fns";
 import history from "../modules/history";
 import { Link } from "react-router-dom";
-import firebase, { fbPositionsDB } from "../firebase.config";
+import firebase, { fbPositionsDB, fbCandidatesDB } from "../firebase.config";
 import tmplPosition from "../constants/positionInfo";
 import NavBar from "../NavBar";
 import ContractDropdown from "../CandidateComponents/ContractDropdown";
@@ -32,7 +32,7 @@ export default function AddPositionForm() {
     };
 
     const AddCandidateToPosition = candidate => {
-        const submission_date = format(new Date());
+        const submission_date = firebase.firestore.Timestamp.fromDate(new Date());
         const candidate_name = candidate.info.firstname + " " + candidate.info.lastname;
         const tmpCandidate = { key: candidate.key, info: { submission_date, candidate_name } };
         setaddedCandidates([{ ...tmpCandidate }, ...addedCandidates]);
@@ -49,29 +49,49 @@ export default function AddPositionForm() {
 
     const AddNewPosition = () => {
         if (position.title && position.contract) {
-            const added_on = new Date();
+            const added_on = firebase.firestore.FieldValue.serverTimestamp();
             position.added_on = added_on;
 
             fbPositionsDB.add(position).then(newposition => {
                 const pkey = newposition.id;
                 var dbUpdate = {};
+                var batch = firebase.firestore().batch();
+
                 addedCandidates.forEach(submission => {
-                    dbUpdate[`/candidates/${submission.key}/submitted_positions/${pkey}`] = {
+                    const ckey = submission.key; //candidate key
+                    const candidateRef = fbCandidatesDB.doc(ckey).collection("submitted_positions").doc(pkey);
+                    const updatedPositionInfo = {
                         position_id: position.position_id,
                         position_name: position.title,
                         position_contract: position.contract,
                         submission_date: submission.info.submission_date
                     };
-                    dbUpdate[`/positions/${pkey}/candidates_submitted/${submission.key}`] = {
+                    batch.set(candidateRef, updatedPositionInfo);
+
+                    // dbUpdate[`/candidates/${submission.key}/submitted_positions/${pkey}`] = {
+                    //     position_id: position.position_id,
+                    //     position_name: position.title,
+                    //     position_contract: position.contract,
+                    //     submission_date: submission.info.submission_date
+                    // };
+
+                    const positionRef = fbPositionsDB.doc(pkey).collection("submitted_candidates").doc(ckey)
+                    const updatedCandidateInfo = {
                         submission_date: submission.info.submission_date,
                         candidate_name: submission.info.candidate_name
                     };
+                    batch.set(positionRef, updatedCandidateInfo);
+                    
+                    // dbUpdate[`/positions/${pkey}/candidates_submitted/${submission.key}`] = {
+                    //     submission_date: submission.info.submission_date,
+                    //     candidate_name: submission.info.candidate_name
+                    // };
                 });
 
-                // need to figure this out for firestore!!!
-                firebase.firestore().ref().update(dbUpdate).then(() => {
-                        history.push("/positions/");
-                    });
+                batch.commit().then(() => {
+                    history.push("/positions/");
+                }).catch(err => console.log(err));
+                // firebase.firestore().ref().set(dbUpdate)
             });
         } else {
             setformError(true);
@@ -107,10 +127,11 @@ export default function AddPositionForm() {
                             </Form.Group>
                             <Header>Candidate submission</Header>
                             {addedCandidates.map(candidate => {
-                                return (
+                                const candidate_submission_date = candidate.info.submission_date.toDate();
+                                return (                              
                                     <p key={candidate.key}>
                                         <Link to={`/candidates/${candidate.key}`}>
-                                            {candidate.info.candidate_name} - submitted on {format(parseISO(candidate.info.submission_date), "MMMM d, yyyy")}
+                                            {candidate.info.candidate_name} - submitted on {format(candidate_submission_date, "MMMM d, yyyy")}
                                         </Link>
                                         <Icon name="close" color="red" link onClick={() => RemoveCandidateFromPosition(candidate.key)} />
                                     </p>
