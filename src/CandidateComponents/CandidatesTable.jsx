@@ -1,8 +1,8 @@
 import React, { Component } from "react";
-import firebase, { fbStatusesDB } from "../firebase.config";
+import { fbStatusesDB } from "../firebase.config";
 import CandidateSearchContext from "../contexts/CandidateSearchContext";
 import { Link } from "react-router-dom";
-import { Icon, Container, Header, Segment, Label } from "semantic-ui-react";
+import { Icon, Container, Header, Segment,  } from "semantic-ui-react";
 import { format } from "date-fns";
 import classnames from "classnames";
 import MiniToolbar from "./MiniToolbar";

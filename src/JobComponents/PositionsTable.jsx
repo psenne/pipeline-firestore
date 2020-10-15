@@ -1,8 +1,9 @@
 import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import PositionContext from "../contexts/PositionContext";
-import { Grid, Header, Label } from "semantic-ui-react";
+import { Segment, Container, Header, Label, Icon } from "semantic-ui-react";
 import classnames from "classnames";
+import { format } from "date-fns";
 
 //uses search field value to filter array of candidates for table population
 function isSearched(s) {
@@ -32,7 +33,7 @@ function isFiltered(searchTerm) {
 export default function PositionsTable({ positions }) {
     const { selectedcontract, searchterm } = useContext(PositionContext);
     return (
-        <Grid columns={16} verticalAlign="middle" divided="vertically" className="hovered">
+        <Container fluid className="hovered">
             {positions
                 .filter(isFiltered(selectedcontract))
                 .filter(isSearched(searchterm))
@@ -42,10 +43,18 @@ export default function PositionsTable({ positions }) {
                     const level = position.info.level ? position.info.level : "";
                     const dash = position.info.level && position.info.skill_summary ? "-" : "";
                     const location = position.info.location ? `Location: ${position.info.location}` : "";
+                    const created = position.info.added_on ? (
+                        <Header color="grey" size="tiny" textAlign="center" attached="bottom">
+                            <Icon name="wait" />
+                            Created on {format(position.info.added_on.toDate(), "MMM d, yyyy")}
+                        </Header>
+                    ) : (
+                        ""
+                    );
 
                     return (
-                        <Grid.Row columns={2} key={position.key} centered className={classnames({ "candidate-submitted": position.submitted_candidates.length > 0 }, "candidate-table-row")}>
-                            <Grid.Column width={15}>
+                        <div key={position.key} className={classnames({ "candidate-submitted": position.submitted_candidates.length > 0 }, "candidate-table-row")}>
+                            <Segment attached>
                                 <Link to={`/positions/${position.key}`}>
                                     <Header>
                                         <Header.Content>
@@ -60,8 +69,9 @@ export default function PositionsTable({ positions }) {
                                     </Header>
                                     <div>{position.info.description}</div>
                                 </Link>
+                            </Segment>
                                 {position.submitted_candidates.length > 0 && (
-                                    <Header sub>
+                                    <Header attached="bottom" style={{"background-color":"#eee"}}>
                                         Candidates submitted:
                                         {position.submitted_candidates.map(candidate => {
                                             return (
@@ -72,10 +82,9 @@ export default function PositionsTable({ positions }) {
                                         })}
                                     </Header>
                                 )}
-                            </Grid.Column>
-                        </Grid.Row>
+                        </div>
                     );
                 })}
-        </Grid>
+        </Container>
     );
 }
