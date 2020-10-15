@@ -54,46 +54,30 @@ export default function AddPositionForm() {
 
             fbPositionsDB.add(position).then(newposition => {
                 const pkey = newposition.id;
-                var dbUpdate = {};
                 var batch = firebase.firestore().batch();
 
                 addedCandidates.forEach(submission => {
                     const ckey = submission.key; //candidate key
                     const candidateRef = fbCandidatesDB.doc(ckey).collection("submitted_positions").doc(pkey);
-                    const updatedPositionInfo = {
-                        position_id: position.position_id,
-                        position_name: position.title,
-                        position_contract: position.contract,
-                        submission_date: submission.info.submission_date
-                    };
-                    batch.set(candidateRef, updatedPositionInfo);
-
-                    // dbUpdate[`/candidates/${submission.key}/submitted_positions/${pkey}`] = {
-                    //     position_id: position.position_id,
-                    //     position_name: position.title,
-                    //     position_contract: position.contract,
-                    //     submission_date: submission.info.submission_date
-                    // };
-
                     const positionRef = fbPositionsDB.doc(pkey).collection("submitted_candidates").doc(ckey)
-                    const updatedCandidateInfo = {
+                    const updatedSubmissionInfo = {
                         submission_date: submission.info.submission_date,
-                        candidate_name: submission.info.candidate_name
+                        candidate_id: ckey,
+                        candidate_name: submission.info.candidate_name,
+                        position_id: pkey,
+                        position_title: position.title,
+                        position_contract: position.contract
                     };
-                    batch.set(positionRef, updatedCandidateInfo);
-                    
-                    // dbUpdate[`/positions/${pkey}/candidates_submitted/${submission.key}`] = {
-                    //     submission_date: submission.info.submission_date,
-                    //     candidate_name: submission.info.candidate_name
-                    // };
+                    batch.set(candidateRef, updatedSubmissionInfo);
+                    batch.set(positionRef, updatedSubmissionInfo);
                 });
 
                 batch.commit().then(() => {
                     history.push("/positions/");
                 }).catch(err => console.log(err));
-                // firebase.firestore().ref().set(dbUpdate)
             });
-        } else {
+        } 
+        else {
             setformError(true);
         }
     };

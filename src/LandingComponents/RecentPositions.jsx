@@ -14,7 +14,7 @@ const RecentPositions = () => {
         setpageloading(true);
         const getPositions = fbPositionsDB
             .orderBy("added_on", "desc")
-            .limitToLast(5)
+            .limit(5)
             .onSnapshot(data => {
                 let tmpitems = [];
                 data.forEach(function (position) {
@@ -34,7 +34,7 @@ const RecentPositions = () => {
             ) : (
                 <List selection verticalAlign="middle" divided relaxed>
                     {orderedPositions.map(({ info, key }) => {
-                        const added_on = info.added_on ? "added on " + format(parseISO(info.added_on), "MMM d, yyyy") : "";
+                        const added_on = info.added_on ? "added on " + format(info.added_on.toDate(), "MMM d, yyyy") : "";
 
                         return (
                             <List.Item key={key}>

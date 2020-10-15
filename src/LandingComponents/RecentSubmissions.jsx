@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { fbPositionsDB } from "../firebase.config";
+import firebase, { fbPositionsDB } from "../firebase.config";
 import { Container, List } from "semantic-ui-react";
 import ComponentPlaceholder from "./ComponentPlaceholder";
 import { format, parseISO } from "date-fns";
@@ -11,23 +11,20 @@ const RecentSubmissions = () => {
 
     useEffect(() => {
         setpageloading(true);
-        const getPositions = fbPositionsDB.onSnapshot(data => {
+        const getSubmissions = firebase.firestore()
+        .collectionGroup('submitted_candidates')
+        .orderBy("submission_date","desc")
+        .limit(5)
+        .onSnapshot(submissions => {
             let tmpitems = [];
-            data.forEach(function(positiondata) {
-                const positioninfo = positiondata.data();
-                const submissions = positioninfo.candidates_submitted;
-                if (submissions) {
-                    Object.keys(submissions).forEach(candidatekey => {
-                        const tmpobject = { candidatekey, submissioninfo: submissions[candidatekey], positionkey: positiondata.key, positioninfo };
-                        tmpitems.push(tmpobject);
-                    });
-                }
+            submissions.forEach(submission =>{ 
+                tmpitems.push(submission.data())
             });
-            setCandidateSubmissions(tmpitems);
+            setCandidateSubmissions(tmpitems)
             setpageloading(false);
         });
         return () => {
-            getPositions();
+            getSubmissions();
         };
     }, []);
 
@@ -38,12 +35,12 @@ const RecentSubmissions = () => {
                 <ComponentPlaceholder lines="6" />
             ) : (
                 <List selection verticalAlign="middle" divided relaxed>
-                    {candidateSubmissions.map(({ positioninfo, submissioninfo, positionkey, candidatekey }) => {
+                    {candidateSubmissions.map((submission) => {
                         return (
-                            <List.Item key={positionkey + candidatekey}>
+                            <List.Item key={submission.position_id + submission.candidate_id}>
                                 <List.Content>
                                     <List.Header>
-                                        <Link to={`/candidates/${candidatekey}`}>{submissioninfo.candidate_name}</Link> submitted for <Link to={`/positions/${positionkey}`}>{positioninfo.title}</Link> on {positioninfo.contract} ({format(parseISO(submissioninfo.submission_date), "MMM d, yyyy")})
+                                        <Link to={`/candidates/${submission.candidate_id}`}>{submission.candidate_name}</Link> submitted for <Link to={`/positions/${submission.position_id}`}>{submission.position_title}</Link> on {submission.position_contract} ({format(submission.submission_date.toDate(), "MMM d, yyyy")})
                                     </List.Header>
                                 </List.Content>
                             </List.Item>

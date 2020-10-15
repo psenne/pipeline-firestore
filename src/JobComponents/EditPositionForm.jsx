@@ -18,24 +18,9 @@ export default function EditPositionForm({ match }) {
 
     useEffect(() => {
         const key = match.params.id;
-        const unsubPosition = fbPositionsDB.doc(key).onSnapshot(data => {
-            if (data.exists) {
-                const positioninfo = data.data();
-                setposition(
-                    Object.assign({}, position, {
-                        title: positioninfo.title,
-                        description: positioninfo.description,
-                        level: positioninfo.level,
-                        skill_summary: positioninfo.skill_summary,
-                        position_id: positioninfo.position_id,
-                        contract: positioninfo.contract,
-                        location: positioninfo.location,
-                        added_on: positioninfo.added_on
-                    })
-                );
-                if (positioninfo.candidates_submitted) {
-                    setaddedCandidates([...positioninfo.candidates_submitted]);
-                }
+        const unsubPosition = fbPositionsDB.doc(key).onSnapshot(pos => {
+            if (pos.exists) {
+                setposition({...pos.data()})
             } 
             else {
                 unsubPosition();
@@ -47,21 +32,21 @@ export default function EditPositionForm({ match }) {
         };
     }, [match.params.id]);
 
-    // useEffect(() => {
-    //     const key = match.params.id;
-    //     const unsubSubmitted = fbPositionsDB.doc(`${key}/candidates_submitted/`)
-    //         .orderByChild("candidate_name")
-    //         .onSnapshot(data => {
-    //             let tmpitems = [];
-    //             data.forEach(function(candidate) {
-    //                 tmpitems.push({ key: candidate.id, info: Object.assign({}, candidate.data()) });
-    //             });
-    //             setaddedCandidates([...tmpitems]);
-    //         });
-    //     return () => {
-    //         unsubSubmitted();
-    //     };
-    // }, [match.params.id]);
+    useEffect(() => {
+        const key = match.params.id;
+        const unsubSubmitted = fbPositionsDB.doc(key).collection('submitted_candidates')
+            .orderBy("candidate_name")
+            .onSnapshot(candidates => {
+                let tmpitems = [];
+                candidates.forEach(function(candidate) {
+                    tmpitems.push({ key: candidate.id, info:{ ...candidate.data()} });
+                });
+                setaddedCandidates([...tmpitems]);
+            });
+        return () => {
+            unsubSubmitted();
+        };
+    }, [match.params.id]);
 
     const HandleTextInput = ev => {
         const name = ev.target.name;
@@ -98,53 +83,40 @@ export default function EditPositionForm({ match }) {
     const UpdatePosition = () => {
         if (position.title && position.contract) {
             fbPositionsDB.doc(key).update(position).then(() => {
-                //add all of the candidate submission information
-                // var dbUpdate = {};
                 var batch = firebase.firestore().batch();
                 
                 addedCandidates.forEach(submission => {
-                    // dbUpdate[`/candidates/${submission.key}/submitted_positions/${key}`] = {
-                    //     position_id: position.position_id,
-                    //     position_name: position.title,
-                    //     position_contract: position.contract,
-                    //     submission_date: submission.info.submission_date
-                    // };
-                    // dbUpdate[`/positions/${key}/candidates_submitted/${submission.key}`] = {
-                    //     submission_date: submission.info.submission_date,
-                    //     candidate_name: submission.info.candidate_name
-                    // };
-
                     const ckey = submission.key; //candidate key
-                    const positionRef = fbPositionsDB.doc(key).collection("submitted_candidates").doc(ckey);
-                    const updatedCandidateInfo = {
-                        submission_date: submission.info.submission_date,
-                        candidate_name: submission.info.candidate_name
-                    };
-                    batch.set(positionRef, updatedCandidateInfo);
-
-
-
                     const candidateRef = fbCandidatesDB.doc(ckey).collection("submitted_positions").doc(key);
-                    const updatedPositionInfo = {
-                        position_id: position.position_id,
-                        position_name: position.title,
-                        position_contract: position.contract,
-                        submission_date: submission.info.submission_date
+                    const positionRef = fbPositionsDB.doc(key).collection("submitted_candidates").doc(ckey)
+                    const updatedSubmissionInfo = {
+                        submission_date: submission.info.submission_date,
+                        candidate_id: ckey,
+                        candidate_name: submission.info.candidate_name,
+                        position_id: key,
+                        position_title: position.title,
+                        position_contract: position.contract
                     };
-                    batch.set(candidateRef, updatedPositionInfo);
+                    batch.set(candidateRef, updatedSubmissionInfo);
+                    batch.set(positionRef, updatedSubmissionInfo);
                 });
 
                 removedCandidates.forEach(submission => {
-                //     dbUpdate[`/candidates/${submission.key}/submitted_positions/${key}`] = null;
-                //     dbUpdate[`/positions/${key}/candidates_submitted/${submission.key}`] = null;
+                    const ckey = submission.key; //candidate key
+                    const candidateRef = fbCandidatesDB.doc(ckey).collection("submitted_positions").doc(key);
+                    const positionRef = fbPositionsDB.doc(key).collection("submitted_candidates").doc(ckey)
+
+                    batch.delete(candidateRef);
+                    batch.delete(positionRef);
                 });
 
-                // firebase.firestore().collection().update(dbUpdate).then(() => {
-                //     history.push("/positions/");
-                // });
-                history.push("/positions/");
+                batch.commit().then(() => {
+                    history.push("/positions/");
+                })
+                .catch(err => console.log(err));
             });
-        } else {
+        } 
+        else {
             setformError(true);
         }
     };
