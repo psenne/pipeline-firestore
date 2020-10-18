@@ -3,6 +3,7 @@ import "firebase/auth";
 import "firebase/database";
 import "firebase/firestore";
 import "firebase/storage";
+import "firebase/functions";
 
 var prodconfig = {
     apiKey: "AIzaSyCNMMcb5kK1Mc-8v-_LjxI6gl7RDLbfj98",
@@ -37,6 +38,11 @@ var devconfig = {
   
 };
 
+
+if (window.location.hostname === 'localhost') {
+  newconfig.databaseURL = "http://localhost:9000?ns=new-staffing-pipeline-prod"
+}
+
 // eslint-disable-next-line
 const config = process.env.NODE_ENV === "production" ? newconfig : newconfig;
 // const config = process.env.NODE_ENV === "production" ? prodconfig : devconfig;
@@ -45,6 +51,15 @@ const config = process.env.NODE_ENV === "production" ? newconfig : newconfig;
 if (!firebase.apps.length) {
     firebase.initializeApp(config);
 }
+
+if (window.location.hostname === 'localhost') {
+  firebase.functions().useFunctionsEmulator('http://localhost:5001');
+  firebase.firestore().settings({
+    host: 'localhost:8080',
+    ssl: false
+  });
+}
+
 
 const fbStorage = firebase.storage().ref();
 

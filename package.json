@@ -1,6 +1,6 @@
 {
   "name": "firestore-pipeline",
-  "version": "0.1.0",
+  "version": "2.0.0",
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^4.2.4",
@@ -29,7 +29,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "emulator": "firebase emulators:start --import=./test-data --export-on-exit"
   },
   "eslintConfig": {
     "extends": "react-app"
