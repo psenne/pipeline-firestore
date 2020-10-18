@@ -26,5 +26,5 @@ public/.htaccess
 .idea/
 .vscode/
 
-package-lock.json
 .firebase/hosting.*
+*-debug.log
