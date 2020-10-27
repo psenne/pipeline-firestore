@@ -10,7 +10,6 @@ const tmplCandidate = {
     filenames: [],
     interview_date: null,
     interviewed_by: [],
-    last_update_date: null,
     level: "",
     loi_status: "notsent",
     loi_sent_date: null,
