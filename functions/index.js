@@ -147,7 +147,7 @@ exports.deletedCandidateEvent = db.document("/candidates/{candidateID}").onDelet
 /** Position trigger section */
 
 exports.addPositionCreatedEvent = db.document("/positions/{positionID}").onCreate((snapshot, context) => {
-    const username = context.auth.token.name;
+    const username = snapshot.data().added_by;
     const positionname = `${snapshot.data().level} ${snapshot.data().title} (${snapshot.data().contract})`;
     const now = new Date();
     const event = {
@@ -156,30 +156,29 @@ exports.addPositionCreatedEvent = db.document("/positions/{positionID}").onCreat
         candidatename: positionname
     };
 
-    return snapshot.ref.parent.parent.child("auditing").push(event).then(()=>{ 
+    return rlt.ref("auditing").push(event).then(()=>{ 
         console.log(event);
     }) //prettier-ignore
 });
 
 exports.deletedPositionEvent = db.document("/positions/{positionID}").onDelete((snapshot, context) => {
-    const username = context.auth.token.name;
     const positionname = `${snapshot.data().level} ${snapshot.data().title} (${snapshot.data().contract})`;
     const now = new Date();
     const event = {
         eventdate: now.toJSON(),
-        eventinfo: `${username} removed ${positionname} from the database.`,
+        eventinfo: `${positionname} was deleted from the database.`,
         candidatename: positionname
     };
 
-    return snapshot.ref.parent.parent.child("auditing").push(event).then(()=>{ 
+    return rlt.ref("auditing").push(event).then(()=>{ 
         console.info(event);
     }) //prettier-ignore
 });
 
 exports.updatePositionEvent = db.document("/positions/{positionID}").onUpdate(({ before, after }, context) => {
-    const username = context.auth.token.name;
     const orgInfo = before.data();
     const newInfo = after.data();
+    const username = newInfo.modified_by;
 
     const positionname = `${newInfo.level} ${newInfo.title} (${newInfo.contract})`;
     const now = new Date();
@@ -189,7 +188,7 @@ exports.updatePositionEvent = db.document("/positions/{positionID}").onUpdate(({
         .map(key => {
             var beforeval = orgInfo[key];
             var afterval = newInfo[key];
-            if (!_.isEqual(beforeval, afterval) && key !== "added_on") {
+            if (!_.isEqual(beforeval, afterval) && key !== "added_on" && key !== "modified_on" && key !== "modified_by" && key !== "added_by") {
                 if (key === "candidates_submitted") {
                     if (afterval instanceof Object) {
                         //candidates submitted section
@@ -225,7 +224,7 @@ exports.updatePositionEvent = db.document("/positions/{positionID}").onUpdate(({
             eventinfo,
             candidatename: positionname
         };
-        return after.ref.parent.parent.child("auditing").push(event).then(()=>{
+        return rlt.ref("auditing").push(event).then(()=>{ 
             console.info(event);
         }) //prettier-ignore
     } 

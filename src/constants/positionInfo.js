@@ -6,7 +6,10 @@ const tmplPosition = {
     position_id: "",
     contract: "",
     location: "",
-    added_on: ""
+    added_on: "",
+    added_by: "",
+    modified_by: "",
+    modified_on: ""
 };
 
 export default tmplPosition;

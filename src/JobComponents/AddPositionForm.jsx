@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { format, parseISO } from "date-fns";
 import history from "../modules/history";
 import { Link } from "react-router-dom";
@@ -7,6 +7,7 @@ import tmplPosition from "../constants/positionInfo";
 import NavBar from "../NavBar";
 import ContractDropdown from "../CandidateComponents/ContractDropdown";
 import CandidateDropdown from "../CandidateComponents/CandidateDropdown";
+import UserContext from "../contexts/UserContext";
 import { Form, Container, Icon, Segment, Button, Header, Message } from "semantic-ui-react";
 
 export default function AddPositionForm() {
@@ -14,6 +15,7 @@ export default function AddPositionForm() {
     const [addedCandidates, setaddedCandidates] = useState([]); //candidates that are added when using this form
     const [removedCandidates, setremovedCandidates] = useState([]); //candidates that are removed when using this form
     const [formError, setformError] = useState(false);
+    const currentuser = useContext(UserContext);
 
     const HandleTextInput = ev => {
         const name = ev.target.name;
@@ -51,6 +53,7 @@ export default function AddPositionForm() {
         if (position.title && position.contract) {
             const added_on = firebase.firestore.FieldValue.serverTimestamp();
             position.added_on = added_on;
+            position.added_by = currentuser.displayName;
 
             fbPositionsDB.add(position).then(newposition => {
                 const pkey = newposition.id;

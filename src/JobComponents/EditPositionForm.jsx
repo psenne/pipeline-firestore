@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { format, parseISO, formatISO } from "date-fns";
 import history from "../modules/history";
 import { Link } from "react-router-dom";
@@ -7,10 +7,12 @@ import tmplPosition from "../constants/positionInfo";
 import NavBar from "../NavBar";
 import ContractDropdown from "../CandidateComponents/ContractDropdown";
 import CandidateDropdown from "../CandidateComponents/CandidateDropdown";
+import UserContext from "../contexts/UserContext";
 import { Form, Container, Segment, Button, Header, Message, Icon } from "semantic-ui-react";
 
 export default function EditPositionForm({ match }) {
     const key = match.params.id;
+    const currentuser = useContext(UserContext);
     const [position, setposition] = useState(Object.assign({}, tmplPosition));
     const [addedCandidates, setaddedCandidates] = useState([]); //candidates that are added when using this form
     const [removedCandidates, setremovedCandidates] = useState([]); //candidates that are removed when using this form
@@ -82,6 +84,9 @@ export default function EditPositionForm({ match }) {
 
     const UpdatePosition = () => {
         if (position.title && position.contract) {
+            position["modified_by"] = currentuser.displayName;
+            position["modified_on"] = firebase.firestore.FieldValue.serverTimestamp();
+
             fbPositionsDB.doc(key).update(position).then(() => {
                 var batch = firebase.firestore().batch();
                 
@@ -104,7 +109,7 @@ export default function EditPositionForm({ match }) {
                 removedCandidates.forEach(submission => {
                     const ckey = submission.key; //candidate key
                     const candidateRef = fbCandidatesDB.doc(ckey).collection("submitted_positions").doc(key);
-                    const positionRef = fbPositionsDB.doc(key).collection("submitted_candidates").doc(ckey)
+                    const positionRef = fbPositionsDB.doc(key).collection("submitted_candidates").doc(ckey);
 
                     batch.delete(candidateRef);
                     batch.delete(positionRef);
