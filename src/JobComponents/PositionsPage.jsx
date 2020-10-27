@@ -28,9 +28,9 @@ export default function PositionsPage() {
                     });
                     updatePositions(tmpitems);
                 });
-                setpageloading(false);
             });
             setcontractsWithPositions([...new Set(tmpitems.map(item => item.info.contract))]); //send to contract dropdown to show only those contracts that have positions listed.
+            setpageloading(false);
         });
         return () => getPositions();
     }, []);
