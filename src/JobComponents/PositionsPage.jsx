@@ -6,6 +6,29 @@ import { Loader, Dimmer } from "semantic-ui-react";
 import { fbPositionsDB } from "../firebase.config";
 import tmplPosition from "../constants/positionInfo";
 
+async function getPositionIDs(fnState) {
+    const data = await fbPositionsDB.orderBy("contract").get();
+    const positions = data.docs.map(function (position) {
+        var tmpitem = { key: position.id, submitted_candidates: [], info: { ...tmplPosition, ...position.data() } };
+        // GetSubmissions(position.id, subs => {
+        //     tmpitem["submitted_candidates"] = subs;
+        // });
+        return tmpitem;
+    });
+    fnState(positions);
+    return data;
+}
+
+async function GetSubmissions(pid, callback) {
+    const candidates = await fbPositionsDB.doc(pid).collection("submitted_candidates").get();
+    const subs = candidates.docs.map(candidate => {
+        return { key: candidate.id, info: candidate.data() };
+    });
+    callback(subs);
+    return candidates;
+}
+
+
 export default function PositionsPage() {
     const [positions, updatePositions] = useState([]);
     const [searchTerm, setsearchTerm] = useState("");
@@ -14,25 +37,7 @@ export default function PositionsPage() {
     const [contractsWithPositions, setcontractsWithPositions] = useState([]);
 
     useEffect(() => {
-        setpageloading(true);
-        const getPositions = fbPositionsDB.orderBy("contract").onSnapshot(data => {
-            let tmpitems = [];
-            data.forEach(function(position) {
-                var positionInfo = { "key": position.id, "submitted_candidates":[], "info": {...tmplPosition, ...position.data()} };
-                tmpitems.push(positionInfo);
-
-                //add subcollection for submitted candidates, then update the state
-                position.ref.collection("submitted_candidates").get().then(candidates => {
-                    candidates.forEach(candidate =>{
-                        positionInfo["submitted_candidates"].push({"key":candidate.id, "info": candidate.data()})
-                    });
-                    updatePositions(tmpitems);
-                });
-            });
-            setcontractsWithPositions([...new Set(tmpitems.map(item => item.info.contract))]); //send to contract dropdown to show only those contracts that have positions listed.
-            setpageloading(false);
-        });
-        return () => getPositions();
+        getPositionIDs(updatePositions);
     }, []);
 
     const searchPositions = ev => {

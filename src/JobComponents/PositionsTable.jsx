@@ -34,7 +34,7 @@ export default function PositionsTable({ positions }) {
     const { selectedcontract, searchterm } = useContext(PositionContext);
     return (
         <Container fluid className="hovered">
-            {positions
+            {positions && positions
                 .filter(isFiltered(selectedcontract))
                 .filter(isSearched(searchterm))
                 .map(position => {
@@ -71,7 +71,7 @@ export default function PositionsTable({ positions }) {
                                 </Link>
                             </Segment>
                                 {position.submitted_candidates.length > 0 && (
-                                    <Header attached="bottom" style={{"background-color":"#eee"}}>
+                                    <Header attached="bottom" style={{"backgroundColor":"#eee"}}>
                                         Candidates submitted:
                                         {position.submitted_candidates.map(candidate => {
                                             return (
