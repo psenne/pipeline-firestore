@@ -6,26 +6,13 @@ import { Loader, Dimmer } from "semantic-ui-react";
 import { fbPositionsDB } from "../firebase.config";
 import tmplPosition from "../constants/positionInfo";
 
-async function getPositionIDs(fnState) {
+async function getPositionInfo(fnState) {
     const data = await fbPositionsDB.orderBy("contract").get();
     const positions = data.docs.map(function (position) {
-        var tmpitem = { key: position.id, submitted_candidates: [], info: { ...tmplPosition, ...position.data() } };
-        // GetSubmissions(position.id, subs => {
-        //     tmpitem["submitted_candidates"] = subs;
-        // });
+        var tmpitem = { key: position.id, info: { ...tmplPosition, ...position.data() } };
         return tmpitem;
     });
     fnState(positions);
-    return data;
-}
-
-async function GetSubmissions(pid, callback) {
-    const candidates = await fbPositionsDB.doc(pid).collection("submitted_candidates").get();
-    const subs = candidates.docs.map(candidate => {
-        return { key: candidate.id, info: candidate.data() };
-    });
-    callback(subs);
-    return candidates;
 }
 
 
@@ -37,8 +24,12 @@ export default function PositionsPage() {
     const [contractsWithPositions, setcontractsWithPositions] = useState([]);
 
     useEffect(() => {
-        getPositionIDs(updatePositions);
+        getPositionInfo(updatePositions)
     }, []);
+    
+    useEffect(() => {
+        setpageloading(!pageloading);        
+    }, [positions])
 
     const searchPositions = ev => {
         setsearchTerm(ev.currentTarget.value);
