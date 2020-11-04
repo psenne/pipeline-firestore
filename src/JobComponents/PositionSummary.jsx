@@ -4,23 +4,24 @@ import { Link } from "react-router-dom";
 import { Segment, Header, Label, Icon } from "semantic-ui-react";
 import classnames from "classnames";
 import { format } from "date-fns";
-import marked from 'marked'
+import Markdown from "markdown-to-jsx";
 
-async function GetSubmissions(pid, callback) {
-    const candidates = await fbPositionsDB.doc(pid).collection("submitted_candidates").get();
-    const subs = candidates.docs.map(candidate => {
-        console.log(candidate);
-        return { key: candidate.id, info: candidate.data() };
-    });
-    callback(subs);
-}
 
 function PositionSummary({ position }) {
     const [submissions, setsubmissions] = useState([]);
-
+    const key  = position.key;
+    
     useEffect(() => {
-        GetSubmissions(position.key, setsubmissions);
-    }, []);
+        async function GetSubmissions() {
+            const candidates = await fbPositionsDB.doc(key).collection("submitted_candidates").get();
+            const subs = candidates.docs.map(candidate => {
+                return { key: candidate.id, info: candidate.data() };
+            });
+            setsubmissions(subs);
+        }
+
+        GetSubmissions()
+    }, [key]);
 
     const position_id = position.info.position_id ? `(${position.info.position_id})` : "";
     const contract = position.info.contract ? `${position.info.contract} - ` : "";
@@ -51,7 +52,9 @@ function PositionSummary({ position }) {
                             <div>{location}</div>
                         </Header.Subheader>
                     </Header>
-                    <div>{marked(position.info.description)}</div>
+                    <div>
+                        <Markdown>{position.info.description}</Markdown>
+                    </div>
                 </Link>
                 {submissions.length > 0 && (
                     <Header size="small">

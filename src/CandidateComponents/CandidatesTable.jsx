@@ -4,6 +4,7 @@ import CandidateSearchContext from "../contexts/CandidateSearchContext";
 import { Link } from "react-router-dom";
 import { Icon, Container, Header, Segment,  } from "semantic-ui-react";
 import { format } from "date-fns";
+import Markdown from "markdown-to-jsx";
 import classnames from "classnames";
 import MiniToolbar from "./MiniToolbar";
 
@@ -94,10 +95,16 @@ class CandidatesTable extends Component {
                                         <div className="candidate-table-field">Potential contracts:</div> {potential_contracts}
                                     </div>
                                     <div className="candidate-table-row-info">
-                                        <div className="candidate-table-field">Notes:</div> {item.info.notes}
+                                        <div className="candidate-table-field">Notes:</div> 
+                                        <Markdown>
+                                            {item.info.notes}
+                                        </Markdown>
                                     </div>
                                     <div className="candidate-table-row-info">
-                                        <div className="candidate-table-field">Next steps:</div> {item.info.next_steps}
+                                        <div className="candidate-table-field">Next steps:</div> 
+                                        <Markdown>
+                                            {item.info.next_steps}
+                                        </Markdown>
                                     </div>
                                 </Link>
                             </Segment>

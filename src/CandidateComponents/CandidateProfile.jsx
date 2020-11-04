@@ -3,6 +3,7 @@ import { format, parseISO } from "date-fns";
 import history from "../modules/history";
 import { Link } from "react-router-dom";
 import { Grid, Header, Segment } from "semantic-ui-react";
+import Markdown from "markdown-to-jsx";
 import classnames from "classnames";
 import { fbFlagNotes, fbAuditTrailDB, fbCandidatesDB } from "../firebase.config";
 import FlagMessage from "../CandidateComponents/FlagMessage";
@@ -176,14 +177,22 @@ class CandidateProfile extends Component {
                             <Grid>
                                 <Grid.Row>
                                     <Grid.Column>
-                                        <h3>Management Notes:</h3>
-                                        {candidate.notes}
+                                        <div className="markdown">
+                                            <h3>Management Notes:</h3>
+                                            <Markdown>
+                                            {candidate.notes}
+                                            </Markdown>
+                                        </div>
                                     </Grid.Column>
                                 </Grid.Row>
                                 <Grid.Row>
                                     <Grid.Column>
-                                        <h3>Next Steps:</h3>
-                                        {candidate.next_steps}
+                                        <div className="markdown">
+                                            <h3>Next Steps:</h3>
+                                            <Markdown>
+                                                {candidate.next_steps}
+                                            </Markdown>
+                                        </div>
                                     </Grid.Column>
                                 </Grid.Row>
                             </Grid>

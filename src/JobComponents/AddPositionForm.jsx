@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import { format, parseISO } from "date-fns";
+import { format } from "date-fns";
 import history from "../modules/history";
 import { Link } from "react-router-dom";
 import firebase, { fbPositionsDB, fbCandidatesDB } from "../firebase.config";

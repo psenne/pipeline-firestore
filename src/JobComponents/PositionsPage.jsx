@@ -6,15 +6,6 @@ import { Loader, Dimmer } from "semantic-ui-react";
 import { fbPositionsDB } from "../firebase.config";
 import tmplPosition from "../constants/positionInfo";
 
-async function getPositionInfo(fnState) {
-    const data = await fbPositionsDB.orderBy("contract").get();
-    const positions = data.docs.map(function (position) {
-        var tmpitem = { key: position.id, info: { ...tmplPosition, ...position.data() } };
-        return tmpitem;
-    });
-    fnState(positions);
-}
-
 
 export default function PositionsPage() {
     const [positions, updatePositions] = useState([]);
@@ -24,12 +15,22 @@ export default function PositionsPage() {
     const [contractsWithPositions, setcontractsWithPositions] = useState([]);
 
     useEffect(() => {
-        getPositionInfo(updatePositions)
-    }, []);
-    
+        var unsub = fbPositionsDB.orderBy("contract").onSnapshot(data => {
+            var tmppositions = [];
+            data.forEach((pos) => {
+                var p = pos.data();
+                tmppositions.push({ key: pos.id, info: { ...tmplPosition, ...p}});
+            });
+            setcontractsWithPositions([...new Set(tmppositions.map(item => item.info.contract))]); 
+            updatePositions(tmppositions);
+        });
+
+        return () => unsub();
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
     useEffect(() => {
-        setpageloading(!pageloading);        
-    }, [positions])
+        setpageloading(!pageloading);
+    }, [positions]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const searchPositions = ev => {
         setsearchTerm(ev.currentTarget.value);
@@ -38,7 +39,7 @@ export default function PositionsPage() {
     const HandleContractChange = value => {
         setContractFilter(value);
     };
-
+    
     return (
         <div>
             <Dimmer active={pageloading}>

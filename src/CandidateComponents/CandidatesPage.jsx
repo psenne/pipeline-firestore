@@ -16,6 +16,7 @@ function CandidatesPage(props) {
     useEffect(() => {
         setpageloading(true);
         const unsubscribe = fbCandidatesDB
+            .orderBy("modified_date", "desc")
             .orderBy("created_date", "desc")
             .where("archived", "==", archived)
             .onSnapshot(

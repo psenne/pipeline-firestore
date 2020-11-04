@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { fbPositionsDB } from "../firebase.config";
 import { Container, List } from "semantic-ui-react";
 import ComponentPlaceholder from "./ComponentPlaceholder";
-import { format, parseISO } from "date-fns";
+import { format } from "date-fns";
 import tmplPosition from "../constants/positionInfo";
 
 const RecentPositions = () => {

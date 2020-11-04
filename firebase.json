@@ -8,6 +8,13 @@
   },
   "hosting": {
     "public": "build",
+    "site": "new-staffing-pipeline-prod",
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ],
     "ignore": [
       "firebase.json",
       "**/.*",

@@ -4,47 +4,15 @@ import "firebase/database";
 import "firebase/firestore";
 import "firebase/storage";
 import "firebase/functions";
-
-var prodconfig = {
-    apiKey: "AIzaSyCNMMcb5kK1Mc-8v-_LjxI6gl7RDLbfj98",
-    authDomain: "staffing-pipeline.firebaseapp.com",
-    databaseURL: "https://staffing-pipeline.firebaseio.com",
-    projectId: "staffing-pipeline",
-    storageBucket: "staffing-pipeline.appspot.com",
-    messagingSenderId: "403362370549",
-    appId: "1:403362370549:web:c3a6d08e56a8e152c406bc"
-
-};
-
-var newconfig = {
-    apiKey: "AIzaSyC49vm8o8hAe1tyGGRSyEaHXab_Jq_UpRI",
-    authDomain: "new-staffing-pipeline-prod.firebaseapp.com",
-    databaseURL: "https://new-staffing-pipeline-prod.firebaseio.com",
-    projectId: "new-staffing-pipeline-prod",
-    storageBucket: "new-staffing-pipeline-prod.appspot.com",
-    messagingSenderId: "893630469792",
-    appId: "1:893630469792:web:73127b6dc47d1098de5bc5",
-    measurementId: "G-8F9BPWLV46"
-  };
-
-var devconfig = {
-    apiKey: "AIzaSyCzu1yAol8hre3s8SGINGzf0BwVFhxrIbY",
-    authDomain: "staffing-pipeline-dev.firebaseapp.com",
-    databaseURL: "https://staffing-pipeline-dev.firebaseio.com",
-    projectId: "staffing-pipeline-dev",
-    storageBucket: "staffing-pipeline-dev.appspot.com",
-    messagingSenderId: "90337545773",
-    appId: "1:90337545773:web:39eda8e65470fdda90b2a4"
-  
-};
+import ".env";
 
 
 if (window.location.hostname === 'localhost') {
-  newconfig.databaseURL = "http://localhost:9000?ns=new-staffing-pipeline-prod"
+  config.databaseURL = "http://localhost:9000?ns=new-staffing-pipeline-prod"
 }
 
 // eslint-disable-next-line
-const config = process.env.NODE_ENV === "production" ? newconfig : newconfig;
+// const config = process.env.NODE_ENV === "production" ? config : config;
 // const config = process.env.NODE_ENV === "production" ? prodconfig : devconfig;
 // const config = process.env.NODE_ENV === "production" ? devconfig : devconfig;
 

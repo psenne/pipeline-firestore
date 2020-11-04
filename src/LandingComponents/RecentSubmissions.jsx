@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import firebase, { fbPositionsDB } from "../firebase.config";
+import firebase from "../firebase.config";
 import { Container, List } from "semantic-ui-react";
 import ComponentPlaceholder from "./ComponentPlaceholder";
-import { format, parseISO } from "date-fns";
+import { format } from "date-fns";
 
 const RecentSubmissions = () => {
     const [candidateSubmissions, setCandidateSubmissions] = useState([]);
