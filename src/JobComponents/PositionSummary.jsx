@@ -12,15 +12,15 @@ function PositionSummary({ position }) {
     const key  = position.key;
     
     useEffect(() => {
-        async function GetSubmissions() {
-            const candidates = await fbPositionsDB.doc(key).collection("submitted_candidates").get();
-            const subs = candidates.docs.map(candidate => {
-                return { key: candidate.id, info: candidate.data() };
+        const unsub = fbPositionsDB.doc(key).collection("submitted_candidates").onSnapshot(docs =>{
+            var tmpitems = [];
+            docs.forEach(candidate => {
+                tmpitems.push({ key: candidate.id, info: candidate.data()})
             });
-            setsubmissions(subs);
-        }
+            setsubmissions(tmpitems);
+        });
 
-        GetSubmissions()
+        return () => unsub();
     }, [key]);
 
     const position_id = position.info.position_id ? `(${position.info.position_id})` : "";

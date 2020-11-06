@@ -62,6 +62,51 @@ exports.addCreatedEvent = db.document("/candidates/{candidateID}").onCreate((sna
 //     // }); //prettier-ignore
 // });
 
+exports.toggleSubmissionStatusCreate = db.document("/positions/{positionID}/submitted_candidates/{candidateID}").onCreate((data, context)=>{
+    const candidateInfo = data.data();
+    const ckey = context.params.candidateID;
+    const now = new Date();
+
+    return admin.firestore().doc(`candidates/${ckey}`).set({"status":"processing"}, { merge: true }).then(()=>{ 
+        const eventinfo = `${candidateInfo.candidate_name} was submitted to ${candidateInfo.position_title} on ${candidateInfo.position_contract}.`;
+        const event = {
+            eventdate: now.toJSON(),
+            eventinfo,
+            candidatename: candidateInfo.candidate_name
+        };
+
+        return rlt.ref("auditing").push(event).then(()=>{ 
+            console.info(event);
+        });
+    });
+});
+
+exports.toggleSubmissionStatusDelete = db.document("/positions/{positionID}/submitted_candidates/{candidateID}").onDelete((data, context)=>{
+    const candidateInfo = data.data();
+    const ckey = context.params.candidateID;
+    const now = new Date();
+
+    const event = {
+        eventdate: now.toJSON(),
+        eventinfo: `${candidateInfo.candidate_name} was removed from ${candidateInfo.position_title} on ${candidateInfo.position_contract}.`,
+        candidatename: candidateInfo.candidate_name
+    };
+
+
+    return rlt.ref("auditing").push(event).then(()=>{ 
+        console.info(event);
+        admin.firestore().doc(`candidates/${ckey}`).collection("submitted_positions").get().then(docs => {
+            var stillsubmitted = false;
+            docs.forEach(doc => {
+                stillsubmitted = true;
+            })
+            if(!stillsubmitted){
+                admin.firestore().doc(`candidates/${ckey}`).set({"status":"active"}, { merge: true });
+            }
+        });
+    });
+});
+
 exports.updateCandidateEvent = db.document("/candidates/{candidateID}").onUpdate(({ before, after }, context) => {
     const orgInfo = before.data();
     const newInfo = after.data();
