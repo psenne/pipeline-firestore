@@ -11,7 +11,7 @@ export function ExportPositions() {
 
             const position = {};
             for (let [k, v] of Object.entries(info)) {
-                if (k.includes("date") && v !== "") {
+                if (k.includes("added_on") && v !== "") {
                     position[k] = parseISO(v);
                 } else if (v !== "") {
                     position[k] = v;
