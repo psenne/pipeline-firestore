@@ -1,15 +1,12 @@
 {
     "rules": {
-     	".read": true, //"auth.token.email.matches(/.*@renegadetec.com$/)",
-     	".write": true, //"auth.token.email.matches(/.*@renegadetec.com$/)",
+     	".read": "auth.token.email.matches(/.*@renegadetec.com$/)",
+     	".write": "auth.token.email.matches(/.*@renegadetec.com$/)",
         "auditing": {
             ".indexOn": ["eventdate"]
         },
         "users":{
           	".indexOn" : ["email"]
-        },
-        "positions":{
-          	".indexOn" : ["added_on"]
         }
     }
 }
