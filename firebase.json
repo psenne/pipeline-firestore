@@ -7,8 +7,8 @@
     "rules": "database.rules.json"
   },
   "hosting": {
+    "target": "pipeline",
     "public": "build",
-    "site": "new-staffing-pipeline-prod",
     "rewrites": [
       {
         "source": "**",
@@ -33,6 +33,15 @@
     },
     "ui": {
       "enabled": true
+    },
+    "auth": {
+      "port": 9099
+    },
+    "database": {
+      "port": 9000
+    },
+    "hosting": {
+      "port": 5000
     }
   }
 }

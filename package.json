@@ -9,7 +9,7 @@
     "classnames": "^2.2.6",
     "date-fns": "^2.8.1",
     "file-saver": "^2.0.2",
-    "firebase": "^7.5.2",
+    "firebase": "^8.1.1",
     "firebase-admin": "8.9.2",
     "firebase-functions": "^3.3.0",
     "json2xls": "^0.1.2",
@@ -31,7 +31,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "emulator": "firebase emulators:start --import=./test-data --export-on-exit"
+    "emulator": "firebase emulators:start --import=./test-data",
+    "deploy": "firebase deploy --only hosting:pipeline"
   },
   "eslintConfig": {
     "extends": "react-app"

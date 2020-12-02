@@ -17,20 +17,15 @@ var config = {
   measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID
 }
 
-if (window.location.hostname === 'localhost') {
-  config.databaseURL = "http://localhost:9000?ns=new-staffing-pipeline-prod"
-}
-
 if (!firebase.apps.length) {
-    firebase.initializeApp(config);
+  firebase.initializeApp(config);
 }
 
 if (window.location.hostname === 'localhost') {
-  firebase.functions().useFunctionsEmulator('http://localhost:5001');
-  firebase.firestore().settings({
-    host: 'localhost:8080',
-    ssl: false
-  });
+  firebase.functions().useEmulator("localhost", 5001);  
+  firebase.auth().useEmulator('http://localhost:9099/');
+  firebase.firestore().useEmulator("localhost", 8080);
+  firebase.database().useEmulator("localhost", 9000);
 }
 
 

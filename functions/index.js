@@ -215,6 +215,16 @@ exports.deletedPositionEvent = db.document("/positions/{positionID}").onDelete((
         candidatename: positionname
     };
 
+
+    // /positions/voRGKNLI0nRNSZg0nQUf/submitted_candidates/MdCgvgehf7O7yC9n6qAT
+    admin.firestore().doc(`positions/${context.params.positionID}`).collection("submitted_candidates").get(docs => {
+        console.log("docs", docs)
+        docs.forEach(doc => {
+            console.log("doc", doc);
+            doc.delete();
+        });
+    })
+
     return rlt.ref("auditing").push(event).then(()=>{ 
         console.info(event);
     }) //prettier-ignore

@@ -1,6 +1,17 @@
 {
   "projects": {
-    "default": "staffing-pipeline",
-    "dev": "staffing-pipeline-dev"
+    "default": "new-staffing-pipeline-prod"
+  },
+  "targets": {
+    "new-staffing-pipeline-prod": {
+      "hosting": {
+        "portal": [
+          "new-staffing-portal-prod"
+        ],
+        "pipeline": [
+          "new-staffing-pipeline-prod"
+        ]
+      }
+    }
   }
 }
