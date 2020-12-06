@@ -7,6 +7,7 @@ const _ = require("lodash");
 admin.initializeApp();
 var db = functions.firestore;
 var rlt = admin.database();
+var fsdb = admin.firestore();
 
 
 /// firestore context
@@ -38,36 +39,14 @@ exports.addCreatedEvent = db.document("/candidates/{candidateID}").onCreate((sna
 
 });
 
-// exports.updateCandidateStatus = db.document("/candidates/{candidateID}").onWrite((change, context) => {
-//     const candidateinfo = change.after.data();
-//     let status = candidateinfo.status;
-//     const interviewed = candidateinfo.loi_status == "notsent" && candidateinfo.interview_date;
-//     const loisent = candidateinfo.loi_status == "sent";
-//     const loiaccepted = candidateinfo.loi_status == "accepted";
-//     const submitted = candidateinfo.submitted_positions != null;
 
-//     if (submitted) {
-//     } else if (loiaccepted) {
-//         status = "active";
-//     } else if (loisent) {
-//         status = "recruiting";
-//     } else if (interviewed) {
-//         status = "interviewed";
-//     } else {
-//         status = "initial";
-//     }
-
-//     // return change.after.ref.set({status}, {merge:true}).then(()=>{
-//     //     console.log(`Updated ${candidateinfo.firstname} ${candidateinfo.lastname} status to ${status}.`);
-//     // }); //prettier-ignore
-// });
-
+// when a candidate has been submitted to a position, then change status to processing
 exports.toggleSubmissionStatusCreate = db.document("/positions/{positionID}/submitted_candidates/{candidateID}").onCreate((data, context)=>{
     const candidateInfo = data.data();
     const ckey = context.params.candidateID;
     const now = new Date();
 
-    return admin.firestore().doc(`candidates/${ckey}`).set({"status":"processing"}, { merge: true }).then(()=>{ 
+    return fsdb.doc(`candidates/${ckey}`).set({"status":"processing"}, { merge: true }).then(()=>{ 
         const eventinfo = `${candidateInfo.candidate_name} was submitted to ${candidateInfo.position_title} on ${candidateInfo.position_contract}.`;
         const event = {
             eventdate: now.toJSON(),
@@ -81,6 +60,7 @@ exports.toggleSubmissionStatusCreate = db.document("/positions/{positionID}/subm
     });
 });
 
+// when a candidate has been unsubmitted from a position, then change status back to active (unless they still have other submissions)
 exports.toggleSubmissionStatusDelete = db.document("/positions/{positionID}/submitted_candidates/{candidateID}").onDelete((data, context)=>{
     const candidateInfo = data.data();
     const ckey = context.params.candidateID;
@@ -95,13 +75,17 @@ exports.toggleSubmissionStatusDelete = db.document("/positions/{positionID}/subm
 
     return rlt.ref("auditing").push(event).then(()=>{ 
         console.info(event);
-        admin.firestore().doc(`candidates/${ckey}`).collection("submitted_positions").get().then(docs => {
-            var stillsubmitted = false;
-            docs.forEach(doc => {
-                stillsubmitted = true;
-            })
-            if(!stillsubmitted){
-                admin.firestore().doc(`candidates/${ckey}`).set({"status":"active"}, { merge: true });
+        fsdb.doc(`candidates/${ckey}`).get().then(candidate => {
+            if(candidate.exists){
+                candidate.ref.collection("submitted_positions").get().then(submissions => {
+                    var stillsubmitted = false;
+                    submissions.forEach(submission => {
+                        stillsubmitted = true;
+                    })
+                    if(!stillsubmitted){
+                        candidate.ref.set({"status":"active"}, { merge: true });
+                    }
+                });
             }
         });
     });
@@ -184,6 +168,19 @@ exports.deletedCandidateEvent = db.document("/candidates/{candidateID}").onDelet
         candidatename
     };
 
+
+    // delete submitted positions subcollection. because deleting the candidate, doesn't delete it's children docs
+    snapshot.ref.collection(`submitted_positions`).get().then(submissions => {
+        const subcollectionbatch = fsdb.batch();
+        submissions.forEach((submission) => {
+            const submissionInfo = submission.data()
+            fsdb.collection("positions").doc(submissionInfo.position_id).collection("submitted_candidates").doc(submissionInfo.candidate_id).delete();
+            subcollectionbatch.delete(submission.ref);
+        });
+        subcollectionbatch.commit();
+    })
+
+
     return rlt.ref("auditing").push(event).then(()=>{ 
         console.info(event);
     }) //prettier-ignore
@@ -215,15 +212,25 @@ exports.deletedPositionEvent = db.document("/positions/{positionID}").onDelete((
         candidatename: positionname
     };
 
-
-    // /positions/voRGKNLI0nRNSZg0nQUf/submitted_candidates/MdCgvgehf7O7yC9n6qAT
-    admin.firestore().doc(`positions/${context.params.positionID}`).collection("submitted_candidates").get(docs => {
-        console.log("docs", docs)
-        docs.forEach(doc => {
-            console.log("doc", doc);
-            doc.delete();
+    // delete submitted candidates subcollection. because deleting the position, doesn't delete it's children docs
+    snapshot.ref.collection(`submitted_candidates`).get().then(submissions => {
+        const subcollectionbatch = fsdb.batch();
+        submissions.forEach((submission) => {
+            const submissionInfo = submission.data()
+            fsdb.collection("candidates").doc(submissionInfo.candidate_id).collection("submitted_positions").doc(submissionInfo.position_id).delete();
+            subcollectionbatch.delete(submission.ref);
         });
+        subcollectionbatch.commit();
     })
+
+    // submission_date: submission.info.submission_date,
+    // candidate_id: ckey,
+    // candidate_name: submission.info.candidate_name,
+    // position_id: key,
+    // position_title: position.title,
+    // position_contract: position.contract
+
+
 
     return rlt.ref("auditing").push(event).then(()=>{ 
         console.info(event);

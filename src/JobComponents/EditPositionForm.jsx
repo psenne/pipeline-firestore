@@ -128,19 +128,16 @@ export default function EditPositionForm({ match }) {
 
     const DeletePosition = () => {
         if (window.confirm(`Are you sure you want to delete ${position.title} on ${position.contract}?`)) {
-            var dbUpdate = {};
-            addedCandidates.forEach(submission => {
-                dbUpdate[`/candidates/${submission.key}/submitted_positions/${key}`] = null;
-            });
-            dbUpdate[`/positions/${key}`] = null;
-
-            firebase
-                .database()
-                .ref()
-                .update(dbUpdate)
-                .then(() => {
-                    history.push("/positions/");
-                });
+            fbPositionsDB.doc(key).delete().then(()=>{
+                // var finishedDeletion = []
+                // addedCandidates.forEach(submission => {
+                //     finishedDeletion.push(fbPositionsDB.doc(`${key}/submitted_candidates/${submission.key}`).delete())
+                // });
+                // Promise.all(finishedDeletion).then(()=>{
+                //     history.push("/positions/");
+                // })
+                history.push("/positions/");
+            })
         }
     };
 
