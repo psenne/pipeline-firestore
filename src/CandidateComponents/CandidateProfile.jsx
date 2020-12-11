@@ -152,7 +152,7 @@ class CandidateProfile extends Component {
                 )
             },
             {
-                menuItem: { key: "notes", icon: "file text", content: "Resume Text" },
+                menuItem: { key: "resume", icon: "file text", content: "Resume Text" },
                 render: () => (
                     <Tab.Pane>
                         <Grid>

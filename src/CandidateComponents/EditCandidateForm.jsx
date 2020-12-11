@@ -211,12 +211,6 @@ export default class EditCandidateForm extends React.Component {
 
     //callback function when delete candidate button is click in form.
     DeleteCandidate(key, filenames) {
-        const { candidate } = this.state;
-
-        const positionDBUpdate = {};
-        Object.keys(candidate.submitted_positions).forEach(pkey => {
-            positionDBUpdate[`/positions/${pkey}/candidates_submitted/${key}`] = null; //firebase object to remove candidate from position when deleted.
-        });
         fbCandidatesDB
             .doc(key)
             .delete()
@@ -232,10 +226,6 @@ export default class EditCandidateForm extends React.Component {
             })
             .then(()=>{
                 fbFlagNotes.child(key).remove();
-            })
-            .then(() => {
-                //prettier-ignore
-                firebase.database().ref().update(positionDBUpdate) //prettier-ignore
             })
             .catch(function(error) {
                 console.error("Error deleting candidate:", error);
@@ -260,7 +250,7 @@ export default class EditCandidateForm extends React.Component {
                 )
             },
             {
-                menuItem: { key: "notes", icon: "file text", content: "Resume Text" },
+                menuItem: { key: "resume", icon: "file text", content: "Resume Text" },
                 render: () => (
                     <Tab.Pane>
                         <Form.TextArea name="resume_text" label="Resume" style={{ minHeight: 235 }} onChange={this.HandleTextInput} value={candidate.resume_text} />

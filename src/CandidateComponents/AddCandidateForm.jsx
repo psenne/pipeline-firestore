@@ -123,7 +123,7 @@ export default class AddCandidateForm extends React.Component {
                 )
             },
             {
-                menuItem: { key: "notes", icon: "file text", content: "Resume Text" },
+                menuItem: { key: "resume", icon: "file text", content: "Resume Text" },
                 render: () => (
                     <Tab.Pane>
                         <Form.TextArea name="resume_text" label="Resume" style={{ minHeight: 235 }} onChange={this.HandleTextInput} value={candidate.resume_text} />
