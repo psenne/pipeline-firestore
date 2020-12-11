@@ -7,8 +7,6 @@ import FlagMessagePopup from "./FlagMessagePopup";
 import CandidateProfile from "./CandidateProfile";
 import NavBar from "../NavBar";
 
-import "./candidatestyle.css";
-
 export default function CandidateDetail({ location, match }) {
     const [flagOpen, setFlagOpen] = useState(false);
     const currentuser = useContext(UserContext);
