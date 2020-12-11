@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { format, parseISO } from "date-fns";
 import history from "../modules/history";
 import { Link } from "react-router-dom";
-import { Grid, Header, Segment } from "semantic-ui-react";
+import { Grid, Header, Segment, Tab } from "semantic-ui-react";
 import Markdown from "markdown-to-jsx";
 import classnames from "classnames";
 import { fbFlagNotes, fbAuditTrailDB, fbCandidatesDB } from "../firebase.config";
@@ -15,7 +15,8 @@ class CandidateProfile extends Component {
         super(props);
 
         this.state = {
-            candidate: { ...tmplCandidate }
+            candidate: { ...tmplCandidate },
+            showResume: false
         };
     }
 
@@ -123,6 +124,50 @@ class CandidateProfile extends Component {
         else {
             loi_message = "LOI has not been sent.";
         }
+
+        const panes = [
+            {
+                menuItem: { key: "notes", icon: "sticky note outline", content: "Notes" },
+                render: () => (
+                    <Tab.Pane>
+                        <Grid>
+                            <Grid.Row>
+                                <Grid.Column>
+                                    <div className="markdown">
+                                        <h3>Management Notes:</h3>
+                                        <Markdown>{candidate.notes}</Markdown>
+                                    </div>
+                                </Grid.Column>
+                            </Grid.Row>
+                            <Grid.Row>
+                                <Grid.Column>
+                                    <div className="markdown">
+                                        <h3>Next Steps:</h3>
+                                        <Markdown>{candidate.next_steps}</Markdown>
+                                    </div>
+                                </Grid.Column>
+                            </Grid.Row>
+                        </Grid>
+                    </Tab.Pane>
+                )
+            },
+            {
+                menuItem: { key: "notes", icon: "file text", content: "Resume Text" },
+                render: () => (
+                    <Tab.Pane>
+                        <Grid>
+                            <Grid.Row>
+                                <Grid.Column>
+                                    <Markdown>{candidate.resume_text}</Markdown>
+                                </Grid.Column>
+                            </Grid.Row>
+                        </Grid>
+                    </Tab.Pane>
+                )
+            }
+        ];
+
+
         return (
             <>
                 {candidate && (
@@ -174,28 +219,7 @@ class CandidateProfile extends Component {
                         </Segment>
 
                         <Segment vertical padded>
-                            <Grid>
-                                <Grid.Row>
-                                    <Grid.Column>
-                                        <div className="markdown">
-                                            <h3>Management Notes:</h3>
-                                            <Markdown>
-                                            {candidate.notes}
-                                            </Markdown>
-                                        </div>
-                                    </Grid.Column>
-                                </Grid.Row>
-                                <Grid.Row>
-                                    <Grid.Column>
-                                        <div className="markdown">
-                                            <h3>Next Steps:</h3>
-                                            <Markdown>
-                                                {candidate.next_steps}
-                                            </Markdown>
-                                        </div>
-                                    </Grid.Column>
-                                </Grid.Row>
-                            </Grid>
+                            <Tab panes={panes} />
                         </Segment>
                         <Segment vertical padded className={classnames({ "form-hidden": candidate.filenames.length === 0 }, "minitoolbar-inline")}>
                             <h3>Documents</h3>
