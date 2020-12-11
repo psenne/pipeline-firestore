@@ -30,18 +30,6 @@ export default class StatusDropdown extends Component {
             });
         });
     }
-        //   {
-        //     key: 2,
-        //     text: 'Tablet',
-        //     value: 2,
-        //     content: (
-        //       <Header
-        //         icon='tablet'
-        //         content='Tablet'
-        //         subheader='The size in the middle'
-        //       />
-        //     ),
-        //   },
 
     componentWillUnmount() {
         fbStatusesDB.off("value", this.listener);
