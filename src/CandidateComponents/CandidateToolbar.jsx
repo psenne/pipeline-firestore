@@ -8,8 +8,8 @@ import ExportToExcel from "../modules/ExportToExcel";
 // populates the dropdown options for filtering by current or archived candidates in the table
 // prettier-ignore
 const filterOptions = [
-    { key: "current", text: "View Current", value: "current" }, 
-    { key: "archived", text: "View Archived", value: "archived" }
+    { key: "current", text: "Viewing Current", value: "current" }, 
+    { key: "archived", text: "Viewing Archived", value: "archived" }
 ];
 
 class CandidateToolbar extends Component {
@@ -42,7 +42,7 @@ class CandidateToolbar extends Component {
 
         return (
             <Container fluid>
-                <Menu className="no-print" style={{"margin": "1rem"}}>
+                <Menu className="no-print" style={{ margin: "1rem" }}>
                     <Menu.Item title="Add new candidate" link>
                         <Link to="/candidates/add">
                             <Icon name="plus" />
@@ -56,13 +56,7 @@ class CandidateToolbar extends Component {
                     </Menu.Item>
                     <Menu.Menu position="right">
                         <Menu.Item>
-                            <Input placeholder="Search" value={searchterm} onChange={(ev, data) => this.UpdateSearchTerm(data.value)} />
-                        </Menu.Item>
-                        <Menu.Item>
-                            <Icon.Group onClick={this.ClearFilters} title="Clear filters">
-                                <Icon name="filter" size="large" link />
-                                <Icon name="dont" size="large" color="red" link />
-                            </Icon.Group>
+                            <Input placeholder="Filter Candidates" icon={searchterm ? <Icon name="dont" color="red" link onClick={this.ClearFilters} /> : <Icon name="filter" />} value={searchterm} onChange={(ev, data) => this.UpdateSearchTerm(data.value)} />
                         </Menu.Item>
                         <Menu.Item>
                             <Icon name="external" link onClick={() => ExportToExcel(this.props.candidates, archived)} title="Export to Excel" />
