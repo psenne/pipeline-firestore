@@ -32,7 +32,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "emulator": "firebase emulators:start --import=./test-data",
-    "deploy": "firebase deploy --only hosting:pipeline"
+    "deploy": "react-scripts build && firebase deploy --only hosting:pipeline"
   },
   "eslintConfig": {
     "extends": "react-app"
