@@ -239,7 +239,7 @@ class CandidateProfile extends Component {
                             <Files candidateID={this.props.candidateID} filenames={candidate.filenames} />
                         </Segment>
 
-                        {submissions.length &&
+                        {submissions.length > 0 &&
                             <Segment vertical padded>
                                 <h3>Position submissions</h3>
                                 {submissions.map(submission => {
