@@ -34,18 +34,20 @@ class CandidateProfile extends Component {
             }
         });
 
-        this.unsubSubmissions = fbCandidatesDB.doc(candidateID).collection("submitted_positions").onSnapshot(docs =>{
-            var tmpitems = [];
-            docs.forEach(submission => {
-                tmpitems.push({ key: submission.id, info: submission.data()})
-            });
+        this.unsubSubmissions = fbCandidatesDB
+            .doc(candidateID)
+            .collection("submitted_positions")
+            .onSnapshot(docs => {
+                var tmpitems = [];
+                docs.forEach(submission => {
+                    tmpitems.push({ key: submission.id, info: submission.data() });
+                });
 
-            this.setState({
-                submissions: [...tmpitems]
+                this.setState({
+                    submissions: [...tmpitems]
+                });
             });
-        });
     }
-
 
     componentWillUnmount() {
         this.unsubCandidates();
@@ -97,8 +99,8 @@ class CandidateProfile extends Component {
 
     render() {
         const { candidateID } = this.props;
-        const {candidate, submissions} = this.state;
-        
+        const { candidate, submissions } = this.state;
+
         let interviewed = "Candidate has not been interviewed.";
         let loi_message = "LOI has not been sent.";
         let referedby = "";
@@ -110,14 +112,11 @@ class CandidateProfile extends Component {
 
         if (interview_date && candidate.interviewed_by.length > 0) {
             interviewed = `Interviewed on ${interview_date} by ${candidate.interviewed_by.join(", ")}.`;
-        }
-        else if (interview_date) {
+        } else if (interview_date) {
             interviewed = `Interviewed on ${interview_date}.`;
-        }
-        else if (candidate.interviewed_by.length > 0) {
+        } else if (candidate.interviewed_by.length > 0) {
             interviewed = `Interviewed by ${candidate.interviewed_by.join(", ")}.`;
-        }
-        else{
+        } else {
             interviewed = "Candidate has not been interviewed.";
         }
 
@@ -131,11 +130,9 @@ class CandidateProfile extends Component {
 
         if (candidate.loi_status === "accepted") {
             loi_message = `${loi_sent_date} LOI was accepted.`;
-        } 
-        else if (candidate.loi_status === "sent") {
+        } else if (candidate.loi_status === "sent") {
             loi_message = `${loi_sent_date}`;
-        } 
-        else {
+        } else {
             loi_message = "LOI has not been sent.";
         }
 
@@ -239,11 +236,10 @@ class CandidateProfile extends Component {
                             <Files candidateID={this.props.candidateID} filenames={candidate.filenames} />
                         </Segment>
 
-                        {submissions.length > 0 &&
+                        {submissions.length > 0 && (
                             <Segment vertical padded>
                                 <h3>Position submissions</h3>
                                 {submissions.map(submission => {
-                                    console.log(submission)
                                     const pkey = submission.key;
                                     const position = submission.info;
                                     const pid = position.position_id ? `(${position.position_id})` : "";
@@ -257,7 +253,7 @@ class CandidateProfile extends Component {
                                     );
                                 })}
                             </Segment>
-                        }
+                        )}
                     </Segment>
                 )}
             </>
