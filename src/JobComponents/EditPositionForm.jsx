@@ -98,7 +98,7 @@ export default function EditPositionForm({ match }) {
                         submission_date: submission.info.submission_date,
                         candidate_id: ckey,
                         candidate_name: submission.info.candidate_name,
-                        position_id: key,
+                        position_id: position.position_id,
                         position_title: position.title,
                         position_contract: position.contract
                     };

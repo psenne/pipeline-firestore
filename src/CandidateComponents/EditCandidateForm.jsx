@@ -11,7 +11,7 @@ import Files from "./Files";
 import firebase, { fbCandidatesDB, fbStorage, fbFlagNotes } from "../firebase.config";
 import { tmplCandidate } from "../constants/candidateInfo";
 
-import { Form, Container, Segment, Button, Message, Header, Menu, Icon, Checkbox } from "semantic-ui-react";
+import { Form, Container, Segment, Button, Message, Header, Menu, Icon, Checkbox, Tab } from "semantic-ui-react";
 
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -211,12 +211,6 @@ export default class EditCandidateForm extends React.Component {
 
     //callback function when delete candidate button is click in form.
     DeleteCandidate(key, filenames) {
-        const { candidate } = this.state;
-
-        const positionDBUpdate = {};
-        Object.keys(candidate.submitted_positions).forEach(pkey => {
-            positionDBUpdate[`/positions/${pkey}/candidates_submitted/${key}`] = null; //firebase object to remove candidate from position when deleted.
-        });
         fbCandidatesDB
             .doc(key)
             .delete()
@@ -233,10 +227,6 @@ export default class EditCandidateForm extends React.Component {
             .then(()=>{
                 fbFlagNotes.child(key).remove();
             })
-            .then(() => {
-                //prettier-ignore
-                firebase.database().ref().update(positionDBUpdate) //prettier-ignore
-            })
             .catch(function(error) {
                 console.error("Error deleting candidate:", error);
             });
@@ -248,6 +238,27 @@ export default class EditCandidateForm extends React.Component {
         const loi_sent_date = candidate.loi_sent_date ? candidate.loi_sent_date.toDate() : null;
         const salary = candidate.salary !== "" ? atob(candidate.salary) : "";
         const archiveLabel = candidate.archived === "archived" ? "Unarchive Candidate" : "Archive Candidate";
+
+        const panes = [
+            {
+                menuItem: { key: "notes", icon: "sticky note outline", content: "Notes" },
+                render: () => (
+                    <Tab.Pane>
+                        <Form.TextArea name="notes" label="Management Notes" onChange={this.HandleTextInput} value={candidate.notes} />
+                        <Form.TextArea name="next_steps" label="Next Steps" onChange={this.HandleTextInput} value={candidate.next_steps} />
+                    </Tab.Pane>
+                )
+            },
+            {
+                menuItem: { key: "resume", icon: "file text", content: "Resume Text" },
+                render: () => (
+                    <Tab.Pane>
+                        <Form.TextArea name="resume_text" label="Resume" style={{ minHeight: 235 }} onChange={this.HandleTextInput} value={candidate.resume_text} />
+                    </Tab.Pane>
+                )
+            }
+        ];
+
 
         return (
             <>
@@ -318,8 +329,7 @@ export default class EditCandidateForm extends React.Component {
                                 </Segment>
                                 <Header>Notes</Header>
                                 <Segment>
-                                    <Form.TextArea name="notes" label="Notes" onChange={this.HandleTextInput} value={candidate.notes} />
-                                    <Form.TextArea name="next_steps" label="Next Steps" onChange={this.HandleTextInput} value={candidate.next_steps} />
+                                    <Tab panes={panes} />
                                     <Form.Input name="found_by" type="text" label="Referred By" onChange={this.HandleTextInput} value={candidate.found_by} />
                                 </Segment>
                             </Form>

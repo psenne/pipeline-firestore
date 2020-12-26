@@ -40,17 +40,11 @@ export default ({ positions, contracts }) => {
                     <ContractDropdown text="Filter by Contract" clearable value={selectedcontract} contractsoverride={contracts} onChange={SetSelectedContract} />
                 </Menu.Item>
                 <Menu.Item className={classnames({ "form-hidden": !selectedcontract })}>
-                    <label>{`Filtering for `}</label>
+                    <label>{`Filtering for ${selectedcontract}`}</label>
                 </Menu.Item>
                 <Menu.Menu position="right">
                     <Menu.Item>
-                        <Input placeholder="Search" value={searchterm} onChange={(ev, data) => SetSearchTerm(data.value)} />
-                    </Menu.Item>
-                    <Menu.Item>
-                        <Icon.Group onClick={ClearFilters} title="Clear filters">
-                            <Icon name="filter" size="large" link />
-                            <Icon name="dont" size="large" color="red" link />
-                        </Icon.Group>
+                        <Input placeholder="Filter Positions" icon={searchterm ? <Icon name="dont" color="red" link onClick={ClearFilters} /> : <Icon name="filter" />} value={searchterm} onChange={(ev, data) => SetSearchTerm(data.value)} />
                     </Menu.Item>
                     <Menu.Item>
                         <Icon

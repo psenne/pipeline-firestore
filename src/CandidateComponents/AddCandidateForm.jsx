@@ -4,7 +4,7 @@ import firebase, { fbCandidatesDB, fbStorage } from "../firebase.config";
 import { tmplCandidate } from "../constants/candidateInfo";
 import NavBar from "../NavBar";
 import ContractDropdown from "./ContractDropdown";
-import { Form, Container, Segment, Button, Message, Header } from "semantic-ui-react";
+import { Form, Container, Segment, Button, Message, Header, Tab } from "semantic-ui-react";
 
 export default class AddCandidateForm extends React.Component {
     constructor(props) {
@@ -111,6 +111,27 @@ export default class AddCandidateForm extends React.Component {
 
     render() {
         const { candidate } = this.state;
+
+        const panes = [
+            {
+                menuItem: { key: "notes", icon: "sticky note outline", content: "Notes" },
+                render: () => (
+                    <Tab.Pane>
+                        <Form.TextArea name="notes" label="Management Notes" onChange={this.HandleTextInput} value={candidate.notes} />
+                        <Form.TextArea name="next_steps" label="Next Steps" onChange={this.HandleTextInput} value={candidate.next_steps} />
+                    </Tab.Pane>
+                )
+            },
+            {
+                menuItem: { key: "resume", icon: "file text", content: "Resume Text" },
+                render: () => (
+                    <Tab.Pane>
+                        <Form.TextArea name="resume_text" label="Resume" style={{ minHeight: 235 }} onChange={this.HandleTextInput} value={candidate.resume_text} />
+                    </Tab.Pane>
+                )
+            }
+        ];
+
         return (
             <>
                 <NavBar active="candidates" />
@@ -142,11 +163,9 @@ export default class AddCandidateForm extends React.Component {
                                     <Form.Input name="doc_filename" type="file" multiple onChange={this.HandleFileUpload} />
                                 </Form.Group>
                             </Segment>
-
                             <Header>Notes</Header>
                             <Segment>
-                                <Form.TextArea name="notes" label="Notes" onChange={this.HandleTextInput} value={candidate.notes} />
-                                <Form.TextArea name="next_steps" label="Next Steps" onChange={this.HandleTextInput} value={candidate.next_steps} />
+                                <Tab panes={panes} />
                                 <Form.Input name="found_by" type="text" label="Referred By" onChange={this.HandleTextInput} value={candidate.found_by} />
                             </Segment>
                         </Form>

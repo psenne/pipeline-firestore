@@ -17,7 +17,18 @@ function isSearched(s) {
 
         s.split(" ").forEach(searchTerm => {
             let termFound = false;
-            if (item.info.firstname.toLowerCase().includes(searchTerm.toLowerCase()) || item.info.lastname.toLowerCase().includes(searchTerm.toLowerCase()) || item.info.found_by.toLowerCase().includes(searchTerm.toLowerCase()) || item.info.title.toLowerCase().includes(searchTerm.toLowerCase()) || item.info.prefered_location.toLowerCase().includes(searchTerm.toLowerCase()) || item.info.skill.toLowerCase().includes(searchTerm.toLowerCase()) || item.info.current_company.toLowerCase().includes(searchTerm.toLowerCase()) || contracts.includes(searchTerm.toLowerCase()) || item.info.notes.toLowerCase().includes(searchTerm.toLowerCase()) || item.info.next_steps.toLowerCase().includes(searchTerm.toLowerCase()) || item.info.level.toLowerCase().includes(searchTerm.toLowerCase())) {
+            if (item.info.firstname.toLowerCase().includes(searchTerm.toLowerCase()) 
+                || item.info.lastname.toLowerCase().includes(searchTerm.toLowerCase()) 
+                || item.info.found_by.toLowerCase().includes(searchTerm.toLowerCase()) 
+                || item.info.title.toLowerCase().includes(searchTerm.toLowerCase()) 
+                || item.info.prefered_location.toLowerCase().includes(searchTerm.toLowerCase()) 
+                || item.info.skill.toLowerCase().includes(searchTerm.toLowerCase()) 
+                || item.info.current_company.toLowerCase().includes(searchTerm.toLowerCase()) 
+                || contracts.includes(searchTerm.toLowerCase()) 
+                || item.info.notes.toLowerCase().includes(searchTerm.toLowerCase()) 
+                || item.info.next_steps.toLowerCase().includes(searchTerm.toLowerCase()) 
+                || item.info.resume_text.toLowerCase().includes(searchTerm.toLowerCase()) 
+                || item.info.level.toLowerCase().includes(searchTerm.toLowerCase())) {
                 termFound = true;
             }
             wasFound = wasFound && termFound;

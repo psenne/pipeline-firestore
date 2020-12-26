@@ -12,9 +12,18 @@ export default class StatusDropdown extends Component {
 
     componentDidMount() {
         this.listener = fbStatusesDB.on("value", data => {
-            let statuses = [];
+            const statuses = [];
+            
             data.forEach(function(status) {
-                statuses.push({ key: status.key, info: status.val() });
+                const info = status.val();
+                const key = status.key;
+                const label = { color: info.color, empty: true, circular: true };
+                statuses.push({
+                    key: key,
+                    text: sentence(info.name),
+                    value: info.name,
+                    label
+                });
             });
             this.setState({
                 statuses
@@ -29,17 +38,6 @@ export default class StatusDropdown extends Component {
     render() {
         const { text, onChange } = this.props;
         const { statuses } = this.state;
-        return (
-            <Dropdown text={text}>
-                <Dropdown.Menu>
-                    <Dropdown.Item icon="window close" value="" text="Clear" onClick={onChange} />
-                    <Dropdown.Divider />
-                    {statuses.map(status => {
-                        const label = { color: status.info.color, empty: true, circular: true };
-                        return <Dropdown.Item key={status.key} label={label} value={status.info.name} text={sentence(status.info.name)} onClick={onChange} />;
-                    })}
-                </Dropdown.Menu>
-            </Dropdown>
-        );
+        return (<Dropdown placeholder={text} clearable options={statuses} onChange={onChange}></Dropdown>)
     }
 }

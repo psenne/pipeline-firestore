@@ -67,7 +67,7 @@ export default function AddPositionForm() {
                         submission_date: submission.info.submission_date,
                         candidate_id: ckey,
                         candidate_name: submission.info.candidate_name,
-                        position_id: pkey,
+                        position_id: position.position_id,
                         position_title: position.title,
                         position_contract: position.contract
                     };

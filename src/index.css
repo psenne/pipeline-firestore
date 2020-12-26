@@ -137,6 +137,12 @@ body{
     color: green;
 }
 
+/* override the dropdown placeholder text color */
+.ui.dropdown:not(.button) > .default.text {
+    color: inherit !important;
+}
+
+
 @media print {
     .no-print {
         display: none !important;

@@ -1,8 +1,8 @@
 import React, { Component } from "react";
-import { format, parseISO } from "date-fns";
+import { format } from "date-fns";
 import history from "../modules/history";
 import { Link } from "react-router-dom";
-import { Grid, Header, Segment } from "semantic-ui-react";
+import { Grid, Header, Segment, Tab } from "semantic-ui-react";
 import Markdown from "markdown-to-jsx";
 import classnames from "classnames";
 import { fbFlagNotes, fbAuditTrailDB, fbCandidatesDB } from "../firebase.config";
@@ -15,7 +15,9 @@ class CandidateProfile extends Component {
         super(props);
 
         this.state = {
-            candidate: { ...tmplCandidate }
+            candidate: { ...tmplCandidate },
+            submissions: [],
+            showResume: false
         };
     }
 
@@ -31,10 +33,23 @@ class CandidateProfile extends Component {
                 history.push("/candidates/");
             }
         });
+
+        this.unsubSubmissions = fbCandidatesDB.doc(candidateID).collection("submitted_positions").onSnapshot(docs =>{
+            var tmpitems = [];
+            docs.forEach(submission => {
+                tmpitems.push({ key: submission.id, info: submission.data()})
+            });
+
+            this.setState({
+                submissions: [...tmpitems]
+            });
+        });
     }
+
 
     componentWillUnmount() {
         this.unsubCandidates();
+        this.unsubSubmissions();
     }
 
     removeFlag = ev => {
@@ -82,8 +97,8 @@ class CandidateProfile extends Component {
 
     render() {
         const { candidateID } = this.props;
-        let candidate = this.state.candidate;
-        const position_keys = Object.keys(candidate.submitted_positions);
+        const {candidate, submissions} = this.state;
+        
         let interviewed = "Candidate has not been interviewed.";
         let loi_message = "LOI has not been sent.";
         let referedby = "";
@@ -123,6 +138,49 @@ class CandidateProfile extends Component {
         else {
             loi_message = "LOI has not been sent.";
         }
+
+        const panes = [
+            {
+                menuItem: { key: "notes", icon: "sticky note outline", content: "Notes" },
+                render: () => (
+                    <Tab.Pane>
+                        <Grid>
+                            <Grid.Row>
+                                <Grid.Column>
+                                    <div className="markdown">
+                                        <h3>Management Notes:</h3>
+                                        <Markdown>{candidate.notes}</Markdown>
+                                    </div>
+                                </Grid.Column>
+                            </Grid.Row>
+                            <Grid.Row>
+                                <Grid.Column>
+                                    <div className="markdown">
+                                        <h3>Next Steps:</h3>
+                                        <Markdown>{candidate.next_steps}</Markdown>
+                                    </div>
+                                </Grid.Column>
+                            </Grid.Row>
+                        </Grid>
+                    </Tab.Pane>
+                )
+            },
+            {
+                menuItem: { key: "resume", icon: "file text", content: "Resume Text" },
+                render: () => (
+                    <Tab.Pane>
+                        <Grid>
+                            <Grid.Row>
+                                <Grid.Column>
+                                    <Markdown>{candidate.resume_text}</Markdown>
+                                </Grid.Column>
+                            </Grid.Row>
+                        </Grid>
+                    </Tab.Pane>
+                )
+            }
+        ];
+
         return (
             <>
                 {candidate && (
@@ -174,47 +232,32 @@ class CandidateProfile extends Component {
                         </Segment>
 
                         <Segment vertical padded>
-                            <Grid>
-                                <Grid.Row>
-                                    <Grid.Column>
-                                        <div className="markdown">
-                                            <h3>Management Notes:</h3>
-                                            <Markdown>
-                                            {candidate.notes}
-                                            </Markdown>
-                                        </div>
-                                    </Grid.Column>
-                                </Grid.Row>
-                                <Grid.Row>
-                                    <Grid.Column>
-                                        <div className="markdown">
-                                            <h3>Next Steps:</h3>
-                                            <Markdown>
-                                                {candidate.next_steps}
-                                            </Markdown>
-                                        </div>
-                                    </Grid.Column>
-                                </Grid.Row>
-                            </Grid>
+                            <Tab panes={panes} />
                         </Segment>
                         <Segment vertical padded className={classnames({ "form-hidden": candidate.filenames.length === 0 }, "minitoolbar-inline")}>
                             <h3>Documents</h3>
                             <Files candidateID={this.props.candidateID} filenames={candidate.filenames} />
                         </Segment>
-                        <Segment vertical padded className={classnames({ "form-hidden": position_keys.length === 0 }, "minitoolbar-inline")}>
-                            <h3>Position submissions</h3>
-                            {position_keys.map(key => {
-                                const position = candidate.submitted_positions[key];
-                                const pid = position.position_id ? `(${position.position_id})` : "";
-                                return (
-                                    <div key={key}>
-                                        <Link to={`/positions/${key}`}>
-                                            {position.position_contract}, {position.position_name} {pid} - submitted on {format(parseISO(position.submission_date), "MMM d, yyyy")}
-                                        </Link>
-                                    </div>
-                                );
-                            })}
-                        </Segment>
+
+                        {submissions.length > 0 &&
+                            <Segment vertical padded>
+                                <h3>Position submissions</h3>
+                                {submissions.map(submission => {
+                                    console.log(submission)
+                                    const pkey = submission.key;
+                                    const position = submission.info;
+                                    const pid = position.position_id ? `(${position.position_id})` : "";
+
+                                    return (
+                                        <div key={pkey}>
+                                            <Link to={`/positions/${pkey}`}>
+                                                {position.position_contract}, {position.position_title} {pid} - submitted on {format(position.submission_date.toDate(), "MMM d, yyyy")}
+                                            </Link>
+                                        </div>
+                                    );
+                                })}
+                            </Segment>
+                        }
                     </Segment>
                 )}
             </>
