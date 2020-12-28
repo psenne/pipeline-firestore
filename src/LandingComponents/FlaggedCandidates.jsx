@@ -15,7 +15,7 @@ export default class FlaggedCandidates extends Component {
     componentDidMount() {
         fbFlagNotes.orderByChild("flagged_on").on("value", data => {
             let tmpitems = [];
-            data.forEach(function(flag) {
+            data.forEach(function (flag) {
                 tmpitems.push({ key: flag.key, info: flag.val() });
             });
             this.setState({
@@ -36,7 +36,7 @@ export default class FlaggedCandidates extends Component {
                     <Container>
                         <h3>Flagged candidates</h3>
                         <Card.Group>
-                            {flags.map(flag => (
+                            {flags.reverse().map(flag => (
                                 <Flag key={flag.key} flag={flag} />
                             ))}
                         </Card.Group>
