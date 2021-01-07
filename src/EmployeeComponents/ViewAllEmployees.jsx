@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
-import NavBar from "../NavBar";
 import tmplEmployee from "../constants/employee";
 import { fbEmployeesDB } from "../firebase.config";
 import EmployeesTable from "./EmployeesTable";
 import EmployeeToolbar from "./EmployeeToolbar";
-import { Dimmer, Loader } from "semantic-ui-react";
+import LoadingEmployeesTable from "./LoadingEmployeesTable";
 
 export default function ViewAllEmployees() {
     const [employees, setemployees] = useState([]);
@@ -27,18 +26,10 @@ export default function ViewAllEmployees() {
     }, [employees]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
-        <>
-            {pageloading && (
-                <Dimmer active={pageloading}>
-                    <Loader></Loader>
-                </Dimmer>
-            )}
-            {!pageloading && (
-                <div className="view-panel">
-                    <EmployeeToolbar />
-                    <EmployeesTable employees={employees} />
-                </div>
-            )}
-        </>
+        <div className="view-panel">
+            <EmployeeToolbar />
+            {pageloading && <LoadingEmployeesTable />}
+            {!pageloading && <EmployeesTable employees={employees} />}
+        </div>
     );
 }
