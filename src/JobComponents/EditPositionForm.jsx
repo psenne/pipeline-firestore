@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
+import { useParams } from "react-router-dom";
 import { format } from "date-fns";
 import history from "../modules/history";
 import { Link } from "react-router-dom";
@@ -10,8 +11,9 @@ import CandidateDropdown from "../CandidateComponents/CandidateDropdown";
 import UserContext from "../contexts/UserContext";
 import { Form, Container, Segment, Button, Header, Message, Icon } from "semantic-ui-react";
 
-export default function EditPositionForm({ match }) {
-    const key = match.params.id;
+export default function EditPositionForm() {
+    const { id } = useParams();
+    const key = id;
     const currentuser = useContext(UserContext);
     const [position, setposition] = useState(Object.assign({}, tmplPosition));
     const [addedCandidates, setaddedCandidates] = useState([]); //candidates that are added when using this form
@@ -19,36 +21,35 @@ export default function EditPositionForm({ match }) {
     const [formError, setformError] = useState(false);
 
     useEffect(() => {
-        const key = match.params.id;
         const unsubPosition = fbPositionsDB.doc(key).onSnapshot(pos => {
             if (pos.exists) {
-                setposition({...pos.data()})
-            } 
-            else {
+                setposition({ ...pos.data() });
+            } else {
                 unsubPosition();
                 history.push("/positions/add");
             }
         });
         return () => {
-            unsubPosition(); 
+            unsubPosition();
         };
-    }, [match.params.id]);
+    }, key);
 
     useEffect(() => {
-        const key = match.params.id;
-        const unsubSubmitted = fbPositionsDB.doc(key).collection('submitted_candidates')
+        const unsubSubmitted = fbPositionsDB
+            .doc(key)
+            .collection("submitted_candidates")
             .orderBy("candidate_name")
             .onSnapshot(candidates => {
                 let tmpitems = [];
-                candidates.forEach(function(candidate) {
-                    tmpitems.push({ key: candidate.id, info:{ ...candidate.data()} });
+                candidates.forEach(function (candidate) {
+                    tmpitems.push({ key: candidate.id, info: { ...candidate.data() } });
                 });
                 setaddedCandidates([...tmpitems]);
             });
         return () => {
             unsubSubmitted();
         };
-    }, [match.params.id]);
+    }, key);
 
     const HandleTextInput = ev => {
         const name = ev.target.name;
@@ -87,57 +88,64 @@ export default function EditPositionForm({ match }) {
             position["modified_by"] = currentuser.displayName;
             position["modified_on"] = firebase.firestore.FieldValue.serverTimestamp();
 
-            fbPositionsDB.doc(key).update(position).then(() => {
-                var batch = firebase.firestore().batch();
-                
-                addedCandidates.forEach(submission => {
-                    const ckey = submission.key; //candidate key
-                    const candidateRef = fbCandidatesDB.doc(ckey).collection("submitted_positions").doc(key);
-                    const positionRef = fbPositionsDB.doc(key).collection("submitted_candidates").doc(ckey)
-                    const updatedSubmissionInfo = {
-                        submission_date: submission.info.submission_date,
-                        candidate_id: ckey,
-                        candidate_name: submission.info.candidate_name,
-                        position_id: position.position_id,
-                        position_title: position.title,
-                        position_contract: position.contract
-                    };
-                    batch.set(candidateRef, updatedSubmissionInfo);
-                    batch.set(positionRef, updatedSubmissionInfo);
+            fbPositionsDB
+                .doc(key)
+                .update(position)
+                .then(() => {
+                    var batch = firebase.firestore().batch();
+
+                    addedCandidates.forEach(submission => {
+                        const ckey = submission.key; //candidate key
+                        const candidateRef = fbCandidatesDB.doc(ckey).collection("submitted_positions").doc(key);
+                        const positionRef = fbPositionsDB.doc(key).collection("submitted_candidates").doc(ckey);
+                        const updatedSubmissionInfo = {
+                            submission_date: submission.info.submission_date,
+                            candidate_id: ckey,
+                            candidate_name: submission.info.candidate_name,
+                            position_id: position.position_id,
+                            position_title: position.title,
+                            position_contract: position.contract
+                        };
+                        batch.set(candidateRef, updatedSubmissionInfo);
+                        batch.set(positionRef, updatedSubmissionInfo);
+                    });
+
+                    removedCandidates.forEach(submission => {
+                        const ckey = submission.key; //candidate key
+                        const candidateRef = fbCandidatesDB.doc(ckey).collection("submitted_positions").doc(key);
+                        const positionRef = fbPositionsDB.doc(key).collection("submitted_candidates").doc(ckey);
+
+                        batch.delete(candidateRef);
+                        batch.delete(positionRef);
+                    });
+
+                    batch
+                        .commit()
+                        .then(() => {
+                            history.push("/positions/");
+                        })
+                        .catch(err => console.log(err));
                 });
-
-                removedCandidates.forEach(submission => {
-                    const ckey = submission.key; //candidate key
-                    const candidateRef = fbCandidatesDB.doc(ckey).collection("submitted_positions").doc(key);
-                    const positionRef = fbPositionsDB.doc(key).collection("submitted_candidates").doc(ckey);
-
-                    batch.delete(candidateRef);
-                    batch.delete(positionRef);
-                });
-
-                batch.commit().then(() => {
-                    history.push("/positions/");
-                })
-                .catch(err => console.log(err));
-            });
-        } 
-        else {
+        } else {
             setformError(true);
         }
     };
 
     const DeletePosition = () => {
         if (window.confirm(`Are you sure you want to delete ${position.title} on ${position.contract}?`)) {
-            fbPositionsDB.doc(key).delete().then(()=>{
-                // var finishedDeletion = []
-                // addedCandidates.forEach(submission => {
-                //     finishedDeletion.push(fbPositionsDB.doc(`${key}/submitted_candidates/${submission.key}`).delete())
-                // });
-                // Promise.all(finishedDeletion).then(()=>{
-                //     history.push("/positions/");
-                // })
-                history.push("/positions/");
-            })
+            fbPositionsDB
+                .doc(key)
+                .delete()
+                .then(() => {
+                    // var finishedDeletion = []
+                    // addedCandidates.forEach(submission => {
+                    //     finishedDeletion.push(fbPositionsDB.doc(`${key}/submitted_candidates/${submission.key}`).delete())
+                    // });
+                    // Promise.all(finishedDeletion).then(()=>{
+                    //     history.push("/positions/");
+                    // })
+                    history.push("/positions/");
+                });
         }
     };
 

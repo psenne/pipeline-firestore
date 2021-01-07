@@ -22,12 +22,6 @@ export default ({ positions, contracts }) => {
         setsearchterm("");
     };
 
-    //serious hack for getting the submissions to show after they've been loaded
-    //this updates the position page state and re-renders the positions table
-    // setTimeout(()=>{
-    //         SetSelectedContract("e");
-    //         SetSelectedContract("");
-    // }, 500)
     return (
         <Container fluid>
             <Menu className="no-print" style={{ margin: "1rem" }}>
