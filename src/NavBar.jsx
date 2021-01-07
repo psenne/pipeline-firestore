@@ -11,6 +11,9 @@ const NavBar = ({ active }) => {
             <Menu.Item active={active === "candidates"}>
                 <Link to="/candidates">Candidates</Link>
             </Menu.Item>
+            <Menu.Item active={active === "employees"}>
+                <Link to="/employees">Employees</Link>
+            </Menu.Item>
             <Menu.Item active={active === "positions"}>
                 <Link to="/positions">Positions</Link>
             </Menu.Item>

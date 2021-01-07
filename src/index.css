@@ -1,24 +1,24 @@
-:root{
-    --active-background: rgb(200, 225, 180) ;
-    --active-text: rgba(0, 0, 0, 0.9) ;
-    
-    --initial-background: #fff ;
-    --initial-text: #000 ;
+:root {
+    --active-background: rgb(200, 225, 180);
+    --active-text: rgba(0, 0, 0, 0.9);
 
-    --archived-background: rgba(0, 0, 0, 0.05) ;
-    --archived-text: #444 ;
+    --initial-background: #fff;
+    --initial-text: #000;
 
-    --processing-background: #97ccf8 ;
-    --processing-text: rgba(0, 0, 0, 0.9) ;
+    --archived-background: rgba(0, 0, 0, 0.05);
+    --archived-text: #444;
 
-    --interviewed-background: #ffffc6 ;
-    --interviewed-text: rgba(0, 0, 0, 0.9) ;
+    --processing-background: #97ccf8;
+    --processing-text: rgba(0, 0, 0, 0.9);
 
-    --recruiting-background: #ffc478 ;
-    --recruiting-text: rgba(0, 0, 0, 0.9) ;
+    --interviewed-background: #ffffc6;
+    --interviewed-text: rgba(0, 0, 0, 0.9);
+
+    --recruiting-background: #ffc478;
+    --recruiting-text: rgba(0, 0, 0, 0.9);
 }
 
-body{
+body {
     background-color: #efefef !important;
 }
 
@@ -57,7 +57,6 @@ body{
 .status-archived {
     background-color: var(--archived-background) !important;
     color: var(--archived-text) !important;
- 
 }
 .status-initial {
     background-color: var(--initial-background) !important;
@@ -79,18 +78,21 @@ body{
     background-color: var(--recruiting-background) !important;
     color: var(--recruiting-text) !important;
 }
+.view-panel {
+    margin: 1rem;
+}
 
 .candidate-table-row a {
     color: inherit;
 }
 .candidate-table-row {
-    padding: 1rem;  
+    padding: 1rem;
 }
 .candidate-table-field {
     font-weight: bolder;
     opacity: 0.75;
 }
-.candidate-table-row-info{
+.candidate-table-row-info {
     margin: 1em 0;
 }
 .ui.inverted.menu {
@@ -141,7 +143,6 @@ body{
 .ui.dropdown:not(.button) > .default.text {
     color: inherit !important;
 }
-
 
 @media print {
     .no-print {
