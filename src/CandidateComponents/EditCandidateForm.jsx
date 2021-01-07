@@ -2,17 +2,15 @@ import React from "react";
 import history from "../modules/history";
 import classnames from "classnames";
 import { sentence } from "to-case";
-
 import NavBar from "../NavBar";
 import LOIStatusDropdown from "./LOIStatusDropdown";
 import ContractDropdown from "./ContractDropdown";
 import ManagerDropdown from "./ManagerDropdown";
+import ModalConvertToEmployee from "./ModalConvertToEmployee";
 import Files from "./Files";
-import firebase, { fbCandidatesDB, fbStorage, fbFlagNotes } from "../firebase.config";
+import firebase, { fbCandidatesDB, fbStorage, fbFlagNotes, fbEmployeesDB } from "../firebase.config";
 import { tmplCandidate } from "../constants/candidateInfo";
-
 import { Form, Container, Segment, Button, Message, Header, Menu, Icon, Checkbox, Tab } from "semantic-ui-react";
-
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
@@ -24,7 +22,8 @@ export default class EditCandidateForm extends React.Component {
             candidate: Object.assign({}, tmplCandidate),
             key: null,
             files: "",
-            formError: false
+            formError: false,
+            isModalOpen: false
         };
 
         this.handleInterviewDateChange = this.handleInterviewDateChange.bind(this);
@@ -39,6 +38,8 @@ export default class EditCandidateForm extends React.Component {
         this.HandleFileUpload = this.HandleFileUpload.bind(this);
         this.ValidateAndSubmit = this.ValidateAndSubmit.bind(this);
         this.HandleDelete = this.HandleDelete.bind(this);
+        this.ConvertToEmployee = this.ConvertToEmployee.bind(this);
+        this.setModalOpen = this.setModalOpen.bind(this);
         this.updateSelectedCandidate = this.updateSelectedCandidate.bind(this);
     }
 
@@ -48,8 +49,7 @@ export default class EditCandidateForm extends React.Component {
         this.unsubCandidate = fbCandidatesDB.doc(candidateID).onSnapshot(doc => {
             if (doc.exists) {
                 this.setState({ candidate: Object.assign({}, tmplCandidate, doc.data(), { modified_fields: [] }), key: doc.id });
-            } 
-            else {
+            } else {
                 history.replace("/candidates");
             }
         });
@@ -153,6 +153,46 @@ export default class EditCandidateForm extends React.Component {
         }
     }
 
+    setModalOpen(isOpen) {
+        this.setState({ isModalOpen: isOpen });
+    }
+
+    ConvertToEmployee({ hired_on, salary, birthday, notes }) {
+        const candidate = this.state.candidate;
+        const key = this.state.key;
+
+        const employee = {
+            current_contract: candidate.current_contract,
+            firstname: candidate.firstname,
+            lastname: candidate.lastname,
+            emailaddress: candidate.emailaddress,
+            telephone: candidate.telephone,
+            title: candidate.title,
+            found_by: candidate.found_by,
+            filenames: candidate.filenames,
+            hired_on,
+            level: candidate.level,
+            notes,
+            skill: candidate.skill,
+            salary,
+            birthday,
+            created_date: candidate.created_date,
+            created_by: candidate.created_by,
+            resume_text: candidate.resume_text
+        };
+
+        fbEmployeesDB
+            .doc(key)
+            .set(employee)
+            .then(() => {
+                fbCandidatesDB.doc(key).delete();
+                this.setState({ isOpen: false });
+            })
+            .then(() => {
+                history.push(`/employees/${key}`);
+            });
+    }
+
     // only required fields are first and last name of candidate. If those aren't set return false and show error message
     ValidateAndSubmit() {
         this.setState(
@@ -201,7 +241,7 @@ export default class EditCandidateForm extends React.Component {
     //callback for checkbox for setting candidate to archive
     ToggleArchive(ev, data) {
         const { candidate, key } = this.state;
-        
+
         candidate.archived = data.checked ? "archived" : "current";
         fbCandidatesDB
             .doc(key)
@@ -219,15 +259,15 @@ export default class EditCandidateForm extends React.Component {
                     fbStorage
                         .child(key + "/" + filename)
                         .delete()
-                        .catch(function(error) {
+                        .catch(function (error) {
                             console.error("Error deleting files:", error);
                         });
                 });
             })
-            .then(()=>{
+            .then(() => {
                 fbFlagNotes.child(key).remove();
             })
-            .catch(function(error) {
+            .catch(function (error) {
                 console.error("Error deleting candidate:", error);
             });
     }
@@ -258,7 +298,6 @@ export default class EditCandidateForm extends React.Component {
                 )
             }
         ];
-
 
         return (
             <>
@@ -336,7 +375,12 @@ export default class EditCandidateForm extends React.Component {
                         </Segment>
                         <Segment>
                             {this.state.formError && <Message error floating compact icon="warning" header="Required fields missing" content="First and last names are both required." />}
-                            <Button type="submit" icon="save" positive content="Update" onClick={this.ValidateAndSubmit} />
+                            {(candidate.status === "active" || candidate.status === "processing") && (
+                                <ModalConvertToEmployee isOpen={this.state.isModalOpen} setOpen={this.setModalOpen} candidatename={`${candidate.firstname} ${candidate.lastname}`} oldnotes={candidate.notes} CompleteConversion={this.ConvertToEmployee}>
+                                    <Button type="submit" icon="right arrow" labelPosition="right" floated="right" positive content="Convert to Employee" onClick={() => this.setModalOpen(true)} />
+                                </ModalConvertToEmployee>
+                            )}
+                            <Button type="submit" icon="save" color="blue" content="Update" onClick={this.ValidateAndSubmit} />
                             <Button type="submit" icon="trash" negative content="Delete" onClick={this.HandleDelete} />
                         </Segment>
                     </Container>

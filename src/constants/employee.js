@@ -1,0 +1,31 @@
+const tmplEmployee = {
+    id: null,
+    current_contract: "",
+    firstname: "",
+    lastname: "",
+    emailaddress: "",
+    telephone: "",
+    title: "",
+    found_by: "",
+    filenames: [],
+    hired_on: null,
+    birthday: null,
+    level: "",
+    notes: "",
+    skill: "",
+    salary: "",
+    isFlagged: false,
+    flagged_by: "",
+    flag_note: "",
+    flagged_on: null,
+    actioned_to: "",
+    flag_history: [],
+    created_date: null,
+    created_by: "",
+    modified_date: null,
+    modified_by: "",
+    modified_fields: [],
+    resume_text: ""
+};
+
+export default tmplEmployee;
