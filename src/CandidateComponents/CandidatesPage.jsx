@@ -1,12 +1,11 @@
-import React, {  useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import CandidateSearchContext from "../contexts/CandidateSearchContext";
 import { fbCandidatesDB } from "../firebase.config";
 import { tmplCandidate } from "../constants/candidateInfo";
-import { Loader, Dimmer } from "semantic-ui-react";
+import LoadingCandidatesTable from "./LoadingCandidatesTable";
 import NavBar from "../NavBar";
 import CandidateToolbar from "./CandidateToolbar";
 import CandidatesTable from "./CandidatesTable";
-
 
 function CandidatesPage(props) {
     const { archived } = useContext(CandidateSearchContext);
@@ -22,10 +21,9 @@ function CandidatesPage(props) {
             .onSnapshot(
                 doc => {
                     let tmpitems = [];
-                    doc.forEach(function(candidate) {
+                    doc.forEach(function (candidate) {
                         tmpitems.push({ key: candidate.id, info: Object.assign({}, tmplCandidate, candidate.data()) });
                     });
-
                     setcandidatesList(tmpitems);
                     setpageloading(false);
                 },
@@ -40,7 +38,6 @@ function CandidatesPage(props) {
         };
     }, [archived]);
 
-
     const flaggedCandidates = candidatesList.filter(candidate => {
         return candidate.info.isFlagged;
     });
@@ -51,13 +48,15 @@ function CandidatesPage(props) {
 
     return (
         <>
-            <Dimmer active={pageloading}>
-                <Loader>Loading candidates...</Loader>
-            </Dimmer>
             <NavBar active="candidates" />
             <CandidateToolbar candidates={candidatesList} />
-            <CandidatesTable list={flaggedCandidates} />
-            <CandidatesTable list={unflaggedCandidates} />
+            {pageloading && <LoadingCandidatesTable />}
+            {!pageloading && (
+                <>
+                    <CandidatesTable list={flaggedCandidates} />
+                    <CandidatesTable list={unflaggedCandidates} />
+                </>
+            )}
         </>
     );
 }
