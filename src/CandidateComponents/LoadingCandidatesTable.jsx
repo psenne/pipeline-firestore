@@ -1,5 +1,5 @@
 import React from "react";
-import { Placeholder, Container, Header, Segment } from "semantic-ui-react";
+import { Placeholder, Container, Segment } from "semantic-ui-react";
 
 export default function LoadingCandidatesTable() {
     return (
