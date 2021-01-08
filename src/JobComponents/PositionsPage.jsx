@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import NavBar from "../NavBar";
 import PositionsToolbar from "./PositionsToolbar";
 import PositionsTable from "./PositionsTable";
-import { Loader, Dimmer } from "semantic-ui-react";
+import LoadingPositionsTable from "./LoadingPositionsTable";
 import { fbPositionsDB } from "../firebase.config";
 import tmplPosition from "../constants/positionInfo";
 
@@ -44,12 +44,14 @@ export default function PositionsPage() {
 
     return (
         <div>
-            <Dimmer active={pageloading}>
-                <Loader>Loading positions...</Loader>
-            </Dimmer>
             <NavBar active="positions" />
             <PositionsToolbar positions={positions} searchPositions={searchPositions} selectedContract={contractFilter} contracts={contractsWithPositions} HandleContractChange={HandleContractChange} />
-            <PositionsTable positions={positions} searchTerm={searchTerm} contractFilter={contractFilter} />
+            {pageloading && <LoadingPositionsTable />}
+            {!pageloading && (
+                <>
+                    <PositionsTable positions={positions} searchTerm={searchTerm} contractFilter={contractFilter} />
+                </>
+            )}
         </div>
     );
 }
