@@ -11,18 +11,19 @@ const RecentSubmissions = () => {
 
     useEffect(() => {
         setpageloading(true);
-        const getSubmissions = firebase.firestore()
-        .collectionGroup('submitted_candidates')
-        .orderBy("submission_date","desc")
-        .limit(5)
-        .onSnapshot(submissions => {
-            let tmpitems = [];
-            submissions.forEach(submission =>{ 
-                tmpitems.push(submission.data())
+        const getSubmissions = firebase
+            .firestore()
+            .collectionGroup("submitted_candidates")
+            .orderBy("submission_date", "desc")
+            .limit(5)
+            .onSnapshot(submissions => {
+                let tmpitems = [];
+                submissions.forEach(submission => {
+                    tmpitems.push(submission.data());
+                });
+                setCandidateSubmissions(tmpitems);
+                setpageloading(false);
             });
-            setCandidateSubmissions(tmpitems)
-            setpageloading(false);
-        });
         return () => {
             getSubmissions();
         };
@@ -35,12 +36,12 @@ const RecentSubmissions = () => {
                 <ComponentPlaceholder lines="6" />
             ) : (
                 <List selection verticalAlign="middle" divided relaxed>
-                    {candidateSubmissions.map((submission) => {
+                    {candidateSubmissions.map(submission => {
                         return (
-                            <List.Item key={submission.position_id + submission.candidate_id}>
+                            <List.Item key={submission.position_key + submission.candidate_id}>
                                 <List.Content>
                                     <List.Header>
-                                        <Link to={`/candidates/${submission.candidate_id}`}>{submission.candidate_name}</Link> submitted for <Link to={`/positions/${submission.position_id}`}>{submission.position_title}</Link> on {submission.position_contract} ({format(submission.submission_date.toDate(), "MMM d, yyyy")})
+                                        <Link to={`/candidates/${submission.candidate_id}`}>{submission.candidate_name}</Link> submitted for <Link to={`/positions/${submission.position_key}`}>{submission.position_title}</Link> on {submission.position_contract} ({format(submission.submission_date.toDate(), "MMM d, yyyy")})
                                     </List.Header>
                                 </List.Content>
                             </List.Item>
