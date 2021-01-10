@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import EmployeeContext from "../contexts/EmployeeContext";
-import { Input, Icon, Menu, Container } from "semantic-ui-react";
+import { Input, Icon, Menu } from "semantic-ui-react";
 import ContractDropdown from "../CandidateComponents/ContractDropdown";
 
 export default function EmployeeToolbar(props) {
