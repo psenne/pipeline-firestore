@@ -8,7 +8,7 @@ import ContractDropdown from "./ContractDropdown";
 import ManagerDropdown from "./ManagerDropdown";
 import ModalConvertToEmployee from "./ModalConvertToEmployee";
 import Files from "./Files";
-import firebase, { fbCandidatesDB, fbPositionsDB, fbStorage, fbFlagNotes, fbEmployeesDB } from "../firebase.config";
+import firebase, { fbCandidatesDB, fbStorage, fbFlagNotes, fbEmployeesDB } from "../firebase.config";
 import { tmplCandidate } from "../constants/candidateInfo";
 import { Form, Container, Segment, Button, Message, Header, Menu, Icon, Checkbox, Tab } from "semantic-ui-react";
 import DatePicker from "react-datepicker";

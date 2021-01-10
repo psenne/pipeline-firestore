@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import firebase from "../firebase.config";
-import { Modal, Button, Header, Form } from "semantic-ui-react";
+import { Modal, Button, Form } from "semantic-ui-react";
 import SemanticDatepicker from "react-semantic-ui-datepickers";
 import { subYears } from "date-fns";
 import "react-semantic-ui-datepickers/dist/react-semantic-ui-datepickers.css";

@@ -2,7 +2,6 @@ import React, { Suspense, lazy } from "react";
 import { Route, Switch, Router } from "react-router-dom";
 import history from "./modules/history";
 import UserContext from "./contexts/UserContext";
-import NavBar from "./NavBar";
 import { Loader, Dimmer } from "semantic-ui-react";
 import "semantic-ui-css/semantic.css";
 
