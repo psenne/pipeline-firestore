@@ -8,7 +8,7 @@ import ContractDropdown from "./ContractDropdown";
 import ManagerDropdown from "./ManagerDropdown";
 import ModalConvertToEmployee from "./ModalConvertToEmployee";
 import Files from "./Files";
-import firebase, { fbCandidatesDB, fbStorage, fbFlagNotes, fbEmployeesDB } from "../firebase.config";
+import firebase, { fbCandidatesDB, fbPositionsDB, fbStorage, fbFlagNotes, fbEmployeesDB } from "../firebase.config";
 import { tmplCandidate } from "../constants/candidateInfo";
 import { Form, Container, Segment, Button, Message, Header, Menu, Icon, Checkbox, Tab } from "semantic-ui-react";
 import DatePicker from "react-datepicker";
@@ -185,7 +185,7 @@ export default class EditCandidateForm extends React.Component {
             .doc(key)
             .set(employee)
             .then(() => {
-                fbCandidatesDB.doc(key).delete();
+                this.DeleteCandidate(key, []);
                 this.setState({ isOpen: false });
             })
             .then(() => {
@@ -251,28 +251,28 @@ export default class EditCandidateForm extends React.Component {
 
     //callback function when delete candidate button is click in form.
     DeleteCandidate(key, filenames) {
-        var recursiveDelete = firebase.functions().httpsCallable("recursiveDelete");
-        recursiveDelete({ path: `/candidates/${key}` });
+        fbCandidatesDB
+            .doc(key)
+            .delete()
+            .then(() => {
+                filenames.forEach(filename => {
+                    fbStorage
+                        .child(key + "/" + filename)
+                        .delete()
+                        .catch(function (error) {
+                            console.error("Error deleting files:", error);
+                        });
+                });
+            })
+            .then(() => {
+                fbFlagNotes.child(key).remove();
+            })
+            .catch(function (error) {
+                console.error("Error deleting candidate:", error);
+            });
 
-        // fbCandidatesDB
-        //     .doc(key)
-        //     .delete()
-        //     .then(() => {
-        //         filenames.forEach(filename => {
-        //             fbStorage
-        //                 .child(key + "/" + filename)
-        //                 .delete()
-        //                 .catch(function (error) {
-        //                     console.error("Error deleting files:", error);
-        //                 });
-        //         });
-        //     })
-        //     .then(() => {
-        //         fbFlagNotes.child(key).remove();
-        //     })
-        //     .catch(function (error) {
-        //         console.error("Error deleting candidate:", error);
-        //     });
+        // var recursiveDelete = firebase.functions().httpsCallable("recursiveDelete");
+        // recursiveDelete({ path: `/candidates/${key}` });
     }
 
     render() {

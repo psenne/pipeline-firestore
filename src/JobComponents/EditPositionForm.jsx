@@ -32,7 +32,7 @@ export default function EditPositionForm() {
         return () => {
             unsubPosition();
         };
-    }, key);
+    }, [key]);
 
     useEffect(() => {
         const unsubSubmitted = fbPositionsDB
@@ -49,7 +49,7 @@ export default function EditPositionForm() {
         return () => {
             unsubSubmitted();
         };
-    }, key);
+    }, [key]);
 
     const HandleTextInput = ev => {
         const name = ev.target.name;
@@ -103,6 +103,7 @@ export default function EditPositionForm() {
                             candidate_id: ckey,
                             candidate_name: submission.info.candidate_name,
                             position_id: position.position_id,
+                            position_key: key,
                             position_title: position.title,
                             position_contract: position.contract
                         };

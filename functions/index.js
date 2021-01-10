@@ -1,6 +1,6 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
-const firebase_tools = require("firebase-tools");
+// const firebase_tools = require("firebase-tools");
 const datefns = require("date-fns");
 const atob = require("atob");
 const _ = require("lodash");
@@ -22,49 +22,34 @@ var fsdb = admin.firestore();
 // >    params: { candidateID: '3f4JOlA8wM2Vga1URjtD' }
 // >  }
 
-exports.recursiveDelete = functions
-    .runWith({
-        timeoutSeconds: 540,
-        memory: "2GB"
-    })
-    .https.onCall(async (data, context) => {
-        // Only allow admin users to execute this function.
-        // if (!(context.auth && context.auth.token && context.auth.token.admin)) {
-        //     throw new functions.https.HttpsError("permission-denied", "Must be an administrative user to initiate delete.");
-        // }
-        console.log(data.path);
-        const path = data.path;
-        console.log(`User ${context.auth.uid} has requested to delete path ${path}`);
+// exports.recursiveDelete = functions
+//     .runWith({
+//         timeoutSeconds: 540,
+//         memory: "2GB"
+//     })
+//     .https.onCall(async (data, context) => {
+//         // Only allow admin users to execute this function.
+//         // if (!(context.auth && context.auth.token && context.auth.token.admin)) {
+//         //     throw new functions.https.HttpsError("permission-denied", "Must be an administrative user to initiate delete.");
+//         // }
+//         console.log(data.path);
+//         const path = data.path;
+//         console.log(`User ${context.auth.uid} has requested to delete path ${path}`);
 
-        // Run a recursive delete on the given document or collection path.
-        // The 'token' must be set in the functions config, and can be generated
-        // at the command line by running 'firebase login:ci'.
-        await firebase_tools.firestore.delete(path, {
-            project: process.env.GCLOUD_PROJECT,
-            recursive: true,
-            yes: true,
-            token: functions.config().fb.token
-        });
+//         // Run a recursive delete on the given document or collection path.
+//         // The 'token' must be set in the functions config, and can be generated
+//         // at the command line by running 'firebase login:ci'.
+//         await firebase_tools.firestore.delete(path, {
+//             project: process.env.GCLOUD_PROJECT,
+//             recursive: true,
+//             yes: true,
+//             token: functions.config().fb.token
+//         });
 
-        return {
-            path: path
-        };
-    });
-
-exports.addCreatedEvent = db.document("/candidates/{candidateID}").onCreate((snapshot, context) => {
-    const username = snapshot.data().created_by;
-    const candidatename = `${snapshot.data().firstname} ${snapshot.data().lastname}`;
-    const now = new Date();
-    const event = {
-        eventdate: now.toJSON(),
-        eventinfo: `${username} added ${candidatename}.`,
-        candidatename
-    };
-
-    return rlt.ref("auditing").push(event).then(()=>{ 
-        console.log(event);
-    }) //prettier-ignore
-});
+//         return {
+//             path: path
+//         };
+//     });
 
 // when a candidate has been submitted to a position, then change status to processing
 exports.toggleSubmissionStatusCreate = db.document("/positions/{positionID}/submitted_candidates/{candidateID}").onCreate((data, context) => {
@@ -129,6 +114,21 @@ exports.toggleSubmissionStatusDelete = db.document("/positions/{positionID}/subm
                     }
                 });
         });
+});
+
+exports.addCreatedEvent = db.document("/candidates/{candidateID}").onCreate((snapshot, context) => {
+    const username = snapshot.data().created_by;
+    const candidatename = `${snapshot.data().firstname} ${snapshot.data().lastname}`;
+    const now = new Date();
+    const event = {
+        eventdate: now.toJSON(),
+        eventinfo: `${username} added ${candidatename}.`,
+        candidatename
+    };
+
+    return rlt.ref("auditing").push(event).then(()=>{ 
+        console.log(event);
+    }) //prettier-ignore
 });
 
 exports.updateCandidateEvent = db.document("/candidates/{candidateID}").onUpdate(({ before, after }, context) => {
@@ -212,14 +212,13 @@ exports.deletedCandidateEvent = db.document("/candidates/{candidateID}").onDelet
         .collection(`submitted_positions`)
         .get()
         .then(submissions => {
-            // const subcollectionbatch = fsdb.batch();
+            const subcollectionbatch = fsdb.batch();
             submissions.forEach(submission => {
                 const submissionInfo = submission.data();
-                // console.log(submissionInfo);
-                fsdb.collection("positions").doc(submissionInfo.position_id).collection("submitted_candidates").doc(submissionInfo.candidate_id).delete();
-                // subcollectionbatch.delete(submission.doc());
+                fsdb.collection("positions").doc(submissionInfo.position_key).collection("submitted_candidates").doc(submissionInfo.candidate_id).delete();
+                subcollectionbatch.delete(submission.ref);
             });
-            // subcollectionbatch.commit();
+            subcollectionbatch.commit();
         });
 
     return rlt.ref("auditing").push(event).then(()=>{ 
@@ -258,22 +257,14 @@ exports.deletedPositionEvent = db.document("/positions/{positionID}").onDelete((
         .collection(`submitted_candidates`)
         .get()
         .then(submissions => {
-            j;
             const subcollectionbatch = fsdb.batch();
             submissions.forEach(submission => {
                 const submissionInfo = submission.data();
-                fsdb.collection("candidates").doc(submissionInfo.candidate_id).collection("submitted_positions").doc(submissionInfo.position_id).delete();
+                fsdb.collection("candidates").doc(submissionInfo.candidate_id).collection("submitted_positions").doc(submissionInfo.position_key).delete();
                 subcollectionbatch.delete(submission.ref);
             });
             subcollectionbatch.commit();
         });
-
-    // submission_date: submission.info.submission_date,
-    // candidate_id: ckey,
-    // candidate_name: submission.info.candidate_name,
-    // position_id: key,
-    // position_title: position.title,
-    // position_contract: position.contract
 
     return rlt.ref("auditing").push(event).then(()=>{ 
         console.info(event);
