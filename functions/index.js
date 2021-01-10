@@ -1,5 +1,6 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
+const firebase_tools = require("firebase-tools");
 const datefns = require("date-fns");
 const atob = require("atob");
 const _ = require("lodash");
@@ -8,7 +9,6 @@ admin.initializeApp();
 var db = functions.firestore;
 var rlt = admin.database();
 var fsdb = admin.firestore();
-
 
 /// firestore context
 // >  {
@@ -22,6 +22,34 @@ var fsdb = admin.firestore();
 // >    params: { candidateID: '3f4JOlA8wM2Vga1URjtD' }
 // >  }
 
+exports.recursiveDelete = functions
+    .runWith({
+        timeoutSeconds: 540,
+        memory: "2GB"
+    })
+    .https.onCall(async (data, context) => {
+        // Only allow admin users to execute this function.
+        // if (!(context.auth && context.auth.token && context.auth.token.admin)) {
+        //     throw new functions.https.HttpsError("permission-denied", "Must be an administrative user to initiate delete.");
+        // }
+        console.log(data.path);
+        const path = data.path;
+        console.log(`User ${context.auth.uid} has requested to delete path ${path}`);
+
+        // Run a recursive delete on the given document or collection path.
+        // The 'token' must be set in the functions config, and can be generated
+        // at the command line by running 'firebase login:ci'.
+        await firebase_tools.firestore.delete(path, {
+            project: process.env.GCLOUD_PROJECT,
+            recursive: true,
+            yes: true,
+            token: functions.config().fb.token
+        });
+
+        return {
+            path: path
+        };
+    });
 
 exports.addCreatedEvent = db.document("/candidates/{candidateID}").onCreate((snapshot, context) => {
     const username = snapshot.data().created_by;
@@ -36,32 +64,37 @@ exports.addCreatedEvent = db.document("/candidates/{candidateID}").onCreate((sna
     return rlt.ref("auditing").push(event).then(()=>{ 
         console.log(event);
     }) //prettier-ignore
-
 });
 
-
 // when a candidate has been submitted to a position, then change status to processing
-exports.toggleSubmissionStatusCreate = db.document("/positions/{positionID}/submitted_candidates/{candidateID}").onCreate((data, context)=>{
+exports.toggleSubmissionStatusCreate = db.document("/positions/{positionID}/submitted_candidates/{candidateID}").onCreate((data, context) => {
     const candidateInfo = data.data();
+
     const ckey = context.params.candidateID;
     const now = new Date();
 
-    return fsdb.doc(`candidates/${ckey}`).set({"status":"processing"}, { merge: true }).then(()=>{ 
-        const eventinfo = `${candidateInfo.candidate_name} was submitted to ${candidateInfo.position_title} on ${candidateInfo.position_contract}.`;
-        const event = {
-            eventdate: now.toJSON(),
-            eventinfo,
-            candidatename: candidateInfo.candidate_name
-        };
+    return fsdb
+        .doc(`candidates/${ckey}`)
+        .set({ status: "processing" }, { merge: true })
+        .then(() => {
+            const eventinfo = `${candidateInfo.candidate_name} was submitted to ${candidateInfo.position_title} on ${candidateInfo.position_contract}.`;
+            const event = {
+                eventdate: now.toJSON(),
+                eventinfo,
+                candidatename: candidateInfo.candidate_name
+            };
 
-        return rlt.ref("auditing").push(event).then(()=>{ 
-            console.info(event);
+            return rlt
+                .ref("auditing")
+                .push(event)
+                .then(() => {
+                    console.info(event);
+                });
         });
-    });
 });
 
 // when a candidate has been unsubmitted from a position, then change status back to active (unless they still have other submissions)
-exports.toggleSubmissionStatusDelete = db.document("/positions/{positionID}/submitted_candidates/{candidateID}").onDelete((data, context)=>{
+exports.toggleSubmissionStatusDelete = db.document("/positions/{positionID}/submitted_candidates/{candidateID}").onDelete((data, context) => {
     const candidateInfo = data.data();
     const ckey = context.params.candidateID;
     const now = new Date();
@@ -72,23 +105,30 @@ exports.toggleSubmissionStatusDelete = db.document("/positions/{positionID}/subm
         candidatename: candidateInfo.candidate_name
     };
 
-
-    return rlt.ref("auditing").push(event).then(()=>{ 
-        console.info(event);
-        fsdb.doc(`candidates/${ckey}`).get().then(candidate => {
-            if(candidate.exists){
-                candidate.ref.collection("submitted_positions").get().then(submissions => {
-                    var stillsubmitted = false;
-                    submissions.forEach(submission => {
-                        stillsubmitted = true;
-                    })
-                    if(!stillsubmitted){
-                        candidate.ref.set({"status":"active"}, { merge: true });
+    return rlt
+        .ref("auditing")
+        .push(event)
+        .then(() => {
+            console.info(event);
+            fsdb.doc(`candidates/${ckey}`)
+                .get()
+                .then(candidate => {
+                    if (candidate.exists) {
+                        candidate.ref
+                            .collection("submitted_positions")
+                            .get()
+                            .then(submissions => {
+                                var stillsubmitted = false;
+                                submissions.forEach(submission => {
+                                    stillsubmitted = true;
+                                });
+                                if (!stillsubmitted) {
+                                    candidate.ref.set({ status: "active" }, { merge: true });
+                                }
+                            });
                     }
                 });
-            }
         });
-    });
 });
 
 exports.updateCandidateEvent = db.document("/candidates/{candidateID}").onUpdate(({ before, after }, context) => {
@@ -150,7 +190,6 @@ exports.updateCandidateEvent = db.document("/candidates/{candidateID}").onUpdate
             candidatename
         };
 
-
         //return () => console.info("All fields:", changedFields, newInfo);
 
         return rlt.ref("auditing").push(event).then(()=>{ 
@@ -168,18 +207,20 @@ exports.deletedCandidateEvent = db.document("/candidates/{candidateID}").onDelet
         candidatename
     };
 
-
     // delete submitted positions subcollection. because deleting the candidate, doesn't delete it's children docs
-    snapshot.ref.collection(`submitted_positions`).get().then(submissions => {
-        const subcollectionbatch = fsdb.batch();
-        submissions.forEach((submission) => {
-            const submissionInfo = submission.data()
-            fsdb.collection("positions").doc(submissionInfo.position_id).collection("submitted_candidates").doc(submissionInfo.candidate_id).delete();
-            subcollectionbatch.delete(submission.ref);
+    snapshot.ref
+        .collection(`submitted_positions`)
+        .get()
+        .then(submissions => {
+            // const subcollectionbatch = fsdb.batch();
+            submissions.forEach(submission => {
+                const submissionInfo = submission.data();
+                // console.log(submissionInfo);
+                fsdb.collection("positions").doc(submissionInfo.position_id).collection("submitted_candidates").doc(submissionInfo.candidate_id).delete();
+                // subcollectionbatch.delete(submission.doc());
+            });
+            // subcollectionbatch.commit();
         });
-        subcollectionbatch.commit();
-    })
-
 
     return rlt.ref("auditing").push(event).then(()=>{ 
         console.info(event);
@@ -213,15 +254,19 @@ exports.deletedPositionEvent = db.document("/positions/{positionID}").onDelete((
     };
 
     // delete submitted candidates subcollection. because deleting the position, doesn't delete it's children docs
-    snapshot.ref.collection(`submitted_candidates`).get().then(submissions => {
-        const subcollectionbatch = fsdb.batch();
-        submissions.forEach((submission) => {
-            const submissionInfo = submission.data()
-            fsdb.collection("candidates").doc(submissionInfo.candidate_id).collection("submitted_positions").doc(submissionInfo.position_id).delete();
-            subcollectionbatch.delete(submission.ref);
+    snapshot.ref
+        .collection(`submitted_candidates`)
+        .get()
+        .then(submissions => {
+            j;
+            const subcollectionbatch = fsdb.batch();
+            submissions.forEach(submission => {
+                const submissionInfo = submission.data();
+                fsdb.collection("candidates").doc(submissionInfo.candidate_id).collection("submitted_positions").doc(submissionInfo.position_id).delete();
+                subcollectionbatch.delete(submission.ref);
+            });
+            subcollectionbatch.commit();
         });
-        subcollectionbatch.commit();
-    })
 
     // submission_date: submission.info.submission_date,
     // candidate_id: ckey,
@@ -229,8 +274,6 @@ exports.deletedPositionEvent = db.document("/positions/{positionID}").onDelete((
     // position_id: key,
     // position_title: position.title,
     // position_contract: position.contract
-
-
 
     return rlt.ref("auditing").push(event).then(()=>{ 
         console.info(event);
@@ -255,13 +298,12 @@ exports.updatePositionEvent = db.document("/positions/{positionID}").onUpdate(({
                     if (afterval instanceof Object) {
                         //candidates submitted section
                         var new_candidates_keys = Object.keys(afterval);
-                        if(beforeval !== undefined){
+                        if (beforeval !== undefined) {
                             new_candidates_keys = _.reduce(afterval, (result, value, key) => (_.isEqual(value, beforeval[key]) ? result : result.concat(key)), []); // https://stackoverflow.com/questions/31683075/how-to-do-a-deep-comparison-between-2-objects-with-lodash
                         }
                         return new_candidates_keys.length > 0 ? new_candidates_keys.map(ckey => `submitted ${afterval[ckey].candidate_name} on ${datefns.format(new Date(afterval[ckey].submission_date), "MMM d, yyyy")}`).join(", ") : undefined; //create event description. undefined if no candidates were added. otherwise join returns ""
                     }
-                } 
-                else {
+                } else {
                     //other than candidate submissions
                     if (beforeval !== "" && afterval === "") {
                         return `erased "${beforeval}" from ${key.replace(/[_]/g, " ").toUpperCase()}`;
@@ -271,7 +313,7 @@ exports.updatePositionEvent = db.document("/positions/{positionID}").onUpdate(({
                         return `updated ${key.replace(/[_]/g, " ").toUpperCase()} to "${afterval}"`;
                     }
                 }
-            } 
+            }
         })
         .filter(key => {
             if (key !== undefined) {
@@ -289,8 +331,7 @@ exports.updatePositionEvent = db.document("/positions/{positionID}").onUpdate(({
         return rlt.ref("auditing").push(event).then(()=>{ 
             console.info(event);
         }) //prettier-ignore
-    } 
-    else {
+    } else {
         return () => console.info("No substantial changes.");
     }
 });

@@ -251,25 +251,28 @@ export default class EditCandidateForm extends React.Component {
 
     //callback function when delete candidate button is click in form.
     DeleteCandidate(key, filenames) {
-        fbCandidatesDB
-            .doc(key)
-            .delete()
-            .then(() => {
-                filenames.forEach(filename => {
-                    fbStorage
-                        .child(key + "/" + filename)
-                        .delete()
-                        .catch(function (error) {
-                            console.error("Error deleting files:", error);
-                        });
-                });
-            })
-            .then(() => {
-                fbFlagNotes.child(key).remove();
-            })
-            .catch(function (error) {
-                console.error("Error deleting candidate:", error);
-            });
+        var recursiveDelete = firebase.functions().httpsCallable("recursiveDelete");
+        recursiveDelete({ path: `/candidates/${key}` });
+
+        // fbCandidatesDB
+        //     .doc(key)
+        //     .delete()
+        //     .then(() => {
+        //         filenames.forEach(filename => {
+        //             fbStorage
+        //                 .child(key + "/" + filename)
+        //                 .delete()
+        //                 .catch(function (error) {
+        //                     console.error("Error deleting files:", error);
+        //                 });
+        //         });
+        //     })
+        //     .then(() => {
+        //         fbFlagNotes.child(key).remove();
+        //     })
+        //     .catch(function (error) {
+        //         console.error("Error deleting candidate:", error);
+        //     });
     }
 
     render() {
