@@ -29,3 +29,5 @@ public/.htaccess
 
 .firebase/hosting.*
 *-debug.log
+functions/.runtimeconfig.json
+prod-key.json
