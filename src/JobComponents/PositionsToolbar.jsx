@@ -24,7 +24,7 @@ export default ({ positions, contracts }) => {
 
     return (
         <Container fluid>
-            <Menu className="no-print" style={{ margin: "1rem" }}>
+            <Menu stackable className="no-print" style={{ margin: "1rem" }}>
                 <Menu.Item title="Add new position" link>
                     <Link to="/positions/add">
                         <Icon name="plus" />

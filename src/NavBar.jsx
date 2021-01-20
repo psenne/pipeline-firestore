@@ -4,7 +4,7 @@ import { Menu } from "semantic-ui-react";
 
 const NavBar = ({ active }) => {
     return (
-        <Menu tabular className="no-print">
+        <Menu tabular stackable className="no-print">
             <Menu.Item active={active === "dashboard"}>
                 <Link to="/">Dashboard</Link>
             </Menu.Item>

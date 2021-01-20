@@ -42,7 +42,7 @@ class CandidateToolbar extends Component {
 
         return (
             <Container fluid>
-                <Menu className="no-print" style={{ margin: "1rem" }}>
+                <Menu stackable className="no-print" style={{ margin: "1rem" }}>
                     <Menu.Item title="Add new candidate" link>
                         <Link to="/candidates/add">
                             <Icon name="plus" />

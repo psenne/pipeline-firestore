@@ -21,7 +21,7 @@ export default function EmployeeToolbar(props) {
     };
 
     return (
-        <Menu className="no-print">
+        <Menu stackable className="no-print">
             <Menu.Item title="Add employee" link>
                 <Link to="/employees/add">
                     <Icon name="plus" />
