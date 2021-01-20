@@ -14,7 +14,6 @@ function Employee({ employee }) {
             menuItem: { key: "notes", icon: "sticky note outline", content: "Notes" },
             render: () => (
                 <Tab.Pane>
-                    <h3>Management Notes:</h3>
                     <Markdown>{employee.notes}</Markdown>
                 </Tab.Pane>
             )
