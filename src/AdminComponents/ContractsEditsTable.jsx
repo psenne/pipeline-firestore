@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { fbContractsDB } from "../firebase.config";
-import ManagerDropdown from "../CandidateComponents/ManagerDropdown";
+import ManagerDropdown from "../CommonComponents/ManagerDropdown";
 import { Table, Header, Icon, Input, Message } from "semantic-ui-react";
 import { sentence } from "to-case";
 
@@ -82,10 +82,7 @@ export default class ContractsEditsTable extends Component {
         });
         if (newcontract.name && newcontract.number && newcontract.pm && newcontract.pop) {
             if (newcontractkey !== -1) {
-                fbContractsDB
-                    .child(newcontractkey)
-                    .update(newcontract)
-                    .then(this.ResetForm);
+                fbContractsDB.child(newcontractkey).update(newcontract).then(this.ResetForm);
             } else {
                 fbContractsDB.push(newcontract).then(this.ResetForm);
             }
@@ -118,7 +115,7 @@ export default class ContractsEditsTable extends Component {
     componentDidMount() {
         fbContractsDB.on("value", data => {
             let contracts = [];
-            data.forEach(function(contract) {
+            data.forEach(function (contract) {
                 contracts.push({ key: contract.key, info: contract.val() });
             });
             this.setState({

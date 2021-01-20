@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import CandidateSearchContext from "../contexts/CandidateSearchContext";
 import { Link } from "react-router-dom";
 import { Dropdown, Input, Icon, Menu, Container } from "semantic-ui-react";
-import StatusDropdown from "./StatusDropdown";
+import StatusDropdown from "../CommonComponents/StatusDropdown";
 import ExportToExcel from "../modules/ExportToExcel";
 
 // populates the dropdown options for filtering by current or archived candidates in the table

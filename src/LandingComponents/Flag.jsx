@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
-import FlagMessagePopup from "../CandidateComponents/FlagMessagePopup";
+import FlagMessagePopup from "../CommonComponents/FlagMessagePopup";
 import UserContext from "../contexts/UserContext";
 import { Card, Icon, Button } from "semantic-ui-react";
 import { format, parseISO } from "date-fns";

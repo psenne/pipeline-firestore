@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import firebase from "../firebase.config";
 import { Modal, Button, Form } from "semantic-ui-react";
 import SemanticDatepicker from "react-semantic-ui-datepickers";
-import ContractDropdown from "./ContractDropdown";
+import ContractDropdown from "../CommonComponents/ContractDropdown";
 import { subYears } from "date-fns";
 import "react-semantic-ui-datepickers/dist/react-semantic-ui-datepickers.css";
 
@@ -65,7 +65,7 @@ function ModalConvertToEmployee({ setOpen, isOpen, CompleteConversion, candidate
                                 <Form.Input fluid name="title" type="text" label="Title" onChange={ev => setTitle(ev.target.value)} value={title} />
                             </Form.Field>
                             <Form.Field>
-                                <label htmlFor="">Contract</label>
+                                <label>Contract</label>
                                 <ContractDropdown selection clearable value={current_contract} onChange={value => setcurrent_contract(value)} />
                             </Form.Field>
                         </Form.Group>

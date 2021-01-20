@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import PositionContext from "../contexts/PositionContext";
 import { Input, Icon, Menu, Container } from "semantic-ui-react";
-import ContractDropdown from "../CandidateComponents/ContractDropdown";
+import ContractDropdown from "../CommonComponents/ContractDropdown";
 import ExportPositions from "../modules/ExportPositions";
 import classnames from "classnames";
 

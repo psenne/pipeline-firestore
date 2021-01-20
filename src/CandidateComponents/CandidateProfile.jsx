@@ -6,9 +6,9 @@ import { Grid, Header, Segment, Tab } from "semantic-ui-react";
 import Markdown from "markdown-to-jsx";
 import classnames from "classnames";
 import { fbFlagNotes, fbAuditTrailDB, fbCandidatesDB } from "../firebase.config";
-import FlagMessage from "../CandidateComponents/FlagMessage";
+import FlagMessage from "../CommonComponents/FlagMessage";
 import { tmplCandidate } from "../constants/candidateInfo";
-import Files from "../CandidateComponents/Files";
+import Files from "../CommonComponents/Files";
 
 class CandidateProfile extends Component {
     constructor(props) {

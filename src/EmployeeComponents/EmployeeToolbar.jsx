@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import EmployeeContext from "../contexts/EmployeeContext";
 import { Input, Icon, Menu } from "semantic-ui-react";
-import ContractDropdown from "../CandidateComponents/ContractDropdown";
+import ContractDropdown from "../CommonComponents/ContractDropdown";
 
 export default function EmployeeToolbar(props) {
     const { selectedcontract, setselectedcontract, searchterm, setsearchterm } = useContext(EmployeeContext);

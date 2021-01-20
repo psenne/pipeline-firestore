@@ -1,6 +1,6 @@
 import React from "react";
 import { Segment, Header, Tab } from "semantic-ui-react";
-import Files from "../CandidateComponents/Files";
+import Files from "../CommonComponents/Files";
 import Markdown from "markdown-to-jsx";
 import { format } from "date-fns";
 import classnames from "classnames";

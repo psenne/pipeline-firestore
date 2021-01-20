@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { fbStorage } from "../firebase.config";
-import File from "../CandidateComponents/File";
+import File from "./File";
 import { List } from "semantic-ui-react";
 
 export default class Files extends Component {
