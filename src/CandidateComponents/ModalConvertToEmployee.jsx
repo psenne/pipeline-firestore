@@ -41,7 +41,7 @@ function ModalConvertToEmployee({ setOpen, isOpen, CompleteConversion, candidate
                             <Form.Field>
                                 <label>Birthday</label>
                                 <SemanticDatepicker
-                                    name="hired_on"
+                                    name="birthday"
                                     datePickerOnly
                                     showToday={false}
                                     date={subYears(new Date(), 30)}
