@@ -35,7 +35,7 @@ export default function EmployeesTable({ employees }) {
             <Table.Header>
                 <Table.Row>
                     <Table.HeaderCell>Employee</Table.HeaderCell>
-                    <Table.HeaderCell>Skill</Table.HeaderCell>
+                    <Table.HeaderCell>Title</Table.HeaderCell>
                     <Table.HeaderCell>Contract</Table.HeaderCell>
                     <Table.HeaderCell>Telephone Number</Table.HeaderCell>
                     <Table.HeaderCell>E-mail address</Table.HeaderCell>
@@ -49,7 +49,7 @@ export default function EmployeesTable({ employees }) {
                     .filter(isSearched(searchterm))
                     .map(employee => {
                         const name = `${employee.firstname} ${employee.lastname}`;
-                        const title = `${employee.title} ${employee.skill}`;
+                        const title = `${employee.level} ${employee.title}`;
                         const link = `/employees/${employee.id}`;
                         const editlink = `/employees/${employee.id}/edit`;
 

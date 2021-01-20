@@ -21,26 +21,40 @@ export default function EmployeeProfilePage({ match }) {
         return () => {
             unsubscribe();
         };
-    }, []);
+    }, [id]);
 
     return (
         <div className="view-panel">
-            {!employee && <Placeholder></Placeholder>}
-            {employee && (
-                <Container>
-                    <Menu fluid attached="top" size="huge" borderless className="no-print">
-                        <Menu.Item as={Link} to={`/employees`}>
-                            <Icon name="arrow left" />
-                        </Menu.Item>
-                        <Menu.Menu position="right">
-                            <Menu.Item as={Link} to={`/employees/${employee.id}/edit`}>
-                                <Icon name="edit" />
+            <Container>
+                {!employee && (
+                    <Placeholder>
+                        <Placeholder.Header>
+                            <Placeholder.Line />
+                            <Placeholder.Line />
+                        </Placeholder.Header>
+                        <Placeholder.Paragraph>
+                            <Placeholder.Line />
+                            <Placeholder.Line />
+                            <Placeholder.Line />
+                        </Placeholder.Paragraph>
+                    </Placeholder>
+                )}
+                {employee && (
+                    <>
+                        <Menu fluid attached="top" size="huge" borderless className="no-print">
+                            <Menu.Item as={Link} to={`/employees`}>
+                                <Icon name="arrow left" />
                             </Menu.Item>
-                        </Menu.Menu>
-                    </Menu>
-                    <Employee employee={employee} />
-                </Container>
-            )}
+                            <Menu.Menu position="right">
+                                <Menu.Item as={Link} to={`/employees/${employee.id}/edit`}>
+                                    <Icon name="edit" />
+                                </Menu.Item>
+                            </Menu.Menu>
+                        </Menu>
+                        <Employee employee={employee} />
+                    </>
+                )}
+            </Container>
         </div>
     );
 }

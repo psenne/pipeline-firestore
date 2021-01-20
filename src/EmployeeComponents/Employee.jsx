@@ -7,7 +7,7 @@ import classnames from "classnames";
 
 function Employee({ employee }) {
     const salary = employee.salary ? atob(employee.salary) : "";
-    const hire_info = employee.hired_on ? format(employee.hired_on.toDate(), "M/d/yyyy") : "Hire date not set.";
+    const hire_info = employee.hired_on ? "Hired on " + format(employee.hired_on.toDate(), "M/d/yyyy") : "Hire date not set.";
 
     const panes = [
         {
@@ -36,7 +36,7 @@ function Employee({ employee }) {
                     {employee.firstname} {employee.lastname}
                     <h5>{[employee.emailaddress, employee.telephone].filter(Boolean).join(" / ")}</h5>
                     <Header.Subheader>
-                        {employee.level} {employee.skill}
+                        {employee.level} {employee.title}
                     </Header.Subheader>
                 </Header>
                 <div>Current contract: {employee.current_contract}</div>

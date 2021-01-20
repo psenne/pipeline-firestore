@@ -157,23 +157,22 @@ export default class EditCandidateForm extends React.Component {
         this.setState({ isModalOpen: isOpen });
     }
 
-    ConvertToEmployee({ hired_on, salary, birthday, notes }) {
+    ConvertToEmployee({ hired_on, salary, birthday, notes, level, title, current_contract }) {
         const candidate = this.state.candidate;
         const key = this.state.key;
 
         const employee = {
-            current_contract: candidate.current_contract,
+            current_contract: current_contract,
             firstname: candidate.firstname,
             lastname: candidate.lastname,
             emailaddress: candidate.emailaddress,
             telephone: candidate.telephone,
-            title: candidate.title,
             found_by: candidate.found_by,
             filenames: candidate.filenames,
             hired_on,
-            level: candidate.level,
+            level,
             notes,
-            skill: candidate.skill,
+            title,
             salary,
             birthday,
             created_date: candidate.created_date,
@@ -379,7 +378,7 @@ export default class EditCandidateForm extends React.Component {
                         <Segment>
                             {this.state.formError && <Message error floating compact icon="warning" header="Required fields missing" content="First and last names are both required." />}
                             {(candidate.status === "active" || candidate.status === "processing") && (
-                                <ModalConvertToEmployee isOpen={this.state.isModalOpen} setOpen={this.setModalOpen} candidatename={`${candidate.firstname} ${candidate.lastname}`} oldnotes={candidate.notes} CompleteConversion={this.ConvertToEmployee}>
+                                <ModalConvertToEmployee isOpen={this.state.isModalOpen} setOpen={this.setModalOpen} candidate={this.state.candidate} CompleteConversion={this.ConvertToEmployee}>
                                     <Button type="submit" icon="right arrow" labelPosition="right" floated="right" positive content="Convert to Employee" onClick={() => this.setModalOpen(true)} />
                                 </ModalConvertToEmployee>
                             )}

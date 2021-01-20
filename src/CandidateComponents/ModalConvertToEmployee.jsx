@@ -2,14 +2,20 @@ import React, { useState } from "react";
 import firebase from "../firebase.config";
 import { Modal, Button, Form } from "semantic-ui-react";
 import SemanticDatepicker from "react-semantic-ui-datepickers";
+import ContractDropdown from "./ContractDropdown";
 import { subYears } from "date-fns";
 import "react-semantic-ui-datepickers/dist/react-semantic-ui-datepickers.css";
 
-function ModalConvertToEmployee({ setOpen, isOpen, CompleteConversion, candidatename, oldnotes, children }) {
+function ModalConvertToEmployee({ setOpen, isOpen, CompleteConversion, candidate, children }) {
     const [birthday, setBirthday] = useState(null);
     const [hired_on, sethired_on] = useState(null);
-    const [salary, setsalary] = useState("");
-    const [notes, setnotes] = useState(oldnotes);
+    const [salary, setsalary] = useState(candidate.salary);
+    const [title, setTitle] = useState(candidate.skill);
+    const [level, setLevel] = useState(candidate.level);
+    const [notes, setnotes] = useState(candidate.notes);
+    const [current_contract, setcurrent_contract] = useState("");
+
+    const candidatename = `${candidate.firstname} ${candidate.lastname}`;
 
     return (
         <Modal open={isOpen} trigger={children}>
@@ -51,6 +57,18 @@ function ModalConvertToEmployee({ setOpen, isOpen, CompleteConversion, candidate
                                 <Form.Input fluid name="salary" type="text" icon="dollar" iconPosition="left" label="Salary" onChange={ev => setsalary(btoa(ev.target.value))} value={atob(salary)} />
                             </Form.Field>
                         </Form.Group>
+                        <Form.Group widths="equal">
+                            <Form.Field>
+                                <Form.Input fluid name="level" type="text" label="Level" onChange={ev => setLevel(ev.target.value)} value={level} />
+                            </Form.Field>
+                            <Form.Field>
+                                <Form.Input fluid name="title" type="text" label="Title" onChange={ev => setTitle(ev.target.value)} value={title} />
+                            </Form.Field>
+                            <Form.Field>
+                                <label htmlFor="">Contract</label>
+                                <ContractDropdown selection clearable value={current_contract} onChange={value => setcurrent_contract(value)} />
+                            </Form.Field>
+                        </Form.Group>
                         <Form.Field>
                             <Form.TextArea name="notes" label="Update notes" onChange={ev => setnotes(ev.target.value)} value={notes} />
                         </Form.Field>
@@ -58,7 +76,7 @@ function ModalConvertToEmployee({ setOpen, isOpen, CompleteConversion, candidate
                 </Modal.Description>
             </Modal.Content>
             <Modal.Actions>
-                <Button content="Confirm" labelPosition="right" icon="checkmark" onClick={() => CompleteConversion({ hired_on, birthday, salary, notes })} positive />
+                <Button content="Confirm" labelPosition="right" icon="checkmark" onClick={() => CompleteConversion({ hired_on, birthday, salary, notes, title, level, current_contract })} positive />
                 <Button color="grey" onClick={() => setOpen(false)}>
                     Cancel
                 </Button>

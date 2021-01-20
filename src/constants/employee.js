@@ -12,7 +12,6 @@ const tmplEmployee = {
     birthday: null,
     level: "",
     notes: "",
-    skill: "",
     salary: "",
     isFlagged: false,
     flagged_by: "",
