@@ -194,18 +194,13 @@ class CandidateProfile extends Component {
                                         <Header size="huge">
                                             {candidate.firstname} {candidate.lastname}
                                             <h5>{[candidate.emailaddress, candidate.telephone].filter(Boolean).join(" / ")}</h5>
+                                            <Header.Subheader>
+                                                {candidate.level} {candidate.skill} {company_info}
+                                            </Header.Subheader>
                                         </Header>
                                     </Grid.Column>
                                     <Grid.Column>
                                         <span className={classnames("padded-span", `status-${candidate.status}`)}>{candidate.status.toUpperCase()}</span>
-                                    </Grid.Column>
-                                </Grid.Row>
-                                <Grid.Row columns={1}>
-                                    <Grid.Column>
-                                        <Header.Subheader>
-                                            {candidate.level} {candidate.skill} {company_info}
-                                        </Header.Subheader>
-                                        <Header.Subheader>{referedby}</Header.Subheader>
                                     </Grid.Column>
                                 </Grid.Row>
                             </Grid>
@@ -219,6 +214,7 @@ class CandidateProfile extends Component {
                                         <div>Potential contracts: {candidate.potential_contracts.join(", ")}</div>
                                         <div>Prefered work location: {candidate.prefered_location}</div>
                                         <div>Salary: {salary}</div>
+                                        <div>{referedby}</div>
                                     </Grid.Column>
                                     <Grid.Column>
                                         <div>{interviewed}</div>

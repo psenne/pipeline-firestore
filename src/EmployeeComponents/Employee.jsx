@@ -8,6 +8,7 @@ import classnames from "classnames";
 function Employee({ employee }) {
     const salary = employee.salary ? atob(employee.salary) : "";
     const hire_info = employee.hired_on ? "Hired on " + format(employee.hired_on.toDate(), "M/d/yyyy") : "Hire date not set.";
+    const referedby = employee.found_by ? `Referred by ${employee.found_by}` : "";
 
     const panes = [
         {
@@ -38,18 +39,23 @@ function Employee({ employee }) {
                         {employee.level} {employee.title}
                     </Header.Subheader>
                 </Header>
+            </Segment>
+            <Segment vertical padded>
                 <div>Current contract: {employee.current_contract}</div>
                 <div>Salary: {salary}</div>
                 <div>{hire_info}</div>
+                <div>{referedby}</div>
             </Segment>
 
             <Segment vertical padded>
                 <Tab panes={panes} />
             </Segment>
-            <Segment vertical padded className={classnames({ "form-hidden": employee.filenames.length === 0 }, "minitoolbar-inline")}>
-                <h3>Documents</h3>
-                <Files employeeID={employee.id} filenames={employee.filenames} />
-            </Segment>
+            {employee.filenames.length > 0 && (
+                <Segment vertical padded className="minitoolbar-inline">
+                    <h3>Documents</h3>
+                    <Files employeeID={employee.id} filenames={employee.filenames} />
+                </Segment>
+            )}
         </Segment>
     );
 }
