@@ -1,6 +1,7 @@
 {
   "projects": {
-    "default": "new-staffing-pipeline-prod"
+    "prod": "new-staffing-pipeline-prod",
+    "test": "new-staffing-pipeline-test"
   },
   "targets": {
     "new-staffing-pipeline-prod": {
@@ -10,6 +11,13 @@
         ],
         "pipeline": [
           "new-staffing-pipeline-prod"
+        ]
+      }
+    },
+    "new-staffing-pipeline-test": {
+      "hosting": {
+        "pipeline": [
+          "new-staffing-pipeline-test"
         ]
       }
     }

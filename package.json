@@ -1,6 +1,6 @@
 {
   "name": "firestore-pipeline",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^4.2.4",
@@ -28,13 +28,12 @@
     "xlsx": "^0.15.3"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "env-cmd -f .env.test react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "emulator": "firebase emulators:start --import=./test-data --export-on-exit",
-    "deploy": "react-scripts build && firebase deploy --only hosting:pipeline",
-    "preview": "react-scripts build && firebase hosting:channel:deploy pipeline-preview"
+    "emulator": "env-cmd -f .env.test firebase emulators:start --import=./test-data --export-on-exit",
+    "preview": "env-cmd -f .env.production npm run build && firebase hosting:channel:deploy pipeline-preview -P prod",
+    "deploy:test":"env-cmd -f .env.test npm run build && firebase deploy -P test",
+    "deploy:prod":"env-cmd -f .env.production npm run build && firebase deploy -P prod"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -50,5 +49,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "env-cmd": "^10.1.0"
   }
 }
