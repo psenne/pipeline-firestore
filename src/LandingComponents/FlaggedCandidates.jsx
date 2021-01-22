@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { fbFlagNotes } from "../firebase.config";
 import Flag from "../LandingComponents/Flag";
-import { Container, Card } from "semantic-ui-react";
+import { Card } from "semantic-ui-react";
 
 export default class FlaggedCandidates extends Component {
     constructor(props) {
