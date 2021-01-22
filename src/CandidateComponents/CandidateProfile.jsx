@@ -229,7 +229,7 @@ class CandidateProfile extends Component {
                         </Segment>
                         <Segment vertical padded className={classnames({ "form-hidden": candidate.filenames.length === 0 }, "minitoolbar-inline")}>
                             <h3>Documents</h3>
-                            <Files candidateID={this.props.candidateID} filenames={candidate.filenames} />
+                            <Files id={candidateID} filenames={candidate.filenames} />
                         </Segment>
 
                         {submissions.length > 0 && (

@@ -3,7 +3,7 @@ import firebase, { fbStorage, fbEmployeesDB } from "../firebase.config";
 import history from "../modules/history";
 import UserContext from "../contexts/UserContext";
 import ContractDropdown from "../CommonComponents/ContractDropdown";
-import { Form, Container, Segment, Button, Message, Header, Menu, Icon, Checkbox, Tab } from "semantic-ui-react";
+import { Form, Container, Segment, Button, Header, Tab } from "semantic-ui-react";
 import tmplEmployee from "../constants/employee";
 import SemanticDatepicker from "react-semantic-ui-datepickers";
 import { subYears } from "date-fns";

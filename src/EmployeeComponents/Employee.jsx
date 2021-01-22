@@ -3,7 +3,6 @@ import { Segment, Header, Tab } from "semantic-ui-react";
 import Files from "../CommonComponents/Files";
 import Markdown from "markdown-to-jsx";
 import { format } from "date-fns";
-import classnames from "classnames";
 
 function Employee({ employee }) {
     const salary = employee.salary ? atob(employee.salary) : "";
@@ -28,7 +27,6 @@ function Employee({ employee }) {
             )
         }
     ];
-
     return (
         <Segment attached padded>
             <Segment vertical padded>
@@ -53,7 +51,7 @@ function Employee({ employee }) {
             {employee.filenames.length > 0 && (
                 <Segment vertical padded className="minitoolbar-inline">
                     <h3>Documents</h3>
-                    <Files employeeID={employee.id} filenames={employee.filenames} />
+                    <Files id={employee.id} filenames={employee.filenames} />
                 </Segment>
             )}
         </Segment>

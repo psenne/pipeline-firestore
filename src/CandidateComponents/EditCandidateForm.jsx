@@ -36,6 +36,7 @@ export default class EditCandidateForm extends React.Component {
         this.HandleLOIStatusChange = this.HandleLOIStatusChange.bind(this);
         this.ToggleArchive = this.ToggleArchive.bind(this);
         this.HandleFileUpload = this.HandleFileUpload.bind(this);
+        this.DeleteFile = this.DeleteFile.bind(this);
         this.ValidateAndSubmit = this.ValidateAndSubmit.bind(this);
         this.HandleDelete = this.HandleDelete.bind(this);
         this.ConvertToEmployee = this.ConvertToEmployee.bind(this);
@@ -128,7 +129,6 @@ export default class EditCandidateForm extends React.Component {
         //add files to state for later uploading
         const files = ev.target.files;
         const { filenames } = this.state.candidate;
-
         this.setState({
             files
         });
@@ -141,15 +141,21 @@ export default class EditCandidateForm extends React.Component {
         this.updateSelectedCandidate("filenames", [...newfilenames, ...filenames]);
     }
 
-    //callback for Delete button. needed this for confirmation prompt
-    HandleDelete() {
-        const key = this.props.match.params.id;
-        const candidate = this.state.candidate;
-        const confirmationMsg = "Are you sure you want to delete " + candidate.firstname + " " + candidate.lastname + "?";
-        const deleteConfirmed = window.confirm(confirmationMsg);
+    DeleteFile(ev, filename) {
+        ev.stopPropagation();
+        ev.preventDefault();
+        const { key, candidate } = this.state;
+        const filenames = candidate.filenames;
+        const newFilenames = filenames.filter(f => f !== filename);
 
-        if (deleteConfirmed) {
-            this.DeleteCandidate(key, candidate.filenames);
+        if (window.confirm(`Are you sure you want to delete ${filename}?`)) {
+            fbStorage
+                .child(key + "/" + filename)
+                .delete()
+                .then(() => {
+                    fbCandidatesDB.doc(key).update({ filenames: newFilenames });
+                })
+                .catch(err => console.error("File, line 25", err));
         }
     }
 
@@ -230,9 +236,12 @@ export default class EditCandidateForm extends React.Component {
                     const fileRef = fbStorage.child(key + "/" + file.name);
                     uploadedFiles.push(fileRef.put(file, { contentType: file.type })); //add file upload promise to array, so that we can use promise.all() for one returned promise
                 }
-                Promise.all(uploadedFiles).then(() => {
-                    history.push("/candidates/" + key); //wait until all files have been uploaded, then go to profile page.
-                });
+
+                Promise.all(uploadedFiles)
+                    .then(() => {
+                        history.push("/candidates/" + key); //wait until all files have been uploaded, then go to profile page.
+                    })
+                    .catch(error => console.log(error));
             })
             .catch(err => console.error("EditCandidate, line 167: ", err));
     }
@@ -246,6 +255,18 @@ export default class EditCandidateForm extends React.Component {
             .doc(key)
             .update(candidate)
             .catch(err => console.error("EditCandidate, line 250: ", err));
+    }
+
+    //callback for Delete button. needed this for confirmation prompt
+    HandleDelete() {
+        const key = this.props.match.params.id;
+        const candidate = this.state.candidate;
+        const confirmationMsg = "Are you sure you want to delete " + candidate.firstname + " " + candidate.lastname + "?";
+        const deleteConfirmed = window.confirm(confirmationMsg);
+
+        if (deleteConfirmed) {
+            this.DeleteCandidate(key, candidate.filenames);
+        }
     }
 
     //callback function when delete candidate button is click in form.
@@ -366,7 +387,7 @@ export default class EditCandidateForm extends React.Component {
                                         <label>Add document:</label>
                                         <Form.Input name="doc_filename" type="file" multiple onChange={this.HandleFileUpload} />
                                     </Form.Group>
-                                    <Files deletable candidateID={this.props.match.params.id} filenames={candidate.filenames} />
+                                    <Files deletable id={this.props.match.params.id} filenames={candidate.filenames} onDelete={this.DeleteFile} />
                                 </Segment>
                                 <Header>Notes</Header>
                                 <Segment>

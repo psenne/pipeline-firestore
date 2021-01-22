@@ -1,63 +1,41 @@
-import React, { Component } from "react";
+import React, { useState, useEffect } from "react";
 import { fbStorage } from "../firebase.config";
 import File from "./File";
 import { List } from "semantic-ui-react";
 
-export default class Files extends Component {
-    constructor(props) {
-        super(props);
+export default function Files({ id, filenames, deletable = false, onDelete }) {
+    const [links, setlinks] = useState(null);
 
-        this.state = {
-            links: []
-        };
+    useEffect(() => {
+        fetchFiles(id, filenames);
+    }, [id, filenames]);
 
-        this.fetchFiles = this.fetchFiles.bind(this);
-    }
-
-    fetchFiles(candidateID, filenames) {
-        let newlinks = [];
-        filenames.forEach(filename => {
-            fbStorage
-                .child(candidateID + "/" + filename)
+    const fetchFiles = (id, filenames) => {
+        let getdocumenturls = filenames.map(filename => {
+            return fbStorage
+                .child(id + "/" + filename)
                 .getDownloadURL()
                 .then(url => {
-                    newlinks.push({
+                    return {
                         url,
                         filename
-                    });
-
-                    this.setState({
-                        links: newlinks
-                    });
-                })
-                .catch(err => {
-                    if (err.code_ !== "storage/object-not-found") console.error("Files, line 34: ", err);
+                    };
                 });
         });
-    }
+        Promise.all(getdocumenturls)
+            .then(newlinks => setlinks(newlinks))
+            .catch(err => {
+                setlinks(null);
+                if (err.code_ !== "storage/object-not-found") console.error("Document not found. Probably not uploaded yet.");
+            });
+    };
 
-    componentDidMount() {
-        const { candidateID, filenames } = this.props;
-        this.fetchFiles(candidateID, filenames);
-    }
-
-    componentDidUpdate(prevProps) {
-        const { filenames, candidateID } = this.props;
-        if (prevProps.filenames.length !== filenames.length) {
-            this.fetchFiles(candidateID, filenames);
-        }
-    }
-
-    render() {
-        const { links } = this.state;
-        const { deletable, candidateID, filenames } = this.props;
-
-        return (
-            <List>
-                {links.map(link => {
-                    return <File key={link.filename} filenames={filenames} candidateID={candidateID} link={link} deletable={deletable} />;
+    return (
+        <List>
+            {links &&
+                links.map((link, i) => {
+                    return <File key={i} link={link} deletable={deletable} onDelete={onDelete} />;
                 })}
-            </List>
-        );
-    }
+        </List>
+    );
 }
