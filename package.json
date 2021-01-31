@@ -32,9 +32,9 @@
     "build:test": "env-cmd -f .env.test react-scripts build",
     "build:prod": "env-cmd -f .env.production react-scripts build",
     "emulator": "firebase emulators:start --import=./test-data --export-on-exit",
-    "preview": "env-cmd -f .env.production npm run build && firebase hosting:channel:deploy pipeline-preview -P prod",
-    "deploy:test":"env-cmd -f .env.test npm run build && firebase deploy --only hosting -P test",
-    "deploy:prod":"env-cmd -f .env.production npm run build && firebase deploy -P prod"
+    "preview": "env-cmd -f .env.production npm run build:prod && firebase hosting:channel:deploy pipeline-preview -P prod",
+    "deploy:test":"env-cmd -f .env.test npm run build:test && firebase deploy --only hosting -P test",
+    "deploy:prod":"env-cmd -f .env.production npm run build:prod && firebase deploy -P prod"
   },
   "eslintConfig": {
     "extends": "react-app"
