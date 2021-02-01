@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from "react";
 import { useParams } from "react-router-dom";
 import history from "../modules/history";
-import firebase, { fbEmployeesDB, fbStorage } from "../firebase.config";
+import firebase, { fbEmployeesDB, fbStorage, fbFlagNotes } from "../firebase.config";
 import UserContext from "../contexts/UserContext";
 import ContractDropdown from "../CommonComponents/ContractDropdown";
 import Files from "../CommonComponents/Files";
@@ -24,7 +24,7 @@ export default function EditEmployeePage() {
                 setEmployee({ ...doc.data() });
             } else {
                 unsub();
-                history.push("/employee/add");
+                history.push("/employees/add");
             }
         });
         return () => {
@@ -99,7 +99,36 @@ export default function EditEmployeePage() {
         }
     };
 
-    const DeleteRecord = () => {};
+    const DeleteRecord = () => {
+        const confirmationMsg = "Are you sure you want to delete " + employee.firstname + " " + employee.lastname + "?";
+        const deleteConfirmed = window.confirm(confirmationMsg);
+
+        if (deleteConfirmed) {
+            fbEmployeesDB
+                .doc(id)
+                .delete()
+                .then(() => {
+                    fbStorage
+                        .child(id)
+                        .listAll()
+                        .then(res => {
+                            res.items.forEach(itemRef => {
+                                itemRef.delete();
+                            });
+                        })
+                        .catch(error => {
+                            console.error("Error deleting files:", error);
+                        });
+                })
+                .then(() => {
+                    fbFlagNotes.child(id).remove();
+                })
+                .then(() => history.push("/employees/"))
+                .catch(function (error) {
+                    console.error("Error deleting employee:", error);
+                });
+        }
+    };
 
     const panes = [
         {

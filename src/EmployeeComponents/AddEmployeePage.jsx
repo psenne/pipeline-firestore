@@ -28,11 +28,12 @@ export default function AddEmployeePage() {
     };
 
     const HandleFileUpload = ev => {
-        setFiles(ev.target.files);
-
         let filenames = [];
-        for (var i = 0; i < files.length; i++) {
-            filenames.push(files[i].name);
+        const tmpFiles = ev.target.files;
+        setFiles(tmpFiles);
+
+        for (var i = 0; i < tmpFiles.length; i++) {
+            filenames.push(tmpFiles[i].name);
         }
         setEmployee({ ...employee, ...{ filenames } });
     };
