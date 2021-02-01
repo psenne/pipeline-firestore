@@ -28,10 +28,10 @@
         "xlsx": "^0.15.3"
     },
     "scripts": {
-        "start": "env-cmd -f .env.production react-scripts start",
+        "start": "env-cmd -f .env.test react-scripts start",
         "build:test": "env-cmd -f .env.test react-scripts build",
         "build:prod": "env-cmd -f .env.production react-scripts build",
-        "emulator": "firebase emulators:start -P prod --import=./test-data --export-on-exit",
+        "emulator": "firebase emulators:start -P test --import=./test-data --export-on-exit",
         "preview": "env-cmd -f .env.production npm run build:prod && firebase hosting:channel:deploy pipeline-preview -P prod",
         "deploy:test": "env-cmd -f .env.test npm run build:test && firebase deploy --only hosting -P test",
         "deploy:prod": "env-cmd -f .env.production npm run build:prod && firebase deploy -P prod"
