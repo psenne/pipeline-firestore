@@ -31,4 +31,4 @@ public/.htaccess
 *-debug.log
 functions/.runtimeconfig.json
 prod-key.json
-test-data/auth_export/accounts.json
+test-data/*
