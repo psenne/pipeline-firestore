@@ -2,17 +2,15 @@ import React from "react";
 import history from "../modules/history";
 import classnames from "classnames";
 import { sentence } from "to-case";
-
 import NavBar from "../NavBar";
 import LOIStatusDropdown from "./LOIStatusDropdown";
-import ContractDropdown from "./ContractDropdown";
-import ManagerDropdown from "./ManagerDropdown";
-import Files from "./Files";
-import firebase, { fbCandidatesDB, fbStorage, fbFlagNotes } from "../firebase.config";
+import ContractDropdown from "../CommonComponents/ContractDropdown";
+import ManagerDropdown from "../CommonComponents/ManagerDropdown";
+import ModalConvertToEmployee from "./ModalConvertToEmployee";
+import Files from "../CommonComponents/Files";
+import firebase, { fbCandidatesDB, fbStorage, fbFlagNotes, fbEmployeesDB } from "../firebase.config";
 import { tmplCandidate } from "../constants/candidateInfo";
-
 import { Form, Container, Segment, Button, Message, Header, Menu, Icon, Checkbox, Tab } from "semantic-ui-react";
-
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
@@ -24,7 +22,8 @@ export default class EditCandidateForm extends React.Component {
             candidate: Object.assign({}, tmplCandidate),
             key: null,
             files: "",
-            formError: false
+            formError: false,
+            isModalOpen: false
         };
 
         this.handleInterviewDateChange = this.handleInterviewDateChange.bind(this);
@@ -37,8 +36,11 @@ export default class EditCandidateForm extends React.Component {
         this.HandleLOIStatusChange = this.HandleLOIStatusChange.bind(this);
         this.ToggleArchive = this.ToggleArchive.bind(this);
         this.HandleFileUpload = this.HandleFileUpload.bind(this);
+        this.DeleteFile = this.DeleteFile.bind(this);
         this.ValidateAndSubmit = this.ValidateAndSubmit.bind(this);
         this.HandleDelete = this.HandleDelete.bind(this);
+        this.ConvertToEmployee = this.ConvertToEmployee.bind(this);
+        this.setModalOpen = this.setModalOpen.bind(this);
         this.updateSelectedCandidate = this.updateSelectedCandidate.bind(this);
     }
 
@@ -48,8 +50,7 @@ export default class EditCandidateForm extends React.Component {
         this.unsubCandidate = fbCandidatesDB.doc(candidateID).onSnapshot(doc => {
             if (doc.exists) {
                 this.setState({ candidate: Object.assign({}, tmplCandidate, doc.data(), { modified_fields: [] }), key: doc.id });
-            } 
-            else {
+            } else {
                 history.replace("/candidates");
             }
         });
@@ -128,29 +129,72 @@ export default class EditCandidateForm extends React.Component {
         //add files to state for later uploading
         const files = ev.target.files;
         const { filenames } = this.state.candidate;
-
         this.setState({
             files
         });
-
         //add filenames to candidate info for later retrieving
-        let newfilenames = [];
+        let newfilenames = [...filenames];
         for (var i = 0; i < files.length; i++) {
             newfilenames.push(files[i].name);
         }
-        this.updateSelectedCandidate("filenames", [...newfilenames, ...filenames]);
+        this.updateSelectedCandidate("filenames", [...newfilenames]);
     }
 
-    //callback for Delete button. needed this for confirmation prompt
-    HandleDelete() {
-        const key = this.props.match.params.id;
-        const candidate = this.state.candidate;
-        const confirmationMsg = "Are you sure you want to delete " + candidate.firstname + " " + candidate.lastname + "?";
-        const deleteConfirmed = window.confirm(confirmationMsg);
+    DeleteFile(ev, filename) {
+        ev.stopPropagation();
+        ev.preventDefault();
+        const { key, candidate } = this.state;
+        const filenames = candidate.filenames;
+        const newFilenames = filenames.filter(f => f !== filename);
 
-        if (deleteConfirmed) {
-            this.DeleteCandidate(key, candidate.filenames);
+        if (window.confirm(`Are you sure you want to delete ${filename}?`)) {
+            fbStorage
+                .child(key + "/" + filename)
+                .delete()
+                .then(() => {
+                    fbCandidatesDB.doc(key).update({ filenames: newFilenames });
+                })
+                .catch(err => console.error("File, line 25", err));
         }
+    }
+
+    setModalOpen(isOpen) {
+        this.setState({ isModalOpen: isOpen });
+    }
+
+    ConvertToEmployee({ hired_on, salary, birthday, notes, level, title, current_contract }) {
+        const candidate = this.state.candidate;
+        const key = this.state.key;
+
+        const employee = {
+            current_contract: current_contract,
+            firstname: candidate.firstname,
+            lastname: candidate.lastname,
+            emailaddress: candidate.emailaddress,
+            telephone: candidate.telephone,
+            found_by: candidate.found_by,
+            filenames: candidate.filenames,
+            hired_on,
+            level,
+            notes,
+            title,
+            salary,
+            birthday,
+            created_date: candidate.created_date,
+            created_by: candidate.created_by,
+            resume_text: candidate.resume_text
+        };
+
+        fbEmployeesDB
+            .doc(key)
+            .set(employee)
+            .then(() => {
+                this.DeleteCandidate(key, []);
+                this.setState({ isOpen: false });
+            })
+            .then(() => {
+                history.push(`/employees/${key}`);
+            });
     }
 
     // only required fields are first and last name of candidate. If those aren't set return false and show error message
@@ -191,9 +235,12 @@ export default class EditCandidateForm extends React.Component {
                     const fileRef = fbStorage.child(key + "/" + file.name);
                     uploadedFiles.push(fileRef.put(file, { contentType: file.type })); //add file upload promise to array, so that we can use promise.all() for one returned promise
                 }
-                Promise.all(uploadedFiles).then(() => {
-                    history.push("/candidates/" + key); //wait until all files have been uploaded, then go to profile page.
-                });
+
+                Promise.all(uploadedFiles)
+                    .then(() => {
+                        history.push("/candidates/" + key); //wait until all files have been uploaded, then go to profile page.
+                    })
+                    .catch(error => console.log(error));
             })
             .catch(err => console.error("EditCandidate, line 167: ", err));
     }
@@ -201,12 +248,24 @@ export default class EditCandidateForm extends React.Component {
     //callback for checkbox for setting candidate to archive
     ToggleArchive(ev, data) {
         const { candidate, key } = this.state;
-        
+
         candidate.archived = data.checked ? "archived" : "current";
         fbCandidatesDB
             .doc(key)
             .update(candidate)
             .catch(err => console.error("EditCandidate, line 250: ", err));
+    }
+
+    //callback for Delete button. needed this for confirmation prompt
+    HandleDelete() {
+        const key = this.props.match.params.id;
+        const candidate = this.state.candidate;
+        const confirmationMsg = "Are you sure you want to delete " + candidate.firstname + " " + candidate.lastname + "?";
+        const deleteConfirmed = window.confirm(confirmationMsg);
+
+        if (deleteConfirmed) {
+            this.DeleteCandidate(key, candidate.filenames);
+        }
     }
 
     //callback function when delete candidate button is click in form.
@@ -219,17 +278,20 @@ export default class EditCandidateForm extends React.Component {
                     fbStorage
                         .child(key + "/" + filename)
                         .delete()
-                        .catch(function(error) {
+                        .catch(function (error) {
                             console.error("Error deleting files:", error);
                         });
                 });
             })
-            .then(()=>{
+            .then(() => {
                 fbFlagNotes.child(key).remove();
             })
-            .catch(function(error) {
+            .catch(function (error) {
                 console.error("Error deleting candidate:", error);
             });
+
+        // var recursiveDelete = firebase.functions().httpsCallable("recursiveDelete");
+        // recursiveDelete({ path: `/candidates/${key}` });
     }
 
     render() {
@@ -258,7 +320,6 @@ export default class EditCandidateForm extends React.Component {
                 )
             }
         ];
-
 
         return (
             <>
@@ -325,7 +386,7 @@ export default class EditCandidateForm extends React.Component {
                                         <label>Add document:</label>
                                         <Form.Input name="doc_filename" type="file" multiple onChange={this.HandleFileUpload} />
                                     </Form.Group>
-                                    <Files deletable candidateID={this.props.match.params.id} filenames={candidate.filenames} />
+                                    <Files deletable id={this.props.match.params.id} filenames={candidate.filenames} onDelete={this.DeleteFile} />
                                 </Segment>
                                 <Header>Notes</Header>
                                 <Segment>
@@ -336,7 +397,12 @@ export default class EditCandidateForm extends React.Component {
                         </Segment>
                         <Segment>
                             {this.state.formError && <Message error floating compact icon="warning" header="Required fields missing" content="First and last names are both required." />}
-                            <Button type="submit" icon="save" positive content="Update" onClick={this.ValidateAndSubmit} />
+                            {(candidate.status === "active" || candidate.status === "processing") && (
+                                <ModalConvertToEmployee isOpen={this.state.isModalOpen} setOpen={this.setModalOpen} candidate={this.state.candidate} CompleteConversion={this.ConvertToEmployee}>
+                                    <Button type="submit" icon="right arrow" labelPosition="right" floated="right" positive content="Convert to Employee" onClick={() => this.setModalOpen(true)} />
+                                </ModalConvertToEmployee>
+                            )}
+                            <Button type="submit" icon="save" color="blue" content="Update" onClick={this.ValidateAndSubmit} />
                             <Button type="submit" icon="trash" negative content="Delete" onClick={this.HandleDelete} />
                         </Segment>
                     </Container>

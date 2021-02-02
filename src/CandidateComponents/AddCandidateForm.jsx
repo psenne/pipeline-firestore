@@ -3,7 +3,7 @@ import history from "../modules/history";
 import firebase, { fbCandidatesDB, fbStorage } from "../firebase.config";
 import { tmplCandidate } from "../constants/candidateInfo";
 import NavBar from "../NavBar";
-import ContractDropdown from "./ContractDropdown";
+import ContractDropdown from "../CommonComponents/ContractDropdown";
 import { Form, Container, Segment, Button, Message, Header, Tab } from "semantic-ui-react";
 
 export default class AddCandidateForm extends React.Component {

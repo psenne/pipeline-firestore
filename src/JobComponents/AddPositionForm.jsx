@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import firebase, { fbPositionsDB, fbCandidatesDB } from "../firebase.config";
 import tmplPosition from "../constants/positionInfo";
 import NavBar from "../NavBar";
-import ContractDropdown from "../CandidateComponents/ContractDropdown";
+import ContractDropdown from "../CommonComponents/ContractDropdown";
 import CandidateDropdown from "../CandidateComponents/CandidateDropdown";
 import UserContext from "../contexts/UserContext";
 import { Form, Container, Icon, Segment, Button, Header, Message } from "semantic-ui-react";
@@ -62,7 +62,7 @@ export default function AddPositionForm() {
                 addedCandidates.forEach(submission => {
                     const ckey = submission.key; //candidate key
                     const candidateRef = fbCandidatesDB.doc(ckey).collection("submitted_positions").doc(pkey);
-                    const positionRef = fbPositionsDB.doc(pkey).collection("submitted_candidates").doc(ckey)
+                    const positionRef = fbPositionsDB.doc(pkey).collection("submitted_candidates").doc(ckey);
                     const updatedSubmissionInfo = {
                         submission_date: submission.info.submission_date,
                         candidate_id: ckey,
@@ -75,12 +75,14 @@ export default function AddPositionForm() {
                     batch.set(positionRef, updatedSubmissionInfo);
                 });
 
-                batch.commit().then(() => {
-                    history.push("/positions/");
-                }).catch(err => console.log(err));
+                batch
+                    .commit()
+                    .then(() => {
+                        history.push("/positions/");
+                    })
+                    .catch(err => console.log(err));
             });
-        } 
-        else {
+        } else {
             setformError(true);
         }
     };
@@ -115,7 +117,7 @@ export default function AddPositionForm() {
                             <Header>Candidate submission</Header>
                             {addedCandidates.map(candidate => {
                                 const candidate_submission_date = candidate.info.submission_date.toDate();
-                                return (                              
+                                return (
                                     <p key={candidate.key}>
                                         <Link to={`/candidates/${candidate.key}`}>
                                             {candidate.info.candidate_name} - submitted on {format(candidate_submission_date, "MMMM d, yyyy")}

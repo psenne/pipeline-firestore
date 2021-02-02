@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import history from "../modules/history";
 import { Container, Menu, Icon } from "semantic-ui-react";
 import UserContext from "../contexts/UserContext";
-import FlagMessagePopup from "./FlagMessagePopup";
+import FlagMessagePopup from "../CommonComponents/FlagMessagePopup";
 import CandidateProfile from "./CandidateProfile";
 import NavBar from "../NavBar";
 

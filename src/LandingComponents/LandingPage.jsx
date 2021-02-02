@@ -9,21 +9,11 @@ import { Container, Grid } from "semantic-ui-react";
 
 export default () => {
     return (
-        <>
+        <div className="view-panel">
             <NavBar active="dashboard" />
-            <Container>
-                <Grid stackable columns="equal">
-                    <Grid.Row>
-                        <FlaggedCandidates />
-                    </Grid.Row>
-                    <Grid.Row>
-                        <Grid.Column>
-                            <RecentPositions />
-                        </Grid.Column>
-                        <Grid.Column>
-                            <RecentSubmissions />
-                        </Grid.Column>
-                    </Grid.Row>
+            <Container fluid>
+                <FlaggedCandidates />
+                <Grid stackable columns={3}>
                     <Grid.Row>
                         <Grid.Column>
                             <LastCreated />
@@ -31,9 +21,17 @@ export default () => {
                         <Grid.Column>
                             <LastModified />
                         </Grid.Column>
+                        <Grid.Column>
+                            <RecentSubmissions />
+                        </Grid.Column>
+                    </Grid.Row>
+                    <Grid.Row>
+                        <Grid.Column>
+                            <RecentPositions />
+                        </Grid.Column>
                     </Grid.Row>
                 </Grid>
             </Container>
-        </>
+        </div>
     );
 };

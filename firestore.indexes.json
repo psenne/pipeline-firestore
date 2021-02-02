@@ -17,6 +17,34 @@
           "order": "DESCENDING"
         }
       ]
+    },
+    {
+      "collectionGroup": "positions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "title",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "contract",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "positions-pipeline",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "contract",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "position_id",
+          "order": "ASCENDING"
+        }
+      ]
     }
   ],
   "fieldOverrides": [

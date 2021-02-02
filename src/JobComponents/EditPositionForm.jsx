@@ -1,17 +1,19 @@
 import React, { useState, useEffect, useContext } from "react";
+import { useParams } from "react-router-dom";
 import { format } from "date-fns";
 import history from "../modules/history";
 import { Link } from "react-router-dom";
 import firebase, { fbPositionsDB, fbCandidatesDB } from "../firebase.config";
 import tmplPosition from "../constants/positionInfo";
 import NavBar from "../NavBar";
-import ContractDropdown from "../CandidateComponents/ContractDropdown";
+import ContractDropdown from "../CommonComponents/ContractDropdown";
 import CandidateDropdown from "../CandidateComponents/CandidateDropdown";
 import UserContext from "../contexts/UserContext";
 import { Form, Container, Segment, Button, Header, Message, Icon } from "semantic-ui-react";
 
-export default function EditPositionForm({ match }) {
-    const key = match.params.id;
+export default function EditPositionForm() {
+    const { id } = useParams();
+    const key = id;
     const currentuser = useContext(UserContext);
     const [position, setposition] = useState(Object.assign({}, tmplPosition));
     const [addedCandidates, setaddedCandidates] = useState([]); //candidates that are added when using this form
@@ -19,7 +21,6 @@ export default function EditPositionForm({ match }) {
     const [formError, setformError] = useState(false);
 
     useEffect(() => {
-        const key = match.params.id;
         const unsubPosition = fbPositionsDB.doc(key).onSnapshot(pos => {
             if (pos.exists) {
                 setposition({ ...pos.data() });
@@ -31,10 +32,9 @@ export default function EditPositionForm({ match }) {
         return () => {
             unsubPosition();
         };
-    }, [match.params.id]);
+    }, [key]);
 
     useEffect(() => {
-        const key = match.params.id;
         const unsubSubmitted = fbPositionsDB
             .doc(key)
             .collection("submitted_candidates")
@@ -49,7 +49,7 @@ export default function EditPositionForm({ match }) {
         return () => {
             unsubSubmitted();
         };
-    }, [match.params.id]);
+    }, [key]);
 
     const HandleTextInput = ev => {
         const name = ev.target.name;

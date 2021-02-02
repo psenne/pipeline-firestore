@@ -2,7 +2,6 @@ import React, { Suspense, lazy } from "react";
 import { Route, Switch, Router } from "react-router-dom";
 import history from "./modules/history";
 import UserContext from "./contexts/UserContext";
-
 import { Loader, Dimmer } from "semantic-ui-react";
 import "semantic-ui-css/semantic.css";
 
@@ -13,11 +12,10 @@ const AddCandidateForm = lazy(() => import("./CandidateComponents/AddCandidateFo
 const EditCandidateForm = lazy(() => import("./CandidateComponents/EditCandidateForm"));
 const AdminPage = lazy(() => import("./AdminComponents/AdminPage"));
 const LoginHistory = lazy(() => import("./AdminComponents/LoginHistory"));
+const EmployeesPage = lazy(() => import("./EmployeeComponents/EmployeesPage"));
 const PositionsPage = lazy(() => import("./JobComponents/PositionsPage"));
 const AddPositionForm = lazy(() => import("./JobComponents/AddPositionForm"));
 const EditPositionForm = lazy(() => import("./JobComponents/EditPositionForm"));
-const DisplayExportedCandidates = lazy(() => import("./DisplayExportedCandidates"));
-const DisplayExportedPositions = lazy(() => import("./DisplayExportedPositions"));
 const NoMatch = lazy(() => import("./nomatch"));
 
 export default function AppRoutes() {
@@ -39,13 +37,24 @@ export default function AppRoutes() {
                                 <Route exact path="/candidates/:id/edit" render={props => <EditCandidateForm currentuser={currentuser} {...props} />} />
                                 <Route path="/candidates/:id" render={props => <CandidateDetailPage currentuser={currentuser} {...props} />} />
                                 <Route path="/candidates" render={props => <CandidatesPage {...props} />} />
-                                <Route path="/positions/add" render={props => <AddPositionForm currentuser={currentuser} {...props} />} />
-                                <Route exact path="/positions/:id" render={props => <EditPositionForm currentuser={currentuser} {...props} />} />
-                                <Route path="/positions" render={props => <PositionsPage {...props} />} />
-                                <Route path="/loginhistory" render={props => <LoginHistory {...props} />} />
-                                <Route path="/exportcandidates" render={props => <DisplayExportedCandidates {...props} />} />
-                                <Route path="/exportpositions" render={props => <DisplayExportedPositions {...props} />} />
-                                <Route render={() => <NoMatch />} />
+                                <Route path="/employees">
+                                    <EmployeesPage />
+                                </Route>
+                                <Route path="/positions/add">
+                                    <AddPositionForm currentuser={currentuser} />
+                                </Route>
+                                <Route path="/positions/:id">
+                                    <EditPositionForm />
+                                </Route>
+                                <Route path="/positions">
+                                    <PositionsPage />
+                                </Route>
+                                <Route path="/loginhistory">
+                                    <LoginHistory />
+                                </Route>
+                                <Route path="*">
+                                    <NoMatch />
+                                </Route>
                             </Switch>
                         </>
                     )}

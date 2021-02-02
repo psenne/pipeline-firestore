@@ -3,7 +3,7 @@ import { fbCandidatesDB, fbFlagNotes } from "../firebase.config";
 import history from "../modules/history";
 import { format, parseISO } from "date-fns";
 import classnames from "classnames";
-import FlagMessagePopup from "./FlagMessagePopup";
+import FlagMessagePopup from "../CommonComponents/FlagMessagePopup";
 import UserContext from "../contexts/UserContext";
 import { Icon, Menu } from "semantic-ui-react";
 
@@ -54,7 +54,7 @@ export default class MiniToolbar extends React.Component {
 
     ArchiveCandidate(ev) {
         ev.stopPropagation();
-        
+
         const { ckey, candidate } = this.props;
 
         let updatedinfo;

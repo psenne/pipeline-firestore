@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import PositionContext from "../contexts/PositionContext";
 import { Input, Icon, Menu, Container } from "semantic-ui-react";
-import ContractDropdown from "../CandidateComponents/ContractDropdown";
+import ContractDropdown from "../CommonComponents/ContractDropdown";
 import ExportPositions from "../modules/ExportPositions";
 import classnames from "classnames";
 
@@ -22,15 +22,9 @@ export default ({ positions, contracts }) => {
         setsearchterm("");
     };
 
-    //serious hack for getting the submissions to show after they've been loaded
-    //this updates the position page state and re-renders the positions table
-    // setTimeout(()=>{
-    //         SetSelectedContract("e");
-    //         SetSelectedContract("");
-    // }, 500)
     return (
         <Container fluid>
-            <Menu className="no-print" style={{ margin: "1rem" }}>
+            <Menu stackable className="no-print" style={{ margin: "1rem" }}>
                 <Menu.Item title="Add new position" link>
                     <Link to="/positions/add">
                         <Icon name="plus" />

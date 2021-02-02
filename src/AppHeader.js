@@ -6,7 +6,7 @@ import { Image, Menu } from "semantic-ui-react";
 import * as logo from "./images/RenegadeLogo_white_transparent.png";
 
 const AppHeader = ({ currentuser }) => (
-    <Menu borderless inverted className="no-print">
+    <Menu borderless stackable inverted className="no-print">
         <Menu.Item header>
             <a href="/">
                 <Image src={logo} className="header-logo" />
