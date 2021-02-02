@@ -39,7 +39,7 @@ export default function AddEmployeePage() {
     };
 
     const ValidateAndSubmit = () => {
-        if (employee.firstname.length === 0 && employee.lastname.length === 0) {
+        if (employee.firstname.length === 0 || employee.lastname.length === 0) {
             seterror(true);
         } else {
             seterror(false);

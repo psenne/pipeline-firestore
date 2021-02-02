@@ -132,13 +132,12 @@ export default class EditCandidateForm extends React.Component {
         this.setState({
             files
         });
-
         //add filenames to candidate info for later retrieving
-        let newfilenames = [];
+        let newfilenames = [...filenames];
         for (var i = 0; i < files.length; i++) {
             newfilenames.push(files[i].name);
         }
-        this.updateSelectedCandidate("filenames", [...newfilenames, ...filenames]);
+        this.updateSelectedCandidate("filenames", [...newfilenames]);
     }
 
     DeleteFile(ev, filename) {

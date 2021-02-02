@@ -48,7 +48,7 @@ export default function EditEmployeePage() {
         const files = ev.target.files;
         setFiles(files);
 
-        let filenames = [];
+        let filenames = [...employee.filenames];
         for (var i = 0; i < files.length; i++) {
             filenames.push(files[i].name);
         }
