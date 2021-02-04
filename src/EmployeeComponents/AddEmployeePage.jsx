@@ -56,7 +56,7 @@ export default function AddEmployeePage() {
                     uploadedFiles.push(fileRef.put(file, { contentType: file.type })); //add file upload promise to array, so that we can use promise.all() for one returned promise
                 }
                 Promise.all(uploadedFiles).then(() => {
-                    history.push("/employees/" + key); //wait until all files have been uploaded, then go to profile page.
+                    history.push("/employees/"); //wait until all files have been uploaded, then go to profile page.
                 });
             });
         }

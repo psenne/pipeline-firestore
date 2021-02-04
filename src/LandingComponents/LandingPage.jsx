@@ -6,6 +6,7 @@ import FlaggedCandidates from "./FlaggedCandidates";
 import RecentPositions from "./RecentPositions";
 import RecentSubmissions from "./RecentSubmissions";
 import { Container, Grid } from "semantic-ui-react";
+import AtRiskEmployees from "./AtRiskEmployees";
 
 export default () => {
     return (
@@ -28,6 +29,9 @@ export default () => {
                     <Grid.Row>
                         <Grid.Column>
                             <RecentPositions />
+                        </Grid.Column>
+                        <Grid.Column>
+                            <AtRiskEmployees />
                         </Grid.Column>
                     </Grid.Row>
                 </Grid>
