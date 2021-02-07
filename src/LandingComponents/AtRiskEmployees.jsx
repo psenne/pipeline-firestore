@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { fbEmployeesDB } from "../firebase.config";
-import { Container, List, ListDescription } from "semantic-ui-react";
+import { Container, List } from "semantic-ui-react";
 import ComponentPlaceholder from "./ComponentPlaceholder";
 import { format } from "date-fns";
 import tmplEmployee from "../constants/employee";
