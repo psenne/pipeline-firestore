@@ -11,7 +11,7 @@ function isSearched(s) {
 
         s.split(" ").forEach(searchTerm => {
             let termFound = false;
-            if (item.firstname.toLowerCase().includes(searchTerm.toLowerCase()) || item.lastname.toLowerCase().includes(searchTerm.toLowerCase())) {
+            if (item.firstname.toLowerCase().includes(searchTerm.toLowerCase()) || item.lastname.toLowerCase().includes(searchTerm.toLowerCase()) || item.resume_text.toLowerCase().includes(searchTerm.toLowerCase()) || item.notes.toLowerCase().includes(searchTerm.toLowerCase())) {
                 termFound = true;
             }
             wasFound = wasFound && termFound;
