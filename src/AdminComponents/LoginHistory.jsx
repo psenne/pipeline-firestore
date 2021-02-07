@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { fbLoginsDB } from "../firebase.config";
 import { format, parseISO } from "date-fns";
-import { Container, Table, Header, Icon} from "semantic-ui-react";
+import { Container, Table, Header, Icon } from "semantic-ui-react";
 
 class LoginHistory extends Component {
     constructor(props) {
@@ -13,19 +13,23 @@ class LoginHistory extends Component {
     }
 
     componentDidMount() {
-        fbLoginsDB.orderByChild("eventtime").limitToLast(1000).on("value", data => {
-            let tmp = [];
-            data.forEach(event => {
-                tmp.push({ key: event.key, eventinfo: event.val() });
+        this.props.setloading(true);
+        fbLoginsDB
+            .orderByChild("eventtime")
+            .limitToLast(100)
+            .on("value", data => {
+                let tmp = [];
+                data.forEach(event => {
+                    tmp.push({ key: event.key, eventinfo: event.val() });
+                });
+                this.setState({ logins: tmp.reverse() }, () => this.props.setloading(false));
             });
-            this.setState({ logins: tmp.reverse() });
-        });
     }
     render() {
         const { logins } = this.state;
         return (
             <Container>
-                <Header size="huge" inverted color="teal" attached="top">
+                <Header size="large" attached="top">
                     <Icon name="log out" /> Login history
                 </Header>
                 <Table attached="bottom">
