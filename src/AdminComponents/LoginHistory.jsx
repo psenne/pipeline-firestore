@@ -30,7 +30,7 @@ class LoginHistory extends Component {
         return (
             <Container>
                 <Header size="large" attached="top">
-                    <Icon name="log out" /> Login history
+                    <Icon name="log out" /> Logins
                 </Header>
                 <Table attached="bottom">
                     <Table.Header>
