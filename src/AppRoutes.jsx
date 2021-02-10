@@ -11,11 +11,8 @@ const CandidateDetailPage = lazy(() => import("./CandidateComponents/CandidateDe
 const AddCandidateForm = lazy(() => import("./CandidateComponents/AddCandidateForm"));
 const EditCandidateForm = lazy(() => import("./CandidateComponents/EditCandidateForm"));
 const AdminPage = lazy(() => import("./AdminComponents/AdminPage"));
-const LoginHistory = lazy(() => import("./AdminComponents/LoginHistory"));
 const EmployeesPage = lazy(() => import("./EmployeeComponents/EmployeesPage"));
 const PositionsPage = lazy(() => import("./JobComponents/PositionsPage"));
-const AddPositionForm = lazy(() => import("./JobComponents/AddPositionForm"));
-const EditPositionForm = lazy(() => import("./JobComponents/EditPositionForm"));
 const NoMatch = lazy(() => import("./nomatch"));
 
 export default function AppRoutes() {
@@ -40,17 +37,8 @@ export default function AppRoutes() {
                                 <Route path="/employees">
                                     <EmployeesPage />
                                 </Route>
-                                <Route path="/positions/add">
-                                    <AddPositionForm currentuser={currentuser} />
-                                </Route>
-                                <Route path="/positions/:id">
-                                    <EditPositionForm />
-                                </Route>
                                 <Route path="/positions">
                                     <PositionsPage />
-                                </Route>
-                                <Route path="/loginhistory">
-                                    <LoginHistory />
                                 </Route>
                                 <Route path="*">
                                     <NoMatch />

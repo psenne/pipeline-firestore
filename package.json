@@ -1,6 +1,6 @@
 {
     "name": "firestore-pipeline",
-    "version": "2.1.1",
+    "version": "2.2.1",
     "private": true,
     "dependencies": {
         "@testing-library/jest-dom": "^4.2.4",
@@ -34,7 +34,8 @@
         "emulator": "firebase emulators:start -P test --import=./test-data --export-on-exit",
         "preview": "env-cmd -f .env.production npm run build:prod && firebase hosting:channel:deploy pipeline-preview -P prod",
         "deploy:test": "env-cmd -f .env.test npm run build:test && firebase deploy --only hosting -P test",
-        "deploy:prod": "env-cmd -f .env.production npm run build:prod && firebase deploy -P prod"
+        "deploy:prod:hosting": "env-cmd -f .env.production npm run build:prod && firebase deploy --only hosting -P prod",
+        "deploy:prod:all": "env-cmd -f .env.production npm run build:prod && firebase deploy -P prod"
     },
     "eslintConfig": {
         "extends": "react-app"

@@ -24,7 +24,8 @@ const tmplEmployee = {
     modified_date: null,
     modified_by: "",
     modified_fields: [],
-    resume_text: ""
+    resume_text: "",
+    at_risk: false
 };
 
 export default tmplEmployee;

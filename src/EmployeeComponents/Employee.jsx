@@ -1,5 +1,5 @@
 import React from "react";
-import { Segment, Header, Tab } from "semantic-ui-react";
+import { Segment, Header, Tab, Label } from "semantic-ui-react";
 import Files from "../CommonComponents/Files";
 import Markdown from "markdown-to-jsx";
 import { format } from "date-fns";
@@ -31,6 +31,11 @@ function Employee({ employee }) {
         <Segment attached padded>
             <Segment vertical padded>
                 <Header size="huge">
+                    {employee.at_risk && (
+                        <Label attached="top right" color="red">
+                            At Risk!
+                        </Label>
+                    )}
                     {employee.firstname} {employee.lastname}
                     <h5>{[employee.emailaddress, employee.telephone].filter(Boolean).join(" / ")}</h5>
                     <Header.Subheader>

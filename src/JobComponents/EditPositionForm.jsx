@@ -5,7 +5,6 @@ import history from "../modules/history";
 import { Link } from "react-router-dom";
 import firebase, { fbPositionsDB, fbCandidatesDB } from "../firebase.config";
 import tmplPosition from "../constants/positionInfo";
-import NavBar from "../NavBar";
 import ContractDropdown from "../CommonComponents/ContractDropdown";
 import CandidateDropdown from "../CandidateComponents/CandidateDropdown";
 import UserContext from "../contexts/UserContext";
@@ -152,7 +151,6 @@ export default function EditPositionForm() {
 
     return (
         <>
-            <NavBar active="positions" />
             <Container>
                 <Segment>
                     <Form>
@@ -163,9 +161,7 @@ export default function EditPositionForm() {
                                 <Form.Input name="level" type="text" label="Level" onChange={HandleTextInput} value={position.level} />
                                 <Form.Input name="location" type="text" label="Location" onChange={HandleTextInput} value={position.location} />
                             </Form.Group>
-                            <Form.Group unstackable widths={2}>
-                                <Form.Input name="skill_summary" type="text" label="Skill Summary" onChange={HandleTextInput} value={position.skill_summary} />
-                            </Form.Group>
+                            <Form.TextArea name="skill_summary" label="Skill Summary" onChange={HandleTextInput} value={position.skill_summary} />
                             <Form.TextArea name="description" label="Description" onChange={HandleTextInput} value={position.description} />
                         </Segment>
                         <Segment>

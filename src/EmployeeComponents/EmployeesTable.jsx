@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { Table, Icon } from "semantic-ui-react";
+import { Table, Icon, Label } from "semantic-ui-react";
 import { Link } from "react-router-dom";
 import EmployeeContext from "../contexts/EmployeeContext";
 import history from "../modules/history";
@@ -11,7 +11,7 @@ function isSearched(s) {
 
         s.split(" ").forEach(searchTerm => {
             let termFound = false;
-            if (item.firstname.toLowerCase().includes(searchTerm.toLowerCase()) || item.lastname.toLowerCase().includes(searchTerm.toLowerCase())) {
+            if (item.firstname.toLowerCase().includes(searchTerm.toLowerCase()) || item.lastname.toLowerCase().includes(searchTerm.toLowerCase()) || item.resume_text.toLowerCase().includes(searchTerm.toLowerCase()) || item.notes.toLowerCase().includes(searchTerm.toLowerCase())) {
                 termFound = true;
             }
             wasFound = wasFound && termFound;
@@ -31,15 +31,16 @@ export default function EmployeesTable({ employees }) {
     const { selectedcontract, searchterm } = useContext(EmployeeContext);
 
     return (
-        <Table columns={6} selectable striped>
+        <Table selectable striped>
             <Table.Header>
                 <Table.Row>
+                    <Table.HeaderCell></Table.HeaderCell>
                     <Table.HeaderCell>Employee</Table.HeaderCell>
                     <Table.HeaderCell>Title</Table.HeaderCell>
                     <Table.HeaderCell>Contract</Table.HeaderCell>
                     <Table.HeaderCell>Telephone Number</Table.HeaderCell>
                     <Table.HeaderCell>E-mail address</Table.HeaderCell>
-                    <Table.HeaderCell width={1}></Table.HeaderCell>
+                    <Table.HeaderCell></Table.HeaderCell>
                 </Table.Row>
             </Table.Header>
 
@@ -63,15 +64,22 @@ export default function EmployeesTable({ employees }) {
                                     }
                                 }}
                                 style={{ cursor: "pointer" }}>
-                                <Table.Cell>{name}</Table.Cell>
-                                <Table.Cell>{title}</Table.Cell>
-                                <Table.Cell>{employee.current_contract}</Table.Cell>
-                                <Table.Cell>{employee.telephone}</Table.Cell>
-                                <Table.Cell>{employee.emailaddress}</Table.Cell>
-                                <Table.Cell textAlign="right">
+                                <Table.Cell width={1}>
                                     <Link to={editlink}>
                                         <Icon name="edit" className="action" />
                                     </Link>
+                                </Table.Cell>
+                                <Table.Cell width={3}>{name}</Table.Cell>
+                                <Table.Cell width={2}>{title}</Table.Cell>
+                                <Table.Cell width={3}>{employee.current_contract}</Table.Cell>
+                                <Table.Cell width={3}>{employee.telephone}</Table.Cell>
+                                <Table.Cell width={3}>{employee.emailaddress}</Table.Cell>
+                                <Table.Cell width={1}>
+                                    {employee.at_risk && (
+                                        <Label ribbon="right" color="red">
+                                            At Risk
+                                        </Label>
+                                    )}
                                 </Table.Cell>
                             </Table.Row>
                         );

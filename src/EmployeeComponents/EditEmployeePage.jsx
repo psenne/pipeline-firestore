@@ -6,7 +6,7 @@ import UserContext from "../contexts/UserContext";
 import ContractDropdown from "../CommonComponents/ContractDropdown";
 import Files from "../CommonComponents/Files";
 import tmplEmployee from "../constants/employee";
-import { Form, Container, Segment, Button, Header, Tab } from "semantic-ui-react";
+import { Form, Container, Segment, Button, Header, Tab, Checkbox } from "semantic-ui-react";
 import SemanticDatepicker from "react-semantic-ui-datepickers";
 import { subYears } from "date-fns";
 import "react-semantic-ui-datepickers/dist/react-semantic-ui-datepickers.css";
@@ -92,7 +92,7 @@ export default function EditEmployeePage() {
 
                     Promise.all(uploadedFiles)
                         .then(() => {
-                            history.push("/employees/" + id); //wait until all files have been uploaded, then go to profile page.
+                            history.push("/employees/"); //wait until all files have been uploaded, then go to profile page.
                         })
                         .catch(error => console.log(error));
                 });
@@ -236,7 +236,19 @@ export default function EditEmployeePage() {
                     </Segment>
                     <Header>Notes</Header>
                     <Segment>
-                        <Tab panes={panes} />
+                        <Form.Field>
+                            <Tab panes={panes} />
+                        </Form.Field>
+                        <Form.Field>
+                            <Checkbox
+                                slider
+                                label="At risk"
+                                checked={employee.at_risk}
+                                onChange={(ev, { checked }) => {
+                                    setEmployee({ ...employee, ...{ at_risk: checked } });
+                                }}
+                            />
+                        </Form.Field>
                         <Form.Field>
                             <label>Add document:</label>
                             <Form.Input name="doc_filename" type="file" multiple onChange={HandleFileUpload} />
