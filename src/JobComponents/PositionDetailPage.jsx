@@ -4,7 +4,7 @@ import { fbPositionsDB } from "../firebase.config";
 import tmplPosition from "../constants/positionInfo";
 import history from "../modules/history";
 import { format } from "date-fns";
-import { Header, Segment, Container, Menu, Icon, Label } from "semantic-ui-react";
+import { Header, Segment, Container, Menu, Icon } from "semantic-ui-react";
 import Markdown from "markdown-to-jsx";
 
 export default function PositionDetailPage({ match }) {
@@ -65,6 +65,13 @@ export default function PositionDetailPage({ match }) {
         ) : (
             ""
         );
+        const description = position.description ? (
+            <Segment vertical>
+                <Markdown>{position.description}</Markdown>
+            </Segment>
+        ) : (
+            ""
+        );
 
         return (
             <Container>
@@ -93,11 +100,9 @@ export default function PositionDetailPage({ match }) {
                         </Header>
                         {skill_summary}
                     </Segment>
-                    <Segment vertical>
-                        <Markdown>{position.description}</Markdown>
-                    </Segment>
-                    <Segment vertical>
-                        {submissions.length > 0 && (
+                    {description}
+                    {submissions.length > 0 && (
+                        <Segment vertical>
                             <Header size="small">
                                 <Header.Content>Candidates submitted:</Header.Content>
                                 <Header.Subheader>
@@ -112,8 +117,8 @@ export default function PositionDetailPage({ match }) {
                                     })}
                                 </Header.Subheader>
                             </Header>
-                        )}
-                    </Segment>
+                        </Segment>
+                    )}
                 </Segment>
                 {created}
             </Container>

@@ -63,7 +63,7 @@ function PositionSummary({ position }) {
                     <p>
                         <Markdown>{position.info.skill_summary}</Markdown>
                     </p>
-                    {/* <p>{more_info}</p> */}
+                    <p>{more_info}</p>
                 </Link>
                 {submissions.length > 0 && (
                     <Header size="small">

@@ -20,7 +20,7 @@ function AuditTrail({ setloading }) {
         return () => {
             fbAuditTrailDB.off("value");
         };
-    }, []);
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <Container>
