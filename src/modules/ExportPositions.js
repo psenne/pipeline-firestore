@@ -1,6 +1,6 @@
 import XLSX from "xlsx";
 import { saveAs } from "file-saver";
-import { format, parseISO } from "date-fns";
+import { format } from "date-fns";
 
 // some random function for excel exporting
 function s2ab(s) {
@@ -20,10 +20,9 @@ function s2ab(s) {
 //     location: String,
 //     added_on: Date
 
-export default function(positions) {
+export default function (positions) {
     const jsontable = positions.map(item => {
-
-        const added_on = item.info.added_on ? format(parseISO(item.info.added_on), "MMM, d yyyy") : "";
+        const added_on = item.info.added_on ? format(item.info.added_on.toDate(), "MMM, d yyyy") : "";
         const candidates = item.info.candidates_submitted || {};
 
         return {
@@ -35,7 +34,9 @@ export default function(positions) {
             Level: item.info.level,
             Location: item.info.location,
 
-            Submissions: Object.keys(candidates).map(key => candidates[key].candidate_name).join(", "),
+            Submissions: Object.keys(candidates)
+                .map(key => candidates[key].candidate_name)
+                .join(", "),
             "Added on": added_on
         };
     });
