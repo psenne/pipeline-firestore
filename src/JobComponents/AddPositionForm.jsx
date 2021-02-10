@@ -89,7 +89,6 @@ export default function AddPositionForm() {
 
     return (
         <>
-            <NavBar active="positions" />
             <Container>
                 <Segment>
                     <Form>

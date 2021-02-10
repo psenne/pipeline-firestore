@@ -1,32 +1,33 @@
 import React, { useState, useEffect } from "react";
 import { fbPositionsDB } from "../firebase.config";
 import { Link } from "react-router-dom";
-import { Segment, Header, Label, Icon } from "semantic-ui-react";
+import { Segment, Header, Label, Icon, Menu } from "semantic-ui-react";
 import classnames from "classnames";
 import { format } from "date-fns";
 import Markdown from "markdown-to-jsx";
 
-
 function PositionSummary({ position }) {
     const [submissions, setsubmissions] = useState([]);
-    const key  = position.key;
-    
+    const key = position.key;
+
     useEffect(() => {
-        const unsub = fbPositionsDB.doc(key).collection("submitted_candidates").onSnapshot(docs =>{
-            var tmpitems = [];
-            docs.forEach(candidate => {
-                tmpitems.push({ key: candidate.id, info: candidate.data()})
+        const unsub = fbPositionsDB
+            .doc(key)
+            .collection("submitted_candidates")
+            .onSnapshot(docs => {
+                var tmpitems = [];
+                docs.forEach(candidate => {
+                    tmpitems.push({ key: candidate.id, info: candidate.data() });
+                });
+                setsubmissions(tmpitems);
             });
-            setsubmissions(tmpitems);
-        });
 
         return () => unsub();
     }, [key]);
 
     const position_id = position.info.position_id ? `(${position.info.position_id})` : "";
-    const contract = position.info.contract ? `${position.info.contract} - ` : "";
+    const contract = position.info.contract ? `${position.info.contract}: ` : "";
     const level = position.info.level ? position.info.level : "";
-    const dash = position.info.level && position.info.skill_summary ? "-" : "";
     const location = position.info.location ? `Location: ${position.info.location}` : "";
     const created = position.info.added_on ? (
         <Header color="grey" size="tiny" textAlign="center" attached="bottom">
@@ -36,25 +37,33 @@ function PositionSummary({ position }) {
     ) : (
         ""
     );
+    const more_info = position.info.description ? (
+        <Link to={`/positions/${position.key}`}>
+            <Icon name="expand arrows alternate"></Icon>more info
+        </Link>
+    ) : (
+        ""
+    );
 
     return (
         <div key={position.key} className={classnames({ "candidate-submitted": submissions.length > 0 }, "candidate-table-row")}>
+            <Menu attached icon className="minitoolbar-inline">
+                <Menu.Item as={Link} title="Edit position" className="minitoolbar-edit" to={`/positions/${key}/edit`} icon="edit"></Menu.Item>
+            </Menu>
             <Segment attached>
                 <Link to={`/positions/${position.key}`}>
                     <Header>
                         <Header.Content>
-                            {contract} {position.info.title} {position_id}
+                            {contract} {level} {position.info.title} {position_id}
                         </Header.Content>
                         <Header.Subheader>
-                            <div>
-                                {level} {dash} {position.info.skill_summary}
-                            </div>
                             <div>{location}</div>
                         </Header.Subheader>
                     </Header>
-                    <div>
-                        <Markdown>{position.info.description}</Markdown>
-                    </div>
+                    <p>
+                        <Markdown>{position.info.skill_summary}</Markdown>
+                    </p>
+                    {/* <p>{more_info}</p> */}
                 </Link>
                 {submissions.length > 0 && (
                     <Header size="small">
