@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { fbPositionsDB } from "../firebase.config";
 import { Link } from "react-router-dom";
-import { Segment, Header, Label, Icon, Menu } from "semantic-ui-react";
+import { Segment, Header, Label, Icon, Menu, Accordion, Transition } from "semantic-ui-react";
 import classnames from "classnames";
 import { format } from "date-fns";
 import Markdown from "markdown-to-jsx";
 
 function PositionSummary({ position }) {
     const [submissions, setsubmissions] = useState([]);
+    const [showdescription, setshowdescription] = useState(false);
     const key = position.key;
 
     useEffect(() => {
@@ -38,9 +39,21 @@ function PositionSummary({ position }) {
         ""
     );
     const more_info = position.info.description ? (
-        <Link to={`/positions/${position.key}`}>
-            <Icon name="expand arrows alternate"></Icon>more info
-        </Link>
+        <Accordion>
+            <Accordion.Title
+                onClick={ev => {
+                    ev.stopPropagation();
+                    ev.preventDefault();
+                    setshowdescription(!showdescription);
+                }}>
+                <Icon name="expand arrows alternate"></Icon>more info
+            </Accordion.Title>
+            <Transition visible={showdescription} animation="slide down" duration={250}>
+                <Accordion.Content active={showdescription}>
+                    <Markdown>{position.info.description}</Markdown>
+                </Accordion.Content>
+            </Transition>
+        </Accordion>
     ) : (
         ""
     );
