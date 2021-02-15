@@ -49,7 +49,9 @@ function PositionSummary({ position }) {
                 <Icon name="expand arrows alternate"></Icon>more info
             </Accordion.Title>
             <Transition visible={showdescription} animation="slide down" duration={250}>
-                <Accordion.Content active={showdescription}>{position.info.description}</Accordion.Content>
+                <Accordion.Content active={showdescription}>
+                    <Markdown>{position.info.description}</Markdown>
+                </Accordion.Content>
             </Transition>
         </Accordion>
     ) : (
