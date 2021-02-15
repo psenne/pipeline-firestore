@@ -6,10 +6,8 @@
   "targets": {
     "new-staffing-pipeline-prod": {
       "hosting": {
-        "portal": [
-          "new-staffing-portal-prod"
-        ],
-        "pipeline": [
+
+']        "pipeline": [
           "new-staffing-pipeline-prod"
         ]
       }
