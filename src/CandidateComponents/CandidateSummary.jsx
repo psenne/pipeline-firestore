@@ -64,7 +64,7 @@ function CandidateSummary({ candidate, statuses }) {
                         Submitted to:
                         {submissions.map(submission => {
                             return (
-                                <Link key={submission.key} to={`/positions/${submission.position_key}`}>
+                                <Link key={submission.key} to={`/positions/${submission.info.position_key}`}>
                                     <Label color="blue" key={submission.key} icon="briefcase">
                                         {submission.info.position_contract} - {submission.info.position_title}
                                     </Label>
