@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import { fbStatusesDB } from "../firebase.config";
 import CandidateSearchContext from "../contexts/CandidateSearchContext";
 import CandidateSummary from "./CandidateSummary";
-import { Container } from "semantic-ui-react";
 
 //uses search field value to filter array of candidates for table population
 function isSearched(s) {
@@ -63,11 +62,11 @@ class CandidatesTable extends Component {
         const { statuses } = this.state;
 
         return (
-            <Container fluid className="hovered">
+            <>
                 {filteredCandidates.map(candidate => (
                     <CandidateSummary key={candidate.key} candidate={candidate} statuses={statuses} />
                 ))}
-            </Container>
+            </>
         );
     }
 }

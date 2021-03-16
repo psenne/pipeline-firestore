@@ -34,7 +34,7 @@ function CandidateSummary({ candidate, statuses }) {
     const status_color = statuses.filter(s => s.name === candidate.info.status)[0];
 
     return (
-        <div key={candidate.key} className={classnames("candidate-table-row")}>
+        <div key={candidate.key}>
             <MiniToolbar attached="top" ckey={candidate.key} candidate={candidate.info} />
             <Segment key={key} attached padded color={status_color && status_color.color}>
                 <Link to={`/candidates/${key}`}>
@@ -65,8 +65,8 @@ function CandidateSummary({ candidate, statuses }) {
                         {submissions.map(submission => {
                             return (
                                 <Link key={submission.key} to={`/positions/${submission.info.position_key}`}>
-                                    <Label color="blue" key={submission.key} icon="briefcase">
-                                        {submission.info.position_contract} - {submission.info.position_title}
+                                    <Label color="blue" key={submission.key}>
+                                        <Icon name="briefcase" /> {submission.info.position_contract} - {submission.info.position_title}
                                     </Label>
                                 </Link>
                             );
