@@ -2,87 +2,118 @@ import React, { useState, useEffect, useContext } from "react";
 import CandidateSearchContext from "../contexts/CandidateSearchContext";
 import { fbCandidatesDB } from "../firebase.config";
 import { tmplCandidate } from "../constants/candidateInfo";
-import { Container, Button } from "semantic-ui-react";
+import { Container, Pagination } from "semantic-ui-react";
 import LoadingCandidatesTable from "./LoadingCandidatesTable";
 import NavBar from "../NavBar";
 import CandidateToolbar from "./CandidateToolbar";
 import CandidatesTable from "./CandidatesTable";
 
-function CandidatesPage(props) {
-    const { archived } = useContext(CandidateSearchContext);
-    const candidatesPerPage = 2;
-    const GetInitialPage = () => {
-        return fbCandidatesDB.orderBy("modified_date", "desc").where("archived", "==", archived).limit(candidatesPerPage).get();
-    };
-    const [candidatesList, setcandidatesList] = useState([]);
-    const [pageloading, setpageloading] = useState(false);
-    const [snapshot, saveSnapshot] = useState([]);
-    const [query, setQuery] = useState(GetInitialPage);
+//uses search field value to filter array of candidates for table population
+function isSearched(s) {
+    return function (item) {
+        const contracts = item.info.potential_contracts ? item.info.potential_contracts.join(":").toLowerCase() : "";
+        const searchTerm = s;
+        let wasFound = true;
 
-    const GetPrevPage = firstDocument => {
-        if (firstDocument) return fbCandidatesDB.orderBy("modified_date", "desc").where("archived", "==", archived).endBefore(firstDocument).limit(candidatesPerPage).get();
-    };
-
-    const GetNextPage = lastDocument => {
-        if (lastDocument) return fbCandidatesDB.orderBy("modified_date", "desc").where("archived", "==", archived).startAfter(lastDocument).limit(candidatesPerPage).get();
-    };
-
-    const ProcessDocs = snapshot => {
-        let tmpitems = [];
-        saveSnapshot(snapshot);
-
-        snapshot.forEach(function (candidate) {
-            tmpitems.push({ key: candidate.id, info: Object.assign({}, tmplCandidate, candidate.data()) });
+        s.split(" ").forEach(searchTerm => {
+            let termFound = false;
+            if (item.info.firstname.toLowerCase().includes(searchTerm.toLowerCase()) || item.info.lastname.toLowerCase().includes(searchTerm.toLowerCase()) || item.info.found_by.toLowerCase().includes(searchTerm.toLowerCase()) || item.info.title.toLowerCase().includes(searchTerm.toLowerCase()) || item.info.prefered_location.toLowerCase().includes(searchTerm.toLowerCase()) || item.info.skill.toLowerCase().includes(searchTerm.toLowerCase()) || item.info.current_company.toLowerCase().includes(searchTerm.toLowerCase()) || contracts.includes(searchTerm.toLowerCase()) || item.info.notes.toLowerCase().includes(searchTerm.toLowerCase()) || item.info.next_steps.toLowerCase().includes(searchTerm.toLowerCase()) || item.info.resume_text.toLowerCase().includes(searchTerm.toLowerCase()) || item.info.level.toLowerCase().includes(searchTerm.toLowerCase())) {
+                termFound = true;
+            }
+            wasFound = wasFound && termFound;
         });
-        setcandidatesList(tmpitems);
+
+        return !searchTerm || wasFound;
     };
+}
+
+// filters candidates by status
+function isFiltered(searchTerm) {
+    return function (item) {
+        return !searchTerm || item.info.status.toLowerCase() === searchTerm.toLowerCase();
+    };
+}
+
+function CandidatesPage(props) {
+    const { archived, searchterm, status, pagenum, setpagenum, shown, setshown, candidatesFiltered, setcandidatesFiltered } = useContext(CandidateSearchContext);
+    const [candidatesAll, setcandidatesAll] = useState([]);
+    const [pageloading, setpageloading] = useState(false);
+    const candidatesPerPage = 20;
 
     useEffect(() => {
-        if (query) {
-            setpageloading(true);
-            query.then(
+        const unsub = fbCandidatesDB
+            .orderBy("modified_date", "desc")
+            // .where("archived", "==", archived)
+            .onSnapshot(
                 snapshot => {
-                    if (snapshot.docs.length > 0) {
-                        ProcessDocs(snapshot);
-                    }
+                    let tmpitems = [];
+
+                    snapshot.forEach(function (candidate) {
+                        tmpitems.push({ key: candidate.id, info: Object.assign({}, tmplCandidate, candidate.data()) });
+                    });
+                    setcandidatesAll(tmpitems);
                     setpageloading(false);
                 },
                 error => {
-                    setcandidatesList([]);
+                    setcandidatesAll([]);
                     setpageloading(false);
                     console.error(error);
                 }
             );
+
+        return () => {
+            unsub();
+        };
+    }, []);
+
+    // apply initialize filteredCandidates
+    useEffect(() => {
+        setcandidatesFiltered(candidatesAll.filter(isFiltered(status)).filter(isSearched(searchterm)));
+    }, [candidatesAll, setcandidatesFiltered, status, searchterm]);
+
+    // apply filters to list of candidates and reset back to first page
+    useEffect(() => {
+        setcandidatesFiltered(candidatesAll.filter(isFiltered(status)).filter(isSearched(searchterm)));
+    }, [status, searchterm, candidatesAll, setcandidatesFiltered]);
+
+    // update the candidates table when the page number or filters have been changed
+    useEffect(() => {
+        if (candidatesFiltered.length > 0) {
+            setshown(candidatesFiltered.slice(0, candidatesPerPage));
         }
-    }, [archived, query]);
+    }, [candidatesFiltered, setshown]);
+
+    // update the candidates table when the page number or filters have been changed
+    useEffect(() => {
+        if (candidatesFiltered.length > 0) {
+            const startingAt = (pagenum - 1) * candidatesPerPage;
+            const endingAt = startingAt + candidatesPerPage;
+            setshown(candidatesFiltered.slice(startingAt, endingAt));
+        }
+    }, [pagenum, candidatesFiltered, setshown]);
 
     return (
         <>
             <NavBar active="candidates" />
-            <CandidateToolbar candidates={candidatesList} />
+            <CandidateToolbar candidates={candidatesFiltered} />
             <Container fluid className="hovered">
                 <div className="candidate-table-row">
                     {pageloading && <LoadingCandidatesTable numrows={candidatesPerPage} />}
                     {!pageloading && (
                         <>
-                            <CandidatesTable list={candidatesList} />
-                            <div className="pages">
-                                <Button
-                                    onClick={ev => {
-                                        const firstdoc = snapshot.docs[0];
-                                        setQuery(GetPrevPage(firstdoc));
-                                    }}>
-                                    &lt; Previous
-                                </Button>
-                                <Button
-                                    disabled={snapshot?.docs?.length < candidatesPerPage}
-                                    onClick={ev => {
-                                        const lastdoc = snapshot.docs[snapshot.docs.length - 1];
-                                        setQuery(GetNextPage(lastdoc));
-                                    }}>
-                                    Next &gt;
-                                </Button>
-                            </div>
+                            <CandidatesTable list={shown} />
+                            {candidatesFiltered.length > candidatesPerPage && (
+                                <div className="pages">
+                                    <Pagination
+                                        activePage={pagenum}
+                                        // ellipsisItem={false}
+                                        totalPages={Math.ceil(candidatesFiltered.length / candidatesPerPage)}
+                                        onPageChange={(ev, { activePage }) => {
+                                            setpagenum(activePage);
+                                        }}
+                                    />
+                                </div>
+                            )}
                         </>
                     )}
                 </div>

@@ -51,9 +51,9 @@ class CandidateToolbar extends Component {
                     <Menu.Item>
                         <StatusDropdown text="Filter by Status" value={status} onChange={(ev, data) => this.UpdateStatus(data.value)} />
                     </Menu.Item>
-                    <Menu.Item>
+                    {/* <Menu.Item>
                         <Dropdown options={filterOptions} value={archived} onChange={(ev, data) => this.UpdateArchiveStatus(data.value)} />
-                    </Menu.Item>
+                    </Menu.Item> */}
                     <Menu.Menu position="right">
                         <Menu.Item>
                             <Input placeholder="Filter Candidates" icon={searchterm ? <Icon name="dont" color="red" link onClick={this.ClearFilters} /> : <Icon name="filter" />} value={searchterm} onChange={(ev, data) => this.UpdateSearchTerm(data.value)} />

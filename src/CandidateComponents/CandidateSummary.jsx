@@ -4,8 +4,8 @@ import { Link } from "react-router-dom";
 import { Icon, Header, Segment, Label } from "semantic-ui-react";
 import { format } from "date-fns";
 import Markdown from "markdown-to-jsx";
-import classnames from "classnames";
 import MiniToolbar from "./MiniToolbar";
+import classnames from "classnames";
 
 function CandidateSummary({ candidate, statuses }) {
     const [submissions, setsubmissions] = useState([]);
@@ -34,7 +34,7 @@ function CandidateSummary({ candidate, statuses }) {
     const status_color = statuses.filter(s => s.name === candidate.info.status)[0];
 
     return (
-        <div key={candidate.key}>
+        <Segment.Group key={candidate.key} className={classnames({ archived: candidate.info.archived === "archived" })}>
             <MiniToolbar attached="top" ckey={candidate.key} candidate={candidate.info} />
             <Segment key={key} attached padded color={status_color && status_color.color}>
                 <Link to={`/candidates/${key}`}>
@@ -78,7 +78,7 @@ function CandidateSummary({ candidate, statuses }) {
                 <Icon name="wait" />
                 {created} | {updated}
             </Header>
-        </div>
+        </Segment.Group>
     );
 }
 

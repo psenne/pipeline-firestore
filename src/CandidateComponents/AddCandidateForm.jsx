@@ -73,6 +73,8 @@ export default class AddCandidateForm extends React.Component {
 
         candidate["created_by"] = currentuser.displayName;
         candidate["created_date"] = firebase.firestore.FieldValue.serverTimestamp();
+        candidate["modified_by"] = currentuser.displayName;
+        candidate["modified_date"] = firebase.firestore.FieldValue.serverTimestamp();
 
         fbCandidatesDB.add(candidate).then(newcandidate => {
             const key = newcandidate.id;
