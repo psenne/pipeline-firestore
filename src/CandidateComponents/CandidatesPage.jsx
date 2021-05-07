@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
+import { useLocation, useHistory } from "react-router-dom";
 import CandidateSearchContext from "../contexts/CandidateSearchContext";
 import { fbCandidatesDB } from "../firebase.config";
 import { tmplCandidate } from "../constants/candidateInfo";
@@ -28,69 +29,65 @@ function isSearched(s) {
 }
 
 // filters candidates by status
-function isFiltered(searchTerm) {
-    return function (item) {
-        return !searchTerm || item.info.status.toLowerCase() === searchTerm.toLowerCase();
-    };
+// function isFiltered(searchTerm) {
+//     return function (item) {
+//         return !searchTerm || item.info.status.toLowerCase() === searchTerm.toLowerCase();
+//     };
+// }
+
+function GetPageFromURL() {
+    return new URLSearchParams(useLocation().search);
 }
 
 function CandidatesPage(props) {
-    const { archived, searchterm, status, pagenum, setpagenum, shown, setshown, candidatesFiltered, setcandidatesFiltered } = useContext(CandidateSearchContext);
+    const { searchterm, status, shown, setshown, candidatesFiltered, setcandidatesFiltered } = useContext(CandidateSearchContext);
     const [candidatesAll, setcandidatesAll] = useState([]);
+    const [totalpages, settotalpages] = useState(1);
     const [pageloading, setpageloading] = useState(false);
-    const candidatesPerPage = 20;
+    const candidatesPerPage = 5;
+    const pagenum = GetPageFromURL().get("page") || 1;
+    const history = useHistory();
 
     useEffect(() => {
-        const unsub = fbCandidatesDB
-            .orderBy("modified_date", "desc")
-            // .where("archived", "==", archived)
-            .onSnapshot(
-                snapshot => {
-                    let tmpitems = [];
+        setpageloading(true);
+        let unsub = fbCandidatesDB.orderBy("modified_date", "desc");
+        unsub = status ? unsub.where("status", "==", status) : unsub;
+        unsub.get().then(
+            snapshot => {
+                let tmpitems = [];
 
-                    snapshot.forEach(function (candidate) {
-                        tmpitems.push({ key: candidate.id, info: Object.assign({}, tmplCandidate, candidate.data()) });
-                    });
-                    setcandidatesAll(tmpitems);
-                    setpageloading(false);
-                },
-                error => {
-                    setcandidatesAll([]);
-                    setpageloading(false);
-                    console.error(error);
-                }
-            );
+                snapshot.forEach(function (candidate) {
+                    tmpitems.push({ key: candidate.id, info: Object.assign({}, tmplCandidate, candidate.data()) });
+                });
+                setcandidatesAll(tmpitems);
+                setpageloading(false);
+            },
+            error => {
+                setcandidatesAll([]);
+                setpageloading(false);
+                console.error(error);
+            }
+        );
+    }, [status]);
 
-        return () => {
-            unsub();
-        };
-    }, []);
-
-    // apply initialize filteredCandidates
     useEffect(() => {
-        setcandidatesFiltered(candidatesAll.filter(isFiltered(status)).filter(isSearched(searchterm)));
-    }, [candidatesAll, setcandidatesFiltered, status, searchterm]);
+        setcandidatesFiltered(candidatesAll.filter(isSearched(searchterm)));
+    }, [searchterm, candidatesAll]);
 
-    // apply filters to list of candidates and reset back to first page
     useEffect(() => {
-        setcandidatesFiltered(candidatesAll.filter(isFiltered(status)).filter(isSearched(searchterm)));
-    }, [status, searchterm, candidatesAll, setcandidatesFiltered]);
-
-    // update the candidates table when the page number or filters have been changed
-    useEffect(() => {
-        if (candidatesFiltered.length > 0) {
-            setshown(candidatesFiltered.slice(0, candidatesPerPage));
+        // console.log({ candidatesFiltered, candidatesAll, pagenum });
+        const numFiltered = candidatesFiltered.length;
+        const hasCandidates = numFiltered > 0;
+        const outofbounds = pagenum > numFiltered / candidatesPerPage;
+        if (hasCandidates && outofbounds) {
+            //history.go("/candidates?page=1");
         }
-    }, [candidatesFiltered, setshown]);
-
-    // update the candidates table when the page number or filters have been changed
-    useEffect(() => {
-        if (candidatesFiltered.length > 0) {
-            const startingAt = (pagenum - 1) * candidatesPerPage;
-            const endingAt = startingAt + candidatesPerPage;
-            setshown(candidatesFiltered.slice(startingAt, endingAt));
-        }
-    }, [pagenum, candidatesFiltered, setshown]);
+        const startingAt = (pagenum - 1) * candidatesPerPage;
+        const endingAt = startingAt + candidatesPerPage;
+        settotalpages(Math.ceil(candidatesFiltered.length / candidatesPerPage));
+        setshown(candidatesFiltered.slice(startingAt, endingAt));
+        window.scroll({ top: 0, left: 0 });
+    }, [pagenum, candidatesFiltered]);
 
     return (
         <>
@@ -107,9 +104,9 @@ function CandidatesPage(props) {
                                     <Pagination
                                         activePage={pagenum}
                                         // ellipsisItem={false}
-                                        totalPages={Math.ceil(candidatesFiltered.length / candidatesPerPage)}
+                                        totalPages={totalpages}
                                         onPageChange={(ev, { activePage }) => {
-                                            setpagenum(activePage);
+                                            history.push(`/candidates?page=${activePage}`);
                                         }}
                                     />
                                 </div>
