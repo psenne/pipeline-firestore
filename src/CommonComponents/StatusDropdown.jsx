@@ -7,14 +7,15 @@ export default class StatusDropdown extends Component {
     constructor(props) {
         super(props);
 
-        this.state = { statuses: [] };
+        this.state = { statuses: [], isLoading: false };
     }
 
     componentDidMount() {
+        this.setState({ isLoading: true });
         this.listener = fbStatusesDB.on("value", data => {
             const statuses = [];
-            
-            data.forEach(function(status) {
+
+            data.forEach(function (status) {
                 const info = status.val();
                 const key = status.key;
                 const label = { color: info.color, empty: true, circular: true };
@@ -26,7 +27,8 @@ export default class StatusDropdown extends Component {
                 });
             });
             this.setState({
-                statuses
+                statuses,
+                isLoading: false
             });
         });
     }
@@ -37,7 +39,7 @@ export default class StatusDropdown extends Component {
 
     render() {
         const { text, onChange } = this.props;
-        const { statuses } = this.state;
-        return (<Dropdown placeholder={text} clearable options={statuses} onChange={onChange}></Dropdown>)
+        const { statuses, isLoading } = this.state;
+        return <Dropdown placeholder={text} clearable options={statuses} loading={isLoading} onChange={onChange}></Dropdown>;
     }
 }

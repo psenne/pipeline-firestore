@@ -1,27 +1,29 @@
 import React, { Component } from "react";
 import CandidateSearchContext from "../contexts/CandidateSearchContext";
 import { Link } from "react-router-dom";
-import { Dropdown, Input, Icon, Menu, Container } from "semantic-ui-react";
+import { Input, Icon, Menu, Container } from "semantic-ui-react";
 import StatusDropdown from "../CommonComponents/StatusDropdown";
 import ExportToExcel from "../modules/ExportToExcel";
 
 // populates the dropdown options for filtering by current or archived candidates in the table
 // prettier-ignore
-const filterOptions = [
-    { key: "current", text: "Viewing Current", value: "current" }, 
-    { key: "archived", text: "Viewing Archived", value: "archived" }
-];
+// const filterOptions = [
+//     { key: "current", text: "Viewing Current", value: "current" },
+//     { key: "archived", text: "Viewing Archived", value: "archived" }
+// ];
 
 class CandidateToolbar extends Component {
     static contextType = CandidateSearchContext;
 
     UpdateStatus = value => {
-        const { setstatus } = this.context;
+        const { setstatus, setpagenum } = this.context;
+        setpagenum(1);
         setstatus(value);
     };
 
     UpdateSearchTerm = value => {
-        const { setsearchterm } = this.context;
+        const { setsearchterm, setpagenum } = this.context;
+        setpagenum(1);
         setsearchterm(value);
     };
 
@@ -31,10 +33,11 @@ class CandidateToolbar extends Component {
     };
 
     ClearFilters = () => {
-        const { setsearchterm, setarchived, setstatus } = this.context;
+        const { setsearchterm, setarchived, setstatus, setpagenum } = this.context;
         setsearchterm("");
         setarchived("current");
         setstatus("");
+        setpagenum(1);
     };
 
     render() {

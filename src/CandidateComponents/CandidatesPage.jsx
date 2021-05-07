@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { useLocation, useHistory } from "react-router-dom";
+// import { useLocation, useHistory } from "react-router-dom";
 import CandidateSearchContext from "../contexts/CandidateSearchContext";
 import { fbCandidatesDB } from "../firebase.config";
 import { tmplCandidate } from "../constants/candidateInfo";
@@ -35,24 +35,24 @@ function isSearched(s) {
 //     };
 // }
 
-function GetPageFromURL() {
-    return new URLSearchParams(useLocation().search);
-}
+// function GetPageFromURL() {
+//     return new URLSearchParams(useLocation().search);
+// }
 
 function CandidatesPage(props) {
-    const { searchterm, status, shown, setshown, candidatesFiltered, setcandidatesFiltered } = useContext(CandidateSearchContext);
+    const { pagenum, setpagenum, searchterm, status, shown, setshown, candidatesFiltered, setcandidatesFiltered } = useContext(CandidateSearchContext);
     const [candidatesAll, setcandidatesAll] = useState([]);
     const [totalpages, settotalpages] = useState(1);
     const [pageloading, setpageloading] = useState(false);
     const candidatesPerPage = 5;
-    const pagenum = GetPageFromURL().get("page") || 1;
-    const history = useHistory();
+    //const pagenum = GetPageFromURL().get("page") || 1;
+    // const history = useHistory();
 
     useEffect(() => {
         setpageloading(true);
-        let unsub = fbCandidatesDB.orderBy("modified_date", "desc");
-        unsub = status ? unsub.where("status", "==", status) : unsub;
-        unsub.get().then(
+        let query = fbCandidatesDB.orderBy("modified_date", "desc");
+        query = status ? query.where("status", "==", status) : query;
+        let unsub = query.onSnapshot(
             snapshot => {
                 let tmpitems = [];
 
@@ -68,11 +68,13 @@ function CandidatesPage(props) {
                 console.error(error);
             }
         );
+
+        return () => unsub();
     }, [status]);
 
     useEffect(() => {
         setcandidatesFiltered(candidatesAll.filter(isSearched(searchterm)));
-    }, [searchterm, candidatesAll]);
+    }, [searchterm, candidatesAll, setcandidatesFiltered]);
 
     useEffect(() => {
         // console.log({ candidatesFiltered, candidatesAll, pagenum });
@@ -87,7 +89,7 @@ function CandidatesPage(props) {
         settotalpages(Math.ceil(candidatesFiltered.length / candidatesPerPage));
         setshown(candidatesFiltered.slice(startingAt, endingAt));
         window.scroll({ top: 0, left: 0 });
-    }, [pagenum, candidatesFiltered]);
+    }, [pagenum, candidatesFiltered, setshown]);
 
     return (
         <>
@@ -106,7 +108,8 @@ function CandidatesPage(props) {
                                         // ellipsisItem={false}
                                         totalPages={totalpages}
                                         onPageChange={(ev, { activePage }) => {
-                                            history.push(`/candidates?page=${activePage}`);
+                                            // history.push(`/candidates?page=${activePage}`);
+                                            setpagenum(activePage);
                                         }}
                                     />
                                 </div>
