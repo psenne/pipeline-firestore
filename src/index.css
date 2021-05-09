@@ -81,7 +81,9 @@ body {
 .view-panel {
     margin: 1rem;
 }
-
+.candidate-table-row .archived {
+    opacity: 0.5;
+}
 .candidate-table-row a {
     color: inherit;
 }

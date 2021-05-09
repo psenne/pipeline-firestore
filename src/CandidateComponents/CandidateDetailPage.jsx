@@ -21,11 +21,12 @@ export default function CandidateDetail({ location, match }) {
     };
 
     const GoBack = () => {
-        const filter = location.state ? location.state.filter : "current";
-        const filterBySearch = location.state ? location.state.filterBySearch : "";
-        const filterByStatus = location.state ? location.state.filterByStatus : "";
+        // const filter = location.state ? location.state.filter : "current";
+        // const filterBySearch = location.state ? location.state.filterBySearch : "";
+        // const filterByStatus = location.state ? location.state.filterByStatus : "";
 
-        history.push({ pathname: `/candidates`, state: { filter, filterBySearch, filterByStatus } });
+        // history.push({ pathname: `/candidates`, state: { filter, filterBySearch, filterByStatus } });
+        history.goBack();
     };
 
     return (
