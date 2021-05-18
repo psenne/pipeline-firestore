@@ -41,8 +41,9 @@ const RecentSubmissions = () => {
                             <List.Item key={submission.position_key + submission.candidate_id}>
                                 <List.Content>
                                     <List.Header>
-                                        <Link to={`/candidates/${submission.candidate_id}`}>{submission.candidate_name}</Link> submitted for <Link to={`/positions/${submission.position_key}`}>{submission.position_title}</Link> on {submission.position_contract} ({format(submission.submission_date.toDate(), "MMM d, yyyy")})
+                                        <Link to={`/candidates/${submission.candidate_id}`}>{submission.candidate_name}</Link> submitted for <Link to={`/positions/${submission.position_key}`}>{submission.position_title}</Link> on {submission.position_contract}
                                     </List.Header>
+                                    {format(submission.submission_date.toDate(), "MMM d, yyyy")}
                                 </List.Content>
                             </List.Item>
                         );

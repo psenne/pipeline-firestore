@@ -7,6 +7,7 @@ import Markdown from "markdown-to-jsx";
 import classnames from "classnames";
 import { fbFlagNotes, fbAuditTrailDB, fbCandidatesDB } from "../firebase.config";
 import FlagMessage from "../CommonComponents/FlagMessage";
+import CommentSection from "../CommonComponents/CommentSection";
 import { tmplCandidate } from "../constants/candidateInfo";
 import Files from "../CommonComponents/Files";
 
@@ -145,16 +146,7 @@ class CandidateProfile extends Component {
                             <Grid.Row>
                                 <Grid.Column>
                                     <div className="markdown">
-                                        <h3>Management Notes:</h3>
                                         <Markdown>{candidate.notes}</Markdown>
-                                    </div>
-                                </Grid.Column>
-                            </Grid.Row>
-                            <Grid.Row>
-                                <Grid.Column>
-                                    <div className="markdown">
-                                        <h3>Next Steps:</h3>
-                                        <Markdown>{candidate.next_steps}</Markdown>
                                     </div>
                                 </Grid.Column>
                             </Grid.Row>
@@ -250,6 +242,7 @@ class CandidateProfile extends Component {
                                 })}
                             </Segment>
                         )}
+                        <CommentSection refinfo={{ refid: candidateID, refpath: "candidates", refname: `${candidate.firstname} ${candidate.lastname}` }} />
                     </Segment>
                 )}
             </>
