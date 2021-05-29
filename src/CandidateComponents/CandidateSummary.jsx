@@ -28,13 +28,16 @@ function CandidateSummary({ candidate, statuses }) {
     }, [key]);
 
     useEffect(() => {
-        const unsub = fbComments.where("refid", "==", key).onSnapshot(docs => {
-            var tmpitems = [];
-            docs.forEach(comment => {
-                tmpitems.push({ key: comment.id, ...comment.data() });
+        const unsub = fbComments
+            .where("refid", "==", key)
+            .orderBy("comment_date", "asc")
+            .onSnapshot(docs => {
+                var tmpitems = [];
+                docs.forEach(comment => {
+                    tmpitems.push({ key: comment.id, ...comment.data() });
+                });
+                setcomments(tmpitems);
             });
-            setcomments(tmpitems);
-        });
 
         return () => unsub();
     }, [key]);
