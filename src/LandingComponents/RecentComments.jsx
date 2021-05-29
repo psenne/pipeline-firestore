@@ -40,6 +40,7 @@ const RecentComments = () => {
                 <List selection divided relaxed>
                     {comments.map(comment => {
                         const comment_date = comment.comment_date ? formatDistance(comment.comment_date.toDate(), new Date(), { addSuffix: true }) : "";
+                        const comment_text = comment.text.length > 40 ? comment.text.trim().substring(0, 40) + "..." : comment.text;
 
                         return (
                             <List.Item key={comment.id}>
@@ -49,7 +50,7 @@ const RecentComments = () => {
                                         {comment.author} commented on <Link to={`/${comment.refurl}`}>{comment.refname}</Link>
                                     </List.Header>
                                     <List.Description>
-                                        <Markdown>{comment.text}</Markdown>
+                                        <Markdown>{comment_text}</Markdown>
                                     </List.Description>
                                     {comment_date}
                                 </List.Content>

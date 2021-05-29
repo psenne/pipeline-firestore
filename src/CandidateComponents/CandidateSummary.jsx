@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { fbCandidatesDB } from "../firebase.config";
+import { fbCandidatesDB, fbComments } from "../firebase.config";
 import { Link } from "react-router-dom";
 import { Icon, Header, Segment, Label } from "semantic-ui-react";
-import { format } from "date-fns";
+import { format, formatDistance } from "date-fns";
 import Markdown from "markdown-to-jsx";
 import MiniToolbar from "./MiniToolbar";
 import classnames from "classnames";
 
 function CandidateSummary({ candidate, statuses }) {
     const [submissions, setsubmissions] = useState([]);
+    const [comments, setcomments] = useState([]);
     const key = candidate.key;
 
     useEffect(() => {
@@ -22,6 +23,18 @@ function CandidateSummary({ candidate, statuses }) {
                 });
                 setsubmissions(tmpitems);
             });
+
+        return () => unsub();
+    }, [key]);
+
+    useEffect(() => {
+        const unsub = fbComments.where("refid", "==", key).onSnapshot(docs => {
+            var tmpitems = [];
+            docs.forEach(comment => {
+                tmpitems.push({ key: comment.id, ...comment.data() });
+            });
+            setcomments(tmpitems);
+        });
 
         return () => unsub();
     }, [key]);
@@ -54,10 +67,17 @@ function CandidateSummary({ candidate, statuses }) {
                         <div className="candidate-table-field">Notes:</div>
                         <Markdown>{candidate.info.notes}</Markdown>
                     </div>
-                    <div className="candidate-table-row-info">
-                        <div className="candidate-table-field">Next steps:</div>
-                        <Markdown>{candidate.info.next_steps}</Markdown>
-                    </div>
+                    {comments.length > 0 && (
+                        <>
+                            <div className="candidate-table-row-info">
+                                <div className="candidate-table-field">Last comment:</div>
+                                {comments[comments.length - 1].author} ({formatDistance(comments[comments.length - 1].comment_date.toDate(), new Date(), { addSuffix: true })}) - <Markdown>{comments[comments.length - 1].text}</Markdown>
+                            </div>
+                            <Label attached="bottom right" color="pink">
+                                <Icon name="comments" /> {comments.length}
+                            </Label>
+                        </>
+                    )}
                 </Link>
                 {submissions.length > 0 && (
                     <Header size="small">

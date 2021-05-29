@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import firebase, { fbComments } from "../firebase.config";
+import firebase, { fbComments, fbCandidatesDB } from "../firebase.config";
 import UserContext from "../contexts/UserContext";
 import { Form, Input } from "semantic-ui-react";
 
@@ -23,6 +23,7 @@ export default function CommentForm({ refinfo }) {
                 refname
             })
             .then(() => {
+                fbCandidatesDB.doc(refid).update({ modified_date: comment_date, modified_by: author, modified_fields: [] });
                 setcommenttext("");
             });
     }
