@@ -1,116 +1,158 @@
 {
-    "indexes": [
+  "indexes": [
+    {
+      "collectionGroup": "candidates",
+      "queryScope": "COLLECTION",
+      "fields": [
         {
-            "collectionGroup": "candidates",
-            "queryScope": "COLLECTION",
-            "fields": [
-                {
-                    "fieldPath": "archived",
-                    "order": "ASCENDING"
-                },
-                {
-                    "fieldPath": "modified_date",
-                    "order": "DESCENDING"
-                },
-                {
-                    "fieldPath": "created_date",
-                    "order": "DESCENDING"
-                }
-            ]
+          "fieldPath": "archived",
+          "order": "ASCENDING"
         },
         {
-            "collectionGroup": "candidates",
-            "queryScope": "COLLECTION",
-            "fields": [
-                {
-                    "fieldPath": "archived",
-                    "order": "ASCENDING"
-                },
-                {
-                    "fieldPath": "modified_date",
-                    "order": "DESCENDING"
-                }
-            ]
-        },
-        {
-            "collectionGroup": "employees",
-            "queryScope": "COLLECTION",
-            "fields": [
-                {
-                    "fieldPath": "at_risk",
-                    "order": "ASCENDING"
-                },
-                {
-                    "fieldPath": "lastname",
-                    "order": "ASCENDING"
-                }
-            ]
-        },
-        {
-            "collectionGroup": "positions",
-            "queryScope": "COLLECTION",
-            "fields": [
-                {
-                    "fieldPath": "contract",
-                    "order": "ASCENDING"
-                },
-                {
-                    "fieldPath": "position_id",
-                    "order": "ASCENDING"
-                }
-            ]
-        },
-        {
-            "collectionGroup": "positions",
-            "queryScope": "COLLECTION",
-            "fields": [
-                {
-                    "fieldPath": "title",
-                    "order": "ASCENDING"
-                },
-                {
-                    "fieldPath": "contract",
-                    "order": "ASCENDING"
-                }
-            ]
-        },
-        {
-            "collectionGroup": "positions-pipeline",
-            "queryScope": "COLLECTION",
-            "fields": [
-                {
-                    "fieldPath": "contract",
-                    "order": "ASCENDING"
-                },
-                {
-                    "fieldPath": "position_id",
-                    "order": "ASCENDING"
-                }
-            ]
+          "fieldPath": "modified_date",
+          "order": "DESCENDING"
         }
-    ],
-    "fieldOverrides": [
+      ]
+    },
+    {
+      "collectionGroup": "candidates",
+      "queryScope": "COLLECTION",
+      "fields": [
         {
-            "collectionGroup": "submitted_candidates",
-            "fieldPath": "submission_date",
-            "indexes": [
-                {
-                    "order": "ASCENDING",
-                    "queryScope": "COLLECTION"
-                },
-                {
-                    "order": "DESCENDING",
-                    "queryScope": "COLLECTION"
-                },
-                {
-                    "arrayConfig": "CONTAINS",
-                    "queryScope": "COLLECTION"
-                },
-                {
-                    "order": "DESCENDING",
-                    "queryScope": "COLLECTION_GROUP"
-                }
-            ]
+          "fieldPath": "archived",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "modified_date",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "created_date",
+          "order": "DESCENDING"
         }
-    ]
+      ]
+    },
+    {
+      "collectionGroup": "candidates",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "modified_date",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "comments",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "refid",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "comment_date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "comments",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "refid",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "comment_date",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "employees",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "at_risk",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "lastname",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "positions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "contract",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "position_id",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "positions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "title",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "contract",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "positions-pipeline",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "contract",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "position_id",
+          "order": "ASCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": [
+    {
+      "collectionGroup": "submitted_candidates",
+      "fieldPath": "submission_date",
+      "indexes": [
+        {
+          "order": "ASCENDING",
+          "queryScope": "COLLECTION"
+        },
+        {
+          "order": "DESCENDING",
+          "queryScope": "COLLECTION"
+        },
+        {
+          "arrayConfig": "CONTAINS",
+          "queryScope": "COLLECTION"
+        },
+        {
+          "order": "DESCENDING",
+          "queryScope": "COLLECTION_GROUP"
+        }
+      ]
+    }
+  ]
 }
