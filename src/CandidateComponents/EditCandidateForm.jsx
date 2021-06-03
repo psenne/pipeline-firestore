@@ -306,8 +306,8 @@ export default class EditCandidateForm extends React.Component {
                 menuItem: { key: "notes", icon: "sticky note outline", content: "Notes" },
                 render: () => (
                     <Tab.Pane>
-                        <Form.TextArea name="notes" label="Management Notes" onChange={this.HandleTextInput} value={candidate.notes} />
-                        <Form.TextArea name="next_steps" label="Next Steps" onChange={this.HandleTextInput} value={candidate.next_steps} />
+                        <Form.TextArea name="notes" onChange={this.HandleTextInput} value={candidate.notes} />
+                        {/* <Form.TextArea name="next_steps" label="Next Steps" onChange={this.HandleTextInput} value={candidate.next_steps} /> */}
                     </Tab.Pane>
                 )
             },
@@ -315,7 +315,7 @@ export default class EditCandidateForm extends React.Component {
                 menuItem: { key: "resume", icon: "file text", content: "Resume Text" },
                 render: () => (
                     <Tab.Pane>
-                        <Form.TextArea name="resume_text" label="Resume" style={{ minHeight: 235 }} onChange={this.HandleTextInput} value={candidate.resume_text} />
+                        <Form.TextArea name="resume_text" onChange={this.HandleTextInput} value={candidate.resume_text} />
                     </Tab.Pane>
                 )
             }

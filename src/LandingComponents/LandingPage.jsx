@@ -7,6 +7,7 @@ import RecentPositions from "./RecentPositions";
 import RecentSubmissions from "./RecentSubmissions";
 import { Container, Grid } from "semantic-ui-react";
 import AtRiskEmployees from "./AtRiskEmployees";
+import RecentComments from "./RecentComments";
 
 export default () => {
     return (
@@ -32,6 +33,9 @@ export default () => {
                         </Grid.Column>
                         <Grid.Column>
                             <AtRiskEmployees />
+                        </Grid.Column>
+                        <Grid.Column>
+                            <RecentComments />
                         </Grid.Column>
                     </Grid.Row>
                 </Grid>
