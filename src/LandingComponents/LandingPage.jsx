@@ -8,12 +8,14 @@ import RecentSubmissions from "./RecentSubmissions";
 import { Container, Grid } from "semantic-ui-react";
 import AtRiskEmployees from "./AtRiskEmployees";
 import RecentComments from "./RecentComments";
+import Stats from "./Stats";
 
 export default () => {
     return (
         <div className="view-panel">
             <NavBar active="dashboard" />
             <Container fluid>
+                <Stats />
                 <FlaggedCandidates />
                 <Grid stackable columns={3}>
                     <Grid.Row>
