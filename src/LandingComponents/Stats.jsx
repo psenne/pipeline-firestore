@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Grid } from "semantic-ui-react";
 import StatsCandidates from "./StatsCandidates";
 import StatsEmployees from "./StatsEmployees";
