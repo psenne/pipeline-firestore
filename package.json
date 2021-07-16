@@ -1,6 +1,6 @@
 {
     "name": "firestore-pipeline",
-    "version": "2.5.0",
+    "version": "2.6.0",
     "private": true,
     "dependencies": {
 "@nivo/core": "^0.70.1",

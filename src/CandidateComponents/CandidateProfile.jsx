@@ -2,14 +2,15 @@ import React, { Component } from "react";
 import { format } from "date-fns";
 import history from "../modules/history";
 import { Link } from "react-router-dom";
-import { Grid, Header, Segment, Tab } from "semantic-ui-react";
+import { Grid, Header, Segment, Tab, Icon, Button } from "semantic-ui-react";
 import Markdown from "markdown-to-jsx";
 import classnames from "classnames";
-import { fbFlagNotes, fbAuditTrailDB, fbCandidatesDB } from "../firebase.config";
+import firebase, { fbFlagNotes, fbAuditTrailDB, fbCandidatesDB, fbPositionsDB } from "../firebase.config";
 import FlagMessage from "../CommonComponents/FlagMessage";
 import CommentSection from "../CommonComponents/CommentSection";
 import { tmplCandidate } from "../constants/candidateInfo";
 import Files from "../CommonComponents/Files";
+import SubmissionModal from "./SubmissionModal";
 
 class CandidateProfile extends Component {
     constructor(props) {
@@ -54,6 +55,45 @@ class CandidateProfile extends Component {
         this.unsubCandidates();
         this.unsubSubmissions();
     }
+
+    SelectPosition = position => {
+        const { candidate } = this.state;
+        const { candidateID } = this.props;
+        const candidate_name = candidate.firstname + " " + candidate.lastname;
+        const updatedSubmissionInfo = {
+            submission_date: firebase.firestore.FieldValue.serverTimestamp(),
+            candidate_id: candidateID,
+            candidate_name: candidate_name,
+            position_id: position.position_id,
+            position_key: position.key,
+            position_title: position.title,
+            position_contract: position.contract
+        };
+
+        const candidateRef = fbCandidatesDB.doc(candidateID).collection("submitted_positions").doc(position.key);
+        const positionRef = fbPositionsDB.doc(position.key).collection("submitted_candidates").doc(candidateID);
+
+        var batch = firebase.firestore().batch();
+        batch.set(positionRef, updatedSubmissionInfo);
+        batch.set(candidateRef, updatedSubmissionInfo);
+        batch.commit().catch(err => console.error(err));
+    };
+
+    RemoveCandidateFromPosition = positionkey => {
+        const { candidate } = this.state;
+        const candidate_name = candidate.firstname + " " + candidate.lastname;
+        const { candidateID } = this.props;
+
+        if (window.confirm(`Are you sure you want to unsubmit ${candidate_name}?`)) {
+            const candidateRef = fbCandidatesDB.doc(candidateID).collection("submitted_positions").doc(positionkey);
+            const positionRef = fbPositionsDB.doc(positionkey).collection("submitted_candidates").doc(candidateID);
+
+            var batch = firebase.firestore().batch();
+            batch.delete(positionRef);
+            batch.delete(candidateRef);
+            batch.commit().catch(err => console.error(err));
+        }
+    };
 
     removeFlag = ev => {
         ev.stopPropagation();
@@ -233,22 +273,39 @@ class CandidateProfile extends Component {
                             <Files id={candidateID} filenames={candidate.filenames} />
                         </Segment>
 
-                        {submissions.length > 0 && (
-                            <Segment vertical padded>
-                                <h3>Position submissions</h3>
-                                {submissions.map(submission => {
-                                    const pkey = submission.key;
-                                    const position = submission.info;
-                                    const pid = position.position_id ? `(${position.position_id})` : "";
-
-                                    return (
-                                        <div key={pkey}>
-                                            <Link to={`/positions/${pkey}`}>
-                                                {position.position_contract}, {position.position_title} {pid} - submitted on {format(position.submission_date.toDate(), "MMM d, yyyy")}
-                                            </Link>
-                                        </div>
-                                    );
-                                })}
+                        {(candidate.status === "processing" || candidate.status === "active") && (
+                            <Segment vertical>
+                                <h3>
+                                    <Icon name="tasks" /> Position submissions{" "}
+                                </h3>
+                                {submissions.length === 0 && "This candidate has not been submitted to a position."}
+                                {submissions.length > 0 && (
+                                    <div>
+                                        {submissions.map(submission => {
+                                            const pkey = submission.key;
+                                            const position = submission.info;
+                                            const pid = position.position_id ? `(${position.position_id})` : "";
+                                            const submission_date = position.submission_date ? `- submitted on ${format(position.submission_date.toDate(), "MMM d, yyyy")}` : "";
+                                            return (
+                                                <p key={pkey}>
+                                                    <Link to={`/positions/${pkey}`}>
+                                                        {position.position_contract}, {position.position_title} {pid} {submission_date}
+                                                    </Link>
+                                                    <Icon name="close" color="red" link onClick={() => this.RemoveCandidateFromPosition(position.position_key)} />
+                                                </p>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                                <Segment basic>
+                                    <SubmissionModal onSelect={this.SelectPosition}>
+                                        {/* <Icon link name="plus" color="blue" title="Submit to a position" /> */}
+                                        <Button basic icon labelPosition="left">
+                                            <Icon name="add" color="blue" />
+                                            Submit to position
+                                        </Button>
+                                    </SubmissionModal>
+                                </Segment>
                             </Segment>
                         )}
                         <CommentSection refinfo={{ refid: candidateID, refpath: "candidates", refname: `${candidate.firstname} ${candidate.lastname}` }} />
