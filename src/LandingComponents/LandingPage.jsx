@@ -16,6 +16,7 @@ export default () => {
             <NavBar active="dashboard" />
             <Container fluid>
                 <Stats />
+                <RecentComments />
                 <FlaggedCandidates />
                 <Grid stackable columns={3}>
                     <Grid.Row>
@@ -35,9 +36,6 @@ export default () => {
                         </Grid.Column>
                         <Grid.Column>
                             <AtRiskEmployees />
-                        </Grid.Column>
-                        <Grid.Column>
-                            <RecentComments />
                         </Grid.Column>
                     </Grid.Row>
                 </Grid>
