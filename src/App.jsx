@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { fbUsersDB, fbauth, SignInWithGoogle, SignOutWithGoogle, fbLoginsDB } from "./firebase.config";
+import { fbUsersDB, fbauth, SignInWithGoogle, SignInWithMicrosoft, SignOut, fbLoginsDB } from "./firebase.config";
 import AppHeader from "./AppHeader";
 import AppRoutes from "./AppRoutes";
 import UserContext from "./contexts/UserContext";
@@ -56,7 +56,7 @@ class App extends Component {
                             });
                         } else {
                             alert("User is not authorized.");
-                            SignOutWithGoogle();
+                            SignOut();
                         }
                     }); //end get users
             } else {
@@ -69,9 +69,16 @@ class App extends Component {
         }); //end auth state change
     } //componentDidMount
 
-    SignIn() {
+    SignInGoogle() {
         this.showLoader(true, "Logging in...");
         SignInWithGoogle().then(() => {
+            this.showLoader(false);
+        });
+    }
+
+    SignInMicrosoft() {
+        this.showLoader(true, "Logging in...");
+        SignInWithMicrosoft().then(() => {
             this.showLoader(false);
         });
     }
@@ -88,7 +95,8 @@ class App extends Component {
                     </Dimmer>
                     <div className="login-screen">
                         <Image src={logo} />
-                        <Button className="login-button" content="Sign in with Google" color="google plus" icon="google" size="large" labelPosition="left" onClick={this.SignIn.bind(this)} />
+                        <Button className="login-button" content="Sign in with Google" color="google plus" icon="google" size="large" labelPosition="left" onClick={this.SignInGoogle.bind(this)} />
+                        <Button className="login-button" content="Sign in with Outlook" color="blue" icon="microsoft" size="large" labelPosition="left" onClick={this.SignInMicrosoft.bind(this)} />
                     </div>
                 </Container>
             );

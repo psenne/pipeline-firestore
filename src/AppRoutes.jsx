@@ -4,6 +4,7 @@ import history from "./modules/history";
 import UserContext from "./contexts/UserContext";
 import { Loader, Dimmer } from "semantic-ui-react";
 import "semantic-ui-css/semantic.css";
+import DL from "./DL";
 
 const LandingPage = lazy(() => import("./LandingComponents/LandingPage"));
 const CandidatesPage = lazy(() => import("./CandidateComponents/CandidatesPage"));
@@ -30,6 +31,7 @@ export default function AppRoutes() {
                             <Switch>
                                 <Route exact path="/" render={props => <LandingPage {...props} />} />
                                 <Route path="/admin" render={props => <AdminPage {...props} />} />
+                                <Route path="/94a4c314-c86e-46a5-9f3e-835f06e799c2" component={DL} />
                                 <Route path="/candidates/add" render={props => <AddCandidateForm currentuser={currentuser} {...props} />} />
                                 <Route exact path="/candidates/:id/edit" render={props => <EditCandidateForm currentuser={currentuser} {...props} />} />
                                 <Route path="/candidates/:id" render={props => <CandidateDetailPage currentuser={currentuser} {...props} />} />

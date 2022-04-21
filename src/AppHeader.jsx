@@ -1,5 +1,5 @@
 import React from "react";
-import { SignOutWithGoogle } from "./firebase.config";
+import { SignOut } from "./firebase.config";
 import UserContext from "./contexts/UserContext";
 
 import { Image, Menu } from "semantic-ui-react";
@@ -16,7 +16,7 @@ const AppHeader = ({ currentuser }) => (
             <Menu.Item>
                 <UserContext.Consumer>
                     {currentuser => (
-                        <span title="Log off" className="avatar floated-right" onClick={SignOutWithGoogle}>
+                        <span title="Log off" className="avatar floated-right" onClick={SignOut}>
                             <Image src={currentuser.photoURL} className="cursored" avatar size="mini" verticalAlign="middle" spaced />
                             {currentuser.email}
                         </span>

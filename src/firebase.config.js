@@ -55,9 +55,23 @@ const SignInWithGoogle = () => {
 };
 
 //callback function for clicking profile avatar (logout button)
-const SignOutWithGoogle = () => {
+const SignOut = () => {
     return fbauth.signOut();
 };
 
+const SignInWithMicrosoft = () => {
+    const provider = new firebase.auth.OAuthProvider("microsoft.com");
+    provider.setCustomParameters({
+        // Optional "tenant" parameter in case you are using an Azure AD tenant.
+        // eg. '8eaef023-2b34-4da1-9baa-8bc8c9d6a490' or 'contoso.onmicrosoft.com'
+        // or "common" for tenant-independent tokens.
+        // The default value is "common".
+        tenant: "8ae75429-ded1-468f-8270-cd49645289d9",
+        prompt: "none"
+    });
+    provider.addScope("User.Read");
+    return fbauth.signInWithPopup(provider);
+};
+
 export default firebase;
-export { fbStorage, fbLoginsDB, fbUsersDB, fbauth, fbComments, fbCandidatesOld, fbCandidatesDB, fbEmployeesDB, fbPositionsDB, fbPositionsOld, fbAuditTrailDB, fbFlagNotes, fbStatusesDB, fbContractsDB, fbLOIStatusesDB, SignInWithGoogle, SignOutWithGoogle };
+export { fbStorage, fbLoginsDB, fbUsersDB, fbauth, fbComments, fbCandidatesOld, fbCandidatesDB, fbEmployeesDB, fbPositionsDB, fbPositionsOld, fbAuditTrailDB, fbFlagNotes, fbStatusesDB, fbContractsDB, fbLOIStatusesDB, SignInWithGoogle, SignOut, SignInWithMicrosoft };

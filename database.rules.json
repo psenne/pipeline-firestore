@@ -1,12 +1,12 @@
 {
     "rules": {
-     	".read": "auth.token.email.matches(/.*@renegadetec.com$/)",
-     	".write": "auth.token.email.matches(/.*@renegadetec.com$/)",
+        ".read": "auth.token.email.matches(/.*@renegadetec.com$/) || auth.token.email.matches(/.*@renxtech.com$/) || auth.token.email.matches(/.*@buchanan[-]edwards.com$/)",
+        ".write": "auth.token.email.matches(/.*@renegadetec.com$/) || auth.token.email.matches(/.*@renxtech.com$/) || auth.token.email.matches(/.*@buchanan[-]edwards.com$/)",
         "auditing": {
             ".indexOn": ["eventdate"]
         },
-        "users":{
-          	".indexOn" : ["email"]
+        "users": {
+            ".indexOn": ["email"]
         }
     }
 }
