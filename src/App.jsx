@@ -85,6 +85,7 @@ class App extends Component {
 
     render() {
         const { currentuser, isLoading, loadingMSG } = this.state;
+        console.log(currentuser);
 
         if (!currentuser) {
             //user is not logged in. show google logon button.

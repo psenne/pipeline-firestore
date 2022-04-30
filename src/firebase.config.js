@@ -70,8 +70,8 @@ const SignInWithMicrosoft = () => {
         //prompt: "none"
     });
     provider.addScope("User.Read");
-    return fbauth.signInWithRedirect(provider);
-    // return fbauth.signInWithPopup(provider);
+    // return fbauth.signInWithRedirect(provider);
+    return fbauth.signInWithPopup(provider);
 };
 
 export default firebase;
