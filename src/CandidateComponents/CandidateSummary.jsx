@@ -45,8 +45,8 @@ function CandidateSummary({ candidate, statuses }) {
     const potential_contracts = candidate.info.potential_contracts ? candidate.info.potential_contracts.join(", ") : "";
     const company = candidate.info.company ? `with ${candidate.info.company}` : "";
     const current_contract = candidate.info.current_contract ? `on ${candidate.info.current_contract}` : "";
-    const created = candidate.info.created_by ? `Created on ${format(candidate.info.created_date.toDate(), "MMM d, yyyy")} by ${candidate.info.created_by}` : "";
-    const updated = candidate.info.modified_by ? `Updated on ${format(candidate.info.modified_date.toDate(), "MMM d, yyyy")} by ${candidate.info.modified_by}` : "";
+    const created = candidate.info.created_by && candidate.info.created_date ? `Created on ${format(candidate.info.created_date.toDate(), "MMM d, yyyy")} by ${candidate.info.created_by}` : "";
+    const updated = candidate.info.modified_by && candidate.info.modified_date ? ` | Updated on ${format(candidate.info.modified_date.toDate(), "MMM d, yyyy")} by ${candidate.info.modified_by}` : "";
     const status_color = statuses.filter(s => s.name === candidate.info.status)[0];
 
     return (
@@ -99,7 +99,7 @@ function CandidateSummary({ candidate, statuses }) {
             </Segment>
             <Header color="grey" size="tiny" textAlign="center" attached="bottom">
                 <Icon name="wait" />
-                {created} | {updated}
+                {created} {updated}
             </Header>
         </Segment.Group>
     );

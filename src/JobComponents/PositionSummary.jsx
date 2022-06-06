@@ -5,6 +5,7 @@ import { Segment, Header, Label, Icon, Menu, Accordion, Transition } from "seman
 import classnames from "classnames";
 import { format } from "date-fns";
 import Markdown from "markdown-to-jsx";
+import Files from "../CommonComponents/Files";
 
 function PositionSummary({ position }) {
     const [submissions, setsubmissions] = useState([]);
@@ -73,10 +74,14 @@ function PositionSummary({ position }) {
                             <div>{location}</div>
                         </Header.Subheader>
                     </Header>
-                    <p>
+                    <section>
                         <Markdown>{position.info.skill_summary}</Markdown>
-                    </p>
-                    <p>{more_info}</p>
+                    </section>
+                    <Segment basic padded className={classnames({ "form-hidden": position.info.filenames.length === 0 }, "minitoolbar-inline")}>
+                        <Files id={key} filenames={position.info.filenames} />
+                    </Segment>
+
+                    <section>{more_info}</section>
                 </Link>
                 {submissions.length > 0 && (
                     <Header size="small">

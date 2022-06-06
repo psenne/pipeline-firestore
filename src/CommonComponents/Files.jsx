@@ -23,9 +23,9 @@ export default function Files({ id, filenames, deletable = false, onDelete }) {
                 });
         });
         Promise.all(getdocumenturls)
-            .then(newlinks => setlinks(newlinks))
+            .then(link => setlinks(link))
             .catch(err => {
-                setlinks(null);
+                //setlinks(null);
                 if (err.code_ !== "storage/object-not-found") console.error("Document not found. Probably not uploaded yet.");
             });
     };

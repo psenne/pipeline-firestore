@@ -32,6 +32,11 @@ export default function AddPositionForm() {
         setposition(tmpPosition);
     };
 
+    const HandleFileUpload = ev => {
+        const files = ev.target.files;
+        setposition({ ...position, filenames: files });
+    };
+
     const AddCandidateToPosition = candidate => {
         const submission_date = firebase.firestore.Timestamp.fromDate(new Date());
         const candidate_name = candidate.info.firstname + " " + candidate.info.lastname;
@@ -100,6 +105,10 @@ export default function AddPositionForm() {
                             </Form.Group>
                             <Form.TextArea name="skill_summary" label="Skill Summary" onChange={HandleTextInput} value={position.skill_summary} />
                             <Form.TextArea name="description" label="Description" onChange={HandleTextInput} value={position.description} />
+                            <Form.Group inline>
+                                <label>Add document:</label>
+                                <Form.Input name="doc_filename" type="file" multiple onChange={HandleFileUpload} />
+                            </Form.Group>
                         </Segment>
                         <Segment>
                             <Header>Contract Information</Header>

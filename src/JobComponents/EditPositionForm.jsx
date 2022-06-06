@@ -3,8 +3,9 @@ import { useParams } from "react-router-dom";
 import { format } from "date-fns";
 import history from "../modules/history";
 import { Link } from "react-router-dom";
-import firebase, { fbPositionsDB, fbCandidatesDB } from "../firebase.config";
+import firebase, { fbPositionsDB, fbCandidatesDB, fbStorage } from "../firebase.config";
 import tmplPosition from "../constants/positionInfo";
+import Files from "../CommonComponents/Files";
 import ContractDropdown from "../CommonComponents/ContractDropdown";
 import CandidateDropdown from "../CandidateComponents/CandidateDropdown";
 import UserContext from "../contexts/UserContext";
@@ -14,7 +15,8 @@ export default function EditPositionForm() {
     const { id } = useParams();
     const key = id;
     const currentuser = useContext(UserContext);
-    const [position, setposition] = useState(Object.assign({}, tmplPosition));
+    const [position, setposition] = useState({ ...tmplPosition });
+    const [filestoupload, setfilestoupload] = useState([]);
     const [addedCandidates, setaddedCandidates] = useState([]); //candidates that are added when using this form
     const [removedCandidates, setremovedCandidates] = useState([]); //candidates that are removed when using this form
     const [formError, setformError] = useState(false);
@@ -22,7 +24,7 @@ export default function EditPositionForm() {
     useEffect(() => {
         const unsubPosition = fbPositionsDB.doc(key).onSnapshot(pos => {
             if (pos.exists) {
-                setposition({ ...pos.data() });
+                setposition({ ...tmplPosition, ...pos.data() });
             } else {
                 unsubPosition();
                 history.push("/positions/add");
@@ -60,6 +62,33 @@ export default function EditPositionForm() {
         updatePositionInfo("contract", value);
     };
 
+    const HandleFileUpload = ev => {
+        const files = ev.target.files;
+        setfilestoupload([...files]);
+
+        let newfilenames = [...position.filenames];
+        for (var i = 0; i < files.length; i++) {
+            newfilenames.push(files[i].name);
+        }
+        setposition({ ...position, filenames: newfilenames });
+    };
+
+    const DeleteFile = (ev, filename) => {
+        ev.stopPropagation();
+        ev.preventDefault();
+        const newfilenames = position.filenames.filter(f => f !== filename);
+
+        if (window.confirm(`Are you sure you want to delete ${filename}?`)) {
+            fbStorage
+                .child(key + "/" + filename)
+                .delete()
+                .then(() => {
+                    fbPositionsDB.doc(key).update({ filenames: newfilenames });
+                })
+                .catch(err => console.error("File, line 69", err));
+        }
+    };
+
     const updatePositionInfo = (name, value) => {
         const tmpPosition = Object.assign({}, position);
         tmpPosition[name] = value;
@@ -90,6 +119,16 @@ export default function EditPositionForm() {
             fbPositionsDB
                 .doc(key)
                 .update(position)
+                .then(() => {
+                    const uploadedFiles = [];
+                    for (var i = 0; i < filestoupload.length; i++) {
+                        let file = filestoupload[i];
+                        const fileRef = fbStorage.child(key + "/" + file.name);
+                        uploadedFiles.push(fileRef.put(file, { contentType: file.type })); //add file upload promise to array, so that we can use promise.all() for one returned promise
+                    }
+
+                    Promise.all(uploadedFiles).catch(error => console.log(error));
+                })
                 .then(() => {
                     var batch = firebase.firestore().batch();
 
@@ -137,13 +176,16 @@ export default function EditPositionForm() {
                 .doc(key)
                 .delete()
                 .then(() => {
-                    // var finishedDeletion = []
-                    // addedCandidates.forEach(submission => {
-                    //     finishedDeletion.push(fbPositionsDB.doc(`${key}/submitted_candidates/${submission.key}`).delete())
-                    // });
-                    // Promise.all(finishedDeletion).then(()=>{
-                    //     history.push("/positions/");
-                    // })
+                    position.filenames.forEach(filename => {
+                        fbStorage
+                            .child(key + "/" + filename)
+                            .delete()
+                            .catch(function (error) {
+                                console.error("Error deleting files:", error);
+                            });
+                    });
+                })
+                .then(() => {
                     history.push("/positions/");
                 });
         }
@@ -163,6 +205,14 @@ export default function EditPositionForm() {
                             </Form.Group>
                             <Form.TextArea name="skill_summary" label="Skill Summary" onChange={HandleTextInput} value={position.skill_summary} />
                             <Form.TextArea name="description" label="Description" onChange={HandleTextInput} value={position.description} />
+                            <Header>Documents</Header>
+                            <Segment>
+                                <Form.Group inline>
+                                    <label>Add document:</label>
+                                    <Form.Input name="doc_filename" type="file" multiple onChange={HandleFileUpload} />
+                                </Form.Group>
+                                <Files deletable id={id} filenames={position.filenames} onDelete={DeleteFile} />
+                            </Segment>
                         </Segment>
                         <Segment>
                             <Header>Contract Information</Header>
