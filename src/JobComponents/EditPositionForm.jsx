@@ -72,22 +72,6 @@ export default function EditPositionForm() {
         // setposition({ ...position, filenames: newfilenames });
     };
 
-    const DeleteFile = (ev, filename) => {
-        ev.stopPropagation();
-        ev.preventDefault();
-        // const newfilenames = position.filenames.filter(f => f !== filename);
-
-        if (window.confirm(`Are you sure you want to delete ${filename}?`)) {
-            fbStorage
-                .child(key + "/" + filename)
-                .delete()
-                .then(() => {
-                    // fbPositionsDB.doc(key).update({ filenames: newfilenames });
-                })
-                .catch(err => console.error("File, line 69", err));
-        }
-    };
-
     const updatePositionInfo = (name, value) => {
         const tmpPosition = Object.assign({}, position);
         tmpPosition[name] = value;
@@ -121,15 +105,9 @@ export default function EditPositionForm() {
                 .then(() => {
                     var batch = firebase.firestore().batch();
 
-                    // const uploadedFiles = [];
-                    for (var i = 0; i < filestoupload.length; i++) {
-                        let file = filestoupload[i];
+                    filestoupload.forEach(file => {
                         fbStorage.child(key + "/" + file.name).put(file, { contentType: file.type });
-                        // const fileRef = fbStorage.child(key + "/" + file.name);
-                        // uploadedFiles.push(fileRef.put(file, { contentType: file.type })); //add file upload promise to array, so that we can use promise.all() for one returned promise
-                    }
-
-                    // Promise.all(uploadedFiles).catch(error => console.log(error));
+                    });
 
                     addedCandidates.forEach(submission => {
                         const ckey = submission.key; //candidate key
@@ -160,7 +138,7 @@ export default function EditPositionForm() {
                     batch
                         .commit()
                         .then(() => {
-                            history.push(`/positions`);
+                            history.push({ pathname: `/positions`, state: { blah: "blah" } });
                         })
                         .catch(err => console.log(err));
                 });
@@ -210,7 +188,7 @@ export default function EditPositionForm() {
                                     <label>Add document:</label>
                                     <Form.Input name="doc_filename" type="file" multiple onChange={HandleFileUpload} />
                                 </Form.Group>
-                                <Files deletable id={id} filenames={position.filenames} onDelete={DeleteFile} />
+                                <Files deletable id={id} />
                             </Segment>
                         </Segment>
                         <Segment>

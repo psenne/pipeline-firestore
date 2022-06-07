@@ -36,12 +36,6 @@ export default function AddPositionForm() {
     const HandleFileUpload = ev => {
         const files = ev.target.files;
         setfilestoupload([...files]);
-
-        // let newfilenames = [];
-        // for (var i = 0; i < files.length; i++) {
-        //     newfilenames.push(files[i].name);
-        // }
-        // setposition({ ...position, filenames: newfilenames });
     };
 
     const AddCandidateToPosition = candidate => {
@@ -70,10 +64,9 @@ export default function AddPositionForm() {
                 const pkey = newposition.id;
                 var batch = firebase.firestore().batch();
 
-                for (var i = 0; i < filestoupload.length; i++) {
-                    let file = filestoupload[i];
+                filestoupload.forEach(file => {
                     fbStorage.child(pkey + "/" + file.name).put(file, { contentType: file.type });
-                }
+                });
 
                 addedCandidates.forEach(submission => {
                     const ckey = submission.key; //candidate key
@@ -94,7 +87,7 @@ export default function AddPositionForm() {
                 batch
                     .commit()
                     .then(() => {
-                        history.push(`/positions`);
+                        history.push({ pathname: `/positions`, state: { blah: "blah" } });
                     })
                     .catch(err => console.log(err));
             });

@@ -2,13 +2,15 @@ import React, { useState, useEffect } from "react";
 import { fbStorage } from "../firebase.config";
 import File from "./File";
 import { List } from "semantic-ui-react";
+import { useLocation } from "react-router-dom";
 
-export default function Files({ id, filenames, deletable = false, onDelete }) {
+export default function Files({ id, deletable = false }) {
     const [links, setlinks] = useState([]);
+    const location = useLocation();
 
     useEffect(() => {
         fetchFiles(id);
-    }, [id]);
+    }, [location.key]);
 
     const fetchFiles = id => {
         fbStorage
@@ -19,7 +21,7 @@ export default function Files({ id, filenames, deletable = false, onDelete }) {
                 filerefs.items.forEach(item => {
                     item.getDownloadURL()
                         .then(url => {
-                            tmpitems.push({ filename: item.name, url });
+                            tmpitems.push({ filename: item.name, url, id });
                             setlinks([...tmpitems]);
                         })
                         .catch(err => {
@@ -31,7 +33,7 @@ export default function Files({ id, filenames, deletable = false, onDelete }) {
     return (
         <List>
             {links.map((link, i) => {
-                return <File key={i} link={link} deletable={deletable} onDelete={onDelete} />;
+                return <File key={i} link={link} deletable={deletable} />;
             })}
         </List>
     );

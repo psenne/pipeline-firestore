@@ -103,8 +103,7 @@ export default function PositionDetailPage({ match }) {
                     </Segment>
                     {description}
                     <Segment vertical padded className="minitoolbar-inline">
-                        <h3>Documents</h3>
-                        <Files id={id} />
+                        <Files deletable id={id} />
                     </Segment>
 
                     {submissions.length > 0 && (
