@@ -65,25 +65,24 @@ export default function EditPositionForm() {
     const HandleFileUpload = ev => {
         const files = ev.target.files;
         setfilestoupload([...files]);
-
-        let newfilenames = [...position.filenames];
-        for (var i = 0; i < files.length; i++) {
-            newfilenames.push(files[i].name);
-        }
-        setposition({ ...position, filenames: newfilenames });
+        // let newfilenames = [...position.filenames];
+        // for (var i = 0; i < files.length; i++) {
+        //     newfilenames.push(files[i].name);
+        // }
+        // setposition({ ...position, filenames: newfilenames });
     };
 
     const DeleteFile = (ev, filename) => {
         ev.stopPropagation();
         ev.preventDefault();
-        const newfilenames = position.filenames.filter(f => f !== filename);
+        // const newfilenames = position.filenames.filter(f => f !== filename);
 
         if (window.confirm(`Are you sure you want to delete ${filename}?`)) {
             fbStorage
                 .child(key + "/" + filename)
                 .delete()
                 .then(() => {
-                    fbPositionsDB.doc(key).update({ filenames: newfilenames });
+                    // fbPositionsDB.doc(key).update({ filenames: newfilenames });
                 })
                 .catch(err => console.error("File, line 69", err));
         }
@@ -122,14 +121,15 @@ export default function EditPositionForm() {
                 .then(() => {
                     var batch = firebase.firestore().batch();
 
-                    const uploadedFiles = [];
+                    // const uploadedFiles = [];
                     for (var i = 0; i < filestoupload.length; i++) {
                         let file = filestoupload[i];
-                        const fileRef = fbStorage.child(key + "/" + file.name);
-                        uploadedFiles.push(fileRef.put(file, { contentType: file.type })); //add file upload promise to array, so that we can use promise.all() for one returned promise
+                        fbStorage.child(key + "/" + file.name).put(file, { contentType: file.type });
+                        // const fileRef = fbStorage.child(key + "/" + file.name);
+                        // uploadedFiles.push(fileRef.put(file, { contentType: file.type })); //add file upload promise to array, so that we can use promise.all() for one returned promise
                     }
 
-                    Promise.all(uploadedFiles).catch(error => console.log(error));
+                    // Promise.all(uploadedFiles).catch(error => console.log(error));
 
                     addedCandidates.forEach(submission => {
                         const ckey = submission.key; //candidate key
@@ -160,7 +160,7 @@ export default function EditPositionForm() {
                     batch
                         .commit()
                         .then(() => {
-                            history.push(`/positions/${key}`);
+                            history.push(`/positions`);
                         })
                         .catch(err => console.log(err));
                 });

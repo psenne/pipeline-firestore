@@ -6,7 +6,6 @@ const tmplPosition = {
     position_id: "",
     contract: "",
     location: "",
-    filenames: [],
     added_on: "",
     added_by: "",
     modified_by: "",

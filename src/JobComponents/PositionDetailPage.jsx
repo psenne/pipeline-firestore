@@ -6,7 +6,6 @@ import history from "../modules/history";
 import { format } from "date-fns";
 import { Header, Segment, Container, Menu, Icon } from "semantic-ui-react";
 import Markdown from "markdown-to-jsx";
-import classnames from "classnames";
 import Files from "../CommonComponents/Files";
 
 export default function PositionDetailPage({ match }) {
@@ -103,9 +102,9 @@ export default function PositionDetailPage({ match }) {
                         {skill_summary}
                     </Segment>
                     {description}
-                    <Segment vertical padded className={classnames({ "form-hidden": position.filenames.length === 0 }, "minitoolbar-inline")}>
+                    <Segment vertical padded className="minitoolbar-inline">
                         <h3>Documents</h3>
-                        <Files id={id} filenames={position.filenames} />
+                        <Files id={id} />
                     </Segment>
 
                     {submissions.length > 0 && (

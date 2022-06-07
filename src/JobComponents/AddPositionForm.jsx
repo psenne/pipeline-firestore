@@ -37,11 +37,11 @@ export default function AddPositionForm() {
         const files = ev.target.files;
         setfilestoupload([...files]);
 
-        let newfilenames = [];
-        for (var i = 0; i < files.length; i++) {
-            newfilenames.push(files[i].name);
-        }
-        setposition({ ...position, filenames: newfilenames });
+        // let newfilenames = [];
+        // for (var i = 0; i < files.length; i++) {
+        //     newfilenames.push(files[i].name);
+        // }
+        // setposition({ ...position, filenames: newfilenames });
     };
 
     const AddCandidateToPosition = candidate => {
@@ -67,17 +67,13 @@ export default function AddPositionForm() {
             position.added_by = currentuser.displayName;
 
             fbPositionsDB.add(position).then(newposition => {
-                const uploadedFiles = [];
                 const pkey = newposition.id;
                 var batch = firebase.firestore().batch();
 
                 for (var i = 0; i < filestoupload.length; i++) {
                     let file = filestoupload[i];
-                    const fileRef = fbStorage.child(pkey + "/" + file.name);
-                    uploadedFiles.push(fileRef.put(file, { contentType: file.type })); //add file upload promise to array, so that we can use promise.all() for one returned promise
+                    fbStorage.child(pkey + "/" + file.name).put(file, { contentType: file.type });
                 }
-
-                Promise.all(uploadedFiles).catch(error => console.log(error));
 
                 addedCandidates.forEach(submission => {
                     const ckey = submission.key; //candidate key
@@ -98,7 +94,7 @@ export default function AddPositionForm() {
                 batch
                     .commit()
                     .then(() => {
-                        history.push(`/positions/${pkey}`);
+                        history.push(`/positions`);
                     })
                     .catch(err => console.log(err));
             });

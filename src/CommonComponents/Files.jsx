@@ -4,38 +4,35 @@ import File from "./File";
 import { List } from "semantic-ui-react";
 
 export default function Files({ id, filenames, deletable = false, onDelete }) {
-    const [links, setlinks] = useState(null);
+    const [links, setlinks] = useState([]);
 
     useEffect(() => {
-        fetchFiles(id, filenames);
-    }, [id, filenames]);
+        fetchFiles(id);
+    }, [id]);
 
-    const fetchFiles = (id, filenames) => {
-        let getdocumenturls = filenames.map(filename => {
-            return fbStorage
-                .child(id + "/" + filename)
-                .getDownloadURL()
-                .then(url => {
-                    return {
-                        url,
-                        filename
-                    };
+    const fetchFiles = id => {
+        fbStorage
+            .child(id)
+            .listAll()
+            .then(filerefs => {
+                var tmpitems = [];
+                filerefs.items.forEach(item => {
+                    item.getDownloadURL()
+                        .then(url => {
+                            tmpitems.push({ filename: item.name, url });
+                            setlinks([...tmpitems]);
+                        })
+                        .catch(err => {
+                            console.error(err);
+                        });
                 });
-        });
-        Promise.all(getdocumenturls)
-            .then(link => setlinks(link))
-            .catch(err => {
-                //setlinks(null);
-                if (err.code_ !== "storage/object-not-found") console.error("Document not found. Probably not uploaded yet.");
             });
     };
-
     return (
         <List>
-            {links &&
-                links.map((link, i) => {
-                    return <File key={i} link={link} deletable={deletable} onDelete={onDelete} />;
-                })}
+            {links.map((link, i) => {
+                return <File key={i} link={link} deletable={deletable} onDelete={onDelete} />;
+            })}
         </List>
     );
 }

@@ -77,12 +77,12 @@ function PositionSummary({ position }) {
                     <section>
                         <Markdown>{position.info.skill_summary}</Markdown>
                     </section>
-                    <Segment basic padded className={classnames({ "form-hidden": position.info.filenames.length === 0 }, "minitoolbar-inline")}>
-                        <Files id={key} filenames={position.info.filenames} />
-                    </Segment>
 
                     <section>{more_info}</section>
                 </Link>
+                <Segment vertical padded className="minitoolbar-inline">
+                    <Files id={key} />
+                </Segment>
                 {submissions.length > 0 && (
                     <Header size="small">
                         Candidates submitted:

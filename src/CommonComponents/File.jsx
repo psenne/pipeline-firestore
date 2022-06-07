@@ -1,15 +1,16 @@
 import React from "react";
 import { Icon, List } from "semantic-ui-react";
 
-export default function File(props) {
-    const { deletable, link } = props;
+export default function File({ deletable, link, onDelete }) {
     return (
-        <List.Item as="a" href={link.url}>
+        <List.Item>
             <List.Content>
                 <List.Header>
-                    <Icon name="paperclip" />
-                    {link.filename}
-                    {deletable && <Icon name="close" color="red" title="Click to delete document" onClick={ev => props.onDelete(ev, link.filename)} />}
+                    <a href={link.url} target="_blank" rel="noopener noreferrer">
+                        <Icon name="paperclip" />
+                        {link.filename}
+                    </a>
+                    {deletable && <Icon name="close" color="red" title="Click to delete document" onClick={ev => onDelete(ev, link.filename)} />}
                 </List.Header>
             </List.Content>
         </List.Item>
