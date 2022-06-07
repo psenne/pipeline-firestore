@@ -2,7 +2,7 @@ import React, { useState, useContext } from "react";
 import { format } from "date-fns";
 import history from "../modules/history";
 import { Link } from "react-router-dom";
-import firebase, { fbPositionsDB, fbCandidatesDB } from "../firebase.config";
+import firebase, { fbPositionsDB, fbCandidatesDB, fbStorage } from "../firebase.config";
 import tmplPosition from "../constants/positionInfo";
 import ContractDropdown from "../CommonComponents/ContractDropdown";
 import CandidateDropdown from "../CandidateComponents/CandidateDropdown";
@@ -14,6 +14,7 @@ export default function AddPositionForm() {
     const [addedCandidates, setaddedCandidates] = useState([]); //candidates that are added when using this form
     const [removedCandidates, setremovedCandidates] = useState([]); //candidates that are removed when using this form
     const [formError, setformError] = useState(false);
+    const [filestoupload, setfilestoupload] = useState([]);
     const currentuser = useContext(UserContext);
 
     const HandleTextInput = ev => {
@@ -34,7 +35,13 @@ export default function AddPositionForm() {
 
     const HandleFileUpload = ev => {
         const files = ev.target.files;
-        setposition({ ...position, filenames: files });
+        setfilestoupload([...files]);
+
+        let newfilenames = [];
+        for (var i = 0; i < files.length; i++) {
+            newfilenames.push(files[i].name);
+        }
+        setposition({ ...position, filenames: newfilenames });
     };
 
     const AddCandidateToPosition = candidate => {
@@ -60,8 +67,17 @@ export default function AddPositionForm() {
             position.added_by = currentuser.displayName;
 
             fbPositionsDB.add(position).then(newposition => {
+                const uploadedFiles = [];
                 const pkey = newposition.id;
                 var batch = firebase.firestore().batch();
+
+                for (var i = 0; i < filestoupload.length; i++) {
+                    let file = filestoupload[i];
+                    const fileRef = fbStorage.child(pkey + "/" + file.name);
+                    uploadedFiles.push(fileRef.put(file, { contentType: file.type })); //add file upload promise to array, so that we can use promise.all() for one returned promise
+                }
+
+                Promise.all(uploadedFiles).catch(error => console.log(error));
 
                 addedCandidates.forEach(submission => {
                     const ckey = submission.key; //candidate key
@@ -82,7 +98,7 @@ export default function AddPositionForm() {
                 batch
                     .commit()
                     .then(() => {
-                        history.push("/positions/");
+                        history.push(`/positions/${pkey}`);
                     })
                     .catch(err => console.log(err));
             });

@@ -120,6 +120,8 @@ export default function EditPositionForm() {
                 .doc(key)
                 .update(position)
                 .then(() => {
+                    var batch = firebase.firestore().batch();
+
                     const uploadedFiles = [];
                     for (var i = 0; i < filestoupload.length; i++) {
                         let file = filestoupload[i];
@@ -128,9 +130,6 @@ export default function EditPositionForm() {
                     }
 
                     Promise.all(uploadedFiles).catch(error => console.log(error));
-                })
-                .then(() => {
-                    var batch = firebase.firestore().batch();
 
                     addedCandidates.forEach(submission => {
                         const ckey = submission.key; //candidate key
@@ -161,7 +160,7 @@ export default function EditPositionForm() {
                     batch
                         .commit()
                         .then(() => {
-                            history.push("/positions/");
+                            history.push(`/positions/${key}`);
                         })
                         .catch(err => console.log(err));
                 });
