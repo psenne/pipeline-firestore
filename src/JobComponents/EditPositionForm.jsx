@@ -153,14 +153,14 @@ export default function EditPositionForm() {
                 .doc(key)
                 .delete()
                 .then(() => {
-                    position.filenames.forEach(filename => {
-                        fbStorage
-                            .child(key + "/" + filename)
-                            .delete()
-                            .catch(function (error) {
-                                console.error("Error deleting files:", error);
+                    fbStorage
+                        .child(key)
+                        .listAll()
+                        .then(folderref => {
+                            folderref.items.forEach(item => {
+                                item.delete();
                             });
-                    });
+                        });
                 })
                 .then(() => {
                     history.push("/positions/");

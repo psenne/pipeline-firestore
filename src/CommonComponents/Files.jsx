@@ -2,15 +2,13 @@ import React, { useState, useEffect } from "react";
 import { fbStorage } from "../firebase.config";
 import File from "./File";
 import { List } from "semantic-ui-react";
-import { useLocation } from "react-router-dom";
 
 export default function Files({ id, deletable = false }) {
     const [links, setlinks] = useState([]);
-    const location = useLocation();
 
     useEffect(() => {
         fetchFiles(id);
-    }, [location.key]);
+    }, [id]);
 
     const fetchFiles = id => {
         fbStorage
