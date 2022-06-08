@@ -87,7 +87,12 @@ export default function AddPositionForm() {
                 batch
                     .commit()
                     .then(() => {
-                        history.push({ pathname: `/positions`, state: { blah: "blah" } });
+                        if (filestoupload.length > 0) {
+                            window.setTimeout(() => history.push("/positions"), 1000);
+                        } //so that files have time to upload
+                        else {
+                            history.push("/positions");
+                        }
                     })
                     .catch(err => console.log(err));
             });

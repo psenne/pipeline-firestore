@@ -65,11 +65,6 @@ export default function EditPositionForm() {
     const HandleFileUpload = ev => {
         const files = ev.target.files;
         setfilestoupload([...files]);
-        // let newfilenames = [...position.filenames];
-        // for (var i = 0; i < files.length; i++) {
-        //     newfilenames.push(files[i].name);
-        // }
-        // setposition({ ...position, filenames: newfilenames });
     };
 
     const updatePositionInfo = (name, value) => {
@@ -138,7 +133,12 @@ export default function EditPositionForm() {
                     batch
                         .commit()
                         .then(() => {
-                            history.push({ pathname: `/positions`, state: { blah: "blah" } });
+                            if (filestoupload.length > 0) {
+                                window.setTimeout(() => history.push("/positions"), 1000);
+                            } //so that files have time to upload
+                            else {
+                                history.push("/positions");
+                            }
                         })
                         .catch(err => console.log(err));
                 });
