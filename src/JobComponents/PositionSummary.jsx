@@ -28,6 +28,8 @@ function PositionSummary({ position }) {
     }, [key]);
 
     const position_id = position.info.position_id ? `(${position.info.position_id})` : "";
+    const setArchiveStatusText = position.info.archived === "archived" ? "Unarchive" : "Archive";
+
     const contract = position.info.contract ? `${position.info.contract}: ` : "";
     const level = position.info.level ? position.info.level : "";
     const location = position.info.location ? `Location: ${position.info.location}` : "";
@@ -59,10 +61,16 @@ function PositionSummary({ position }) {
         ""
     );
 
+    function ToggleArchived() {
+        const archived = !position.info.archived;
+        fbPositionsDB.doc(key).update({ archived });
+    }
+
     return (
-        <div key={position.key} className={classnames({ "candidate-submitted": submissions.length > 0 }, "candidate-table-row")}>
+        <div key={position.key} className={classnames({ archived: position.info.archived }, "candidate-table-row")}>
             <Menu attached icon className="minitoolbar-inline">
                 <Menu.Item as={Link} title="Edit position" className="minitoolbar-edit" to={`/positions/${key}/edit`} icon="edit"></Menu.Item>
+                <Menu.Item as="a" title={setArchiveStatusText} className="minitoolbar-edit" icon="archive" onClick={ToggleArchived}></Menu.Item>
             </Menu>
             <Segment attached>
                 <Link to={`/positions/${position.key}`}>

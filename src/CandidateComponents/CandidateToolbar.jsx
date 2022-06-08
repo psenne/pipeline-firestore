@@ -46,10 +46,8 @@ class CandidateToolbar extends Component {
         return (
             <Container fluid>
                 <Menu stackable className="no-print" style={{ margin: "1rem" }}>
-                    <Menu.Item title="Add new candidate" link>
-                        <Link to="/candidates/add">
+                    <Menu.Item title="Add new candidate" as={Link} to="/candidates/add">
                             <Icon name="plus" />
-                        </Link>
                     </Menu.Item>
                     <Menu.Item>
                         <StatusDropdown text="Filter by Status" value={status} onChange={(ev, data) => this.UpdateStatus(data.value)} />

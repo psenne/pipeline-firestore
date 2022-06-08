@@ -13,6 +13,8 @@ export default function ViewAllPositions() {
     const [contractsWithPositions, setcontractsWithPositions] = useState([]);
 
     useEffect(() => {
+        setpageloading(true);
+
         var unsub = fbPositionsDB
             .orderBy("contract")
             .orderBy("position_id")
@@ -24,14 +26,11 @@ export default function ViewAllPositions() {
                 });
                 setcontractsWithPositions([...new Set(tmppositions.map(item => item.info.contract))]);
                 updatePositions(tmppositions);
+                setpageloading(false);
             });
 
         return () => unsub();
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-    useEffect(() => {
-        setpageloading(!pageloading);
-    }, [positions]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const searchPositions = ev => {
         setsearchTerm(ev.currentTarget.value);

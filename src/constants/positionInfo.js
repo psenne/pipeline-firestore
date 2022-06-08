@@ -1,4 +1,5 @@
 const tmplPosition = {
+    archived: false,
     title: "",
     description: "",
     level: "",

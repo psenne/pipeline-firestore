@@ -7,6 +7,7 @@ import { format } from "date-fns";
 import { Header, Segment, Container, Menu, Icon } from "semantic-ui-react";
 import Markdown from "markdown-to-jsx";
 import Files from "../CommonComponents/Files";
+import classnames from "classnames";
 
 export default function PositionDetailPage({ match }) {
     const [position, setposition] = useState(null);
@@ -74,18 +75,18 @@ export default function PositionDetailPage({ match }) {
             ""
         );
 
+        const setArchiveStatusText = position.archived === "archived" ? "Unarchive" : "Archive";
+
+        function ToggleArchived() {
+            const archived = !position.archived;
+            fbPositionsDB.doc(key).update({ archived });
+        }
+
         return (
-            <Container>
+            <Container className={classnames({ archived: position.archived })}>
                 <Menu attached="top" size="huge" borderless className="no-print">
-                    <Menu.Item
-                        onClick={() => {
-                            history.goBack();
-                        }}>
-                        <Icon name="arrow left" />
-                    </Menu.Item>
-                    <Menu.Menu position="right">
-                        <Menu.Item as={Link} to={`/positions/${key}/edit`} icon="edit" className="minitoolbar-edit"></Menu.Item>
-                    </Menu.Menu>
+                    <Menu.Item as={Link} to={`/positions/${key}/edit`} icon="edit" className="minitoolbar-edit"></Menu.Item>
+                    <Menu.Item as="a" title={setArchiveStatusText} className="minitoolbar-edit" icon="archive" onClick={ToggleArchived}></Menu.Item>
                 </Menu>
                 <Segment attached>
                     <Segment vertical>
@@ -113,10 +114,8 @@ export default function PositionDetailPage({ match }) {
                                 <Header.Subheader>
                                     {submissions.map(candidate => {
                                         return (
-                                            <div>
-                                                <Link key={candidate.key} to={`/candidates/${candidate.key}`}>
-                                                    {candidate.info.candidate_name}
-                                                </Link>
+                                            <div key={candidate.key}>
+                                                <Link to={`/candidates/${candidate.key}`}>{candidate.info.candidate_name}</Link>
                                             </div>
                                         );
                                     })}

@@ -81,7 +81,7 @@ body {
 .view-panel {
     margin: 1rem;
 }
-.candidate-table-row .archived {
+.archived {
     opacity: 0.5;
 }
 .candidate-table-row a {

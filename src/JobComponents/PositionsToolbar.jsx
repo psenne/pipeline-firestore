@@ -25,10 +25,8 @@ export default ({ positions, contracts }) => {
     return (
         <Container fluid>
             <Menu stackable className="no-print" style={{ margin: "1rem" }}>
-                <Menu.Item title="Add new position" link>
-                    <Link to="/positions/add">
-                        <Icon name="plus" />
-                    </Link>
+                <Menu.Item title="Add new position" as={Link} to="/positions/add">
+                    <Icon name="plus" />
                 </Menu.Item>
                 <Menu.Item>
                     <ContractDropdown text="Filter by Contract" clearable value={selectedcontract} contractsoverride={contracts} onChange={SetSelectedContract} />
