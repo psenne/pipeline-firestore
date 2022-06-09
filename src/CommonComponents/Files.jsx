@@ -3,12 +3,12 @@ import { fbStorage } from "../firebase.config";
 import File from "./File";
 import { List } from "semantic-ui-react";
 
-export default function Files({ id, deletable = false }) {
+export default function Files({ id, deletable = false, filecounter = 0 }) {
     const [links, setlinks] = useState([]);
 
     useEffect(() => {
         fetchFiles(id);
-    }, [id]);
+    }, [id, filecounter]);
 
     const fetchFiles = id => {
         fbStorage

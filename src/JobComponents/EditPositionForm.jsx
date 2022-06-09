@@ -16,7 +16,7 @@ export default function EditPositionForm() {
     const key = id;
     const currentuser = useContext(UserContext);
     const [position, setposition] = useState({ ...tmplPosition });
-    const [filestoupload, setfilestoupload] = useState([]);
+    const [filecounter, setfilecounter] = useState(0);
     const [addedCandidates, setaddedCandidates] = useState([]); //candidates that are added when using this form
     const [removedCandidates, setremovedCandidates] = useState([]); //candidates that are removed when using this form
     const [formError, setformError] = useState(false);
@@ -64,7 +64,14 @@ export default function EditPositionForm() {
 
     const HandleFileUpload = ev => {
         const files = ev.target.files;
-        setfilestoupload([...files]);
+        [...files].forEach(file => {
+            fbStorage
+                .child(key + "/" + file.name)
+                .put(file, { contentType: file.type })
+                .then(snapshot => {
+                    setfilecounter(filecounter + 1);
+                });
+        });
     };
 
     const updatePositionInfo = (name, value) => {
@@ -100,10 +107,6 @@ export default function EditPositionForm() {
                 .then(() => {
                     var batch = firebase.firestore().batch();
 
-                    filestoupload.forEach(file => {
-                        fbStorage.child(key + "/" + file.name).put(file, { contentType: file.type });
-                    });
-
                     addedCandidates.forEach(submission => {
                         const ckey = submission.key; //candidate key
                         const candidateRef = fbCandidatesDB.doc(ckey).collection("submitted_positions").doc(key);
@@ -133,12 +136,7 @@ export default function EditPositionForm() {
                     batch
                         .commit()
                         .then(() => {
-                            if (filestoupload.length > 0) {
-                                window.setTimeout(() => history.push("/positions"), 1000);
-                            } //so that files have time to upload
-                            else {
-                                history.push("/positions");
-                            }
+                            history.push("/positions");
                         })
                         .catch(err => console.log(err));
                 });
@@ -188,7 +186,7 @@ export default function EditPositionForm() {
                                     <label>Add document:</label>
                                     <Form.Input name="doc_filename" type="file" multiple onChange={HandleFileUpload} />
                                 </Form.Group>
-                                <Files deletable id={id} />
+                                <Files deletable id={id} filecounter={filecounter} />
                             </Segment>
                         </Segment>
                         <Segment>
