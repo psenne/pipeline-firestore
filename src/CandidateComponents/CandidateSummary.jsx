@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { fbCandidatesDB, fbComments } from "../firebase.config";
+import { fbComments, fbSubmissionsDB } from "../firebase.config";
 import { Link } from "react-router-dom";
 import { Icon, Header, Segment, Label } from "semantic-ui-react";
 import { format, formatDistance } from "date-fns";
 import Markdown from "markdown-to-jsx";
 import MiniToolbar from "./MiniToolbar";
 import classnames from "classnames";
+import { tmplSubmission } from "../constants";
 
 function CandidateSummary({ candidate, statuses }) {
     const [submissions, setsubmissions] = useState([]);
@@ -13,16 +14,14 @@ function CandidateSummary({ candidate, statuses }) {
     const key = candidate.key;
 
     useEffect(() => {
-        const unsub = fbCandidatesDB
-            .doc(key)
-            .collection("submitted_positions")
-            .onSnapshot(docs => {
-                var tmpitems = [];
-                docs.forEach(submission => {
-                    tmpitems.push({ key: submission.id, info: submission.data() });
-                });
-                setsubmissions(tmpitems);
+        const unsub = fbSubmissionsDB.where("candidate_key", "==", key).onSnapshot(docs => {
+            var tmpitems = [];
+            docs.forEach(submission => {
+                const info = { ...tmplSubmission, ...submission.data() };
+                tmpitems.push({ id: submission.id, ...info });
             });
+            setsubmissions(tmpitems);
+        });
 
         return () => unsub();
     }, [key]);
@@ -87,9 +86,9 @@ function CandidateSummary({ candidate, statuses }) {
                         Submitted to:
                         {submissions.map(submission => {
                             return (
-                                <Link key={submission.key} to={`/positions/${submission.info.position_key}`}>
+                                <Link key={submission.id} to={`/positions/${submission.position_key}`}>
                                     <Label color="blue" key={submission.key}>
-                                        <Icon name="briefcase" /> {submission.info.position_contract} - {submission.info.position_title}
+                                        <Icon name="briefcase" /> {submission.contract} - {submission.position_title}
                                     </Label>
                                 </Link>
                             );

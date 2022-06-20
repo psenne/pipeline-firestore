@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { fbPositionsDB } from "../firebase.config";
-import tmplPosition from "../constants/positionInfo";
+import { fbPositionsDB, fbSubmissionsDB } from "../firebase.config";
+import { tmplPosition, tmplSubmission } from "../constants";
 import history from "../modules/history";
 import { format } from "date-fns";
 import { Header, Segment, Container, Menu, Icon } from "semantic-ui-react";
@@ -33,19 +33,32 @@ export default function PositionDetailPage({ match }) {
     }, [position]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        const unsub = fbPositionsDB
-            .doc(key)
-            .collection("submitted_candidates")
-            .onSnapshot(docs => {
-                var tmpitems = [];
-                docs.forEach(candidate => {
-                    tmpitems.push({ key: candidate.id, info: candidate.data() });
-                });
-                setsubmissions(tmpitems);
+        const unsub = fbSubmissionsDB.where("position_key", "==", key).onSnapshot(docs => {
+            var tmpitems = [];
+            docs.forEach(submission => {
+                const info = { ...tmplSubmission, ...submission.data() };
+                tmpitems.push({ id: submission.id, ...info });
             });
+            setsubmissions(tmpitems);
+        });
 
         return () => unsub();
-    }, [key]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [key]);
+
+    // useEffect(() => {
+    //     const unsub = fbPositionsDB
+    //         .doc(key)
+    //         .collection("submitted_candidates")
+    //         .onSnapshot(docs => {
+    //             var tmpitems = [];
+    //             docs.forEach(candidate => {
+    //                 tmpitems.push({ key: candidate.id, info: candidate.data() });
+    //             });
+    //             setsubmissions(tmpitems);
+    //         });
+
+    //     return () => unsub();
+    // }, [key]); // eslint-disable-line react-hooks/exhaustive-deps
 
     if (position) {
         const position_id = position.position_id ? `Position #${position.position_id}` : "";
@@ -112,10 +125,11 @@ export default function PositionDetailPage({ match }) {
                             <Header size="small">
                                 <Header.Content>Candidates submitted:</Header.Content>
                                 <Header.Subheader>
-                                    {submissions.map(candidate => {
+                                    {submissions.map(submission => {
+                                        console.log(submission);
                                         return (
-                                            <div key={candidate.key}>
-                                                <Link to={`/candidates/${candidate.key}`}>{candidate.info.candidate_name}</Link>
+                                            <div key={submission.id}>
+                                                <Link to={`/candidates/${submission.candidate_key}`}>{submission.candidate_name}</Link> on {format(submission.submission_date.toDate(), "MMM d, yyyy")}
                                             </div>
                                         );
                                     })}

@@ -1,27 +1,27 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import firebase from "../firebase.config";
+import { fbSubmissionsDB } from "../firebase.config";
+import { tmplSubmission } from "../constants";
 import { Container, List } from "semantic-ui-react";
 import ComponentPlaceholder from "./ComponentPlaceholder";
 import { format } from "date-fns";
 
 const RecentSubmissions = () => {
-    const [candidateSubmissions, setCandidateSubmissions] = useState([]);
+    const [submissions, setsubmissions] = useState([]);
     const [pageloading, setpageloading] = useState(false);
 
     useEffect(() => {
         setpageloading(true);
-        const getSubmissions = firebase
-            .firestore()
-            .collectionGroup("submitted_candidates")
+        const getSubmissions = fbSubmissionsDB
             .orderBy("submission_date", "desc")
             .limit(5)
-            .onSnapshot(submissions => {
+            .onSnapshot(docs => {
                 let tmpitems = [];
-                submissions.forEach(submission => {
-                    tmpitems.push(submission.data());
+                docs.forEach(submission => {
+                    const info = { ...tmplSubmission, ...submission.data() };
+                    tmpitems.push({ id: submission.id, ...info });
                 });
-                setCandidateSubmissions(tmpitems);
+                setsubmissions(tmpitems);
                 setpageloading(false);
             });
         return () => {
@@ -36,12 +36,16 @@ const RecentSubmissions = () => {
                 <ComponentPlaceholder lines="6" />
             ) : (
                 <List selection verticalAlign="middle" divided relaxed>
-                    {candidateSubmissions.map(submission => {
+                    {submissions.map(submission => {
                         return (
-                            <List.Item key={submission.position_key + submission.candidate_id}>
+                            <List.Item key={submission.id}>
                                 <List.Content>
                                     <List.Header>
-                                        <Link to={`/candidates/${submission.candidate_id}`}>{submission.candidate_name}</Link> submitted for <Link to={`/positions/${submission.position_key}`}>{submission.position_title}</Link> on {submission.position_contract}
+                                        <Link to={`/candidates/${submission.candidate_key}`}>{submission.candidate_name}</Link> submitted for{" "}
+                                        <Link to={`/positions/${submission.position_key}`}>
+                                            {submission.position_level} {submission.position_title}
+                                        </Link>{" "}
+                                        on {submission.contract}
                                     </List.Header>
                                     {format(submission.submission_date.toDate(), "MMM d, yyyy")}
                                 </List.Content>
