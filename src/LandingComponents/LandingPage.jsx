@@ -16,31 +16,33 @@ export default () => {
             <NavBar active="dashboard" />
             <Container fluid>
                 <Stats />
-                <RecentComments />
                 <FlaggedCandidates />
-                <Grid stackable columns={2}>
-                    <Grid.Column>
-                        <Grid stackable columns={2}>
-                            <Grid.Row>
-                                <Grid.Column>
-                                    <LastCreated />
-                                </Grid.Column>
-                                <Grid.Column>
-                                    <RecentPositions />
-                                </Grid.Column>
-                            </Grid.Row>
-                            <Grid.Row>
-                                <Grid.Column>
-                                    <AtRiskEmployees />
-                                </Grid.Column>
-                                <Grid.Column></Grid.Column>
-                            </Grid.Row>
-                        </Grid>
-                    </Grid.Column>
-                    <Grid.Column>
-                        <RecentSubmissions />
-                    </Grid.Column>
-                </Grid>
+                <RecentComments />
+                <div style={{ marginTop: "2rem" }}>
+                    <Grid stackable columns={2}>
+                        <Grid.Column>
+                            <Grid stackable columns={2}>
+                                <Grid.Row>
+                                    <Grid.Column>
+                                        <LastCreated />
+                                    </Grid.Column>
+                                    <Grid.Column>
+                                        <RecentPositions />
+                                    </Grid.Column>
+                                </Grid.Row>
+                                <Grid.Row>
+                                    <Grid.Column>
+                                        <AtRiskEmployees />
+                                    </Grid.Column>
+                                    <Grid.Column></Grid.Column>
+                                </Grid.Row>
+                            </Grid>
+                        </Grid.Column>
+                        <Grid.Column>
+                            <RecentSubmissions />
+                        </Grid.Column>
+                    </Grid>
+                </div>
             </Container>
         </div>
     );

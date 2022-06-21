@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { fbSubmissionsDB } from "../firebase.config";
 import { tmplSubmission } from "../constants";
-import { Container, List } from "semantic-ui-react";
+import { Container, List, Header, Icon } from "semantic-ui-react";
 import ComponentPlaceholder from "./ComponentPlaceholder";
 import { format } from "date-fns";
 
@@ -31,11 +31,14 @@ const RecentSubmissions = () => {
 
     return (
         <Container>
-            <h3>Submitted candidates</h3>
+            <Header>
+                <Icon name="smile" />
+                Submitted candidates
+            </Header>
             {pageloading ? (
                 <ComponentPlaceholder lines="6" />
             ) : (
-                <List selection verticalAlign="middle" divided relaxed>
+                <List selection verticalAlign="middle" relaxed>
                     {submissions.map(submission => {
                         return (
                             <List.Item key={submission.id}>

@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { fbFlagNotes } from "../firebase.config";
 import Flag from "../LandingComponents/Flag";
-import { Card } from "semantic-ui-react";
+import { Card, Header, Icon } from "semantic-ui-react";
 
 export default class FlaggedCandidates extends Component {
     constructor(props) {
@@ -33,14 +33,11 @@ export default class FlaggedCandidates extends Component {
         return (
             <>
                 {flags.length > 0 && (
-                    <>
-                        <h3>Flagged candidates</h3>
-                        <Card.Group>
-                            {flags.reverse().map(flag => (
-                                <Flag key={flag.key} flag={flag} />
-                            ))}
-                        </Card.Group>
-                    </>
+                    <Card.Group>
+                        {flags.reverse().map(flag => (
+                            <Flag key={flag.key} flag={flag} />
+                        ))}
+                    </Card.Group>
                 )}
             </>
         );

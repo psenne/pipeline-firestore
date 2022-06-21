@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { fbComments } from "../firebase.config";
-import { List, Image, Comment } from "semantic-ui-react";
+import { Icon, Comment, Header } from "semantic-ui-react";
 import ComponentPlaceholder from "./ComponentPlaceholder";
 import { formatDistance, differenceInDays } from "date-fns";
 import Markdown from "markdown-to-jsx";
@@ -52,8 +52,11 @@ const RecentComments = () => {
 
     return (
         <>
-            <h3>Recent Comments</h3>
             <Comment.Group style={{ maxWidth: "none" }}>
+                <Header>
+                    <Icon name="comments" />
+                    Recent Comments
+                </Header>
                 {filteredComments.map(comment => {
                     const commentdate = comment.comment_date.toDate();
                     const comment_date = comment.comment_date ? formatDistance(commentdate, new Date(), { addSuffix: true }) : "";
