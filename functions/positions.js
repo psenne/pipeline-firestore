@@ -22,12 +22,13 @@ exports.addPositionCreatedEvent = db.document("/positions/{positionID}").onCreat
     };
 
     return rlt.ref("auditing").push(event).then(()=>{ 
-        console.log(event);
+        functions.logger.log(event);
     }) //prettier-ignore
 });
 
 exports.deletedPositionEvent = db.document("/positions/{positionID}").onDelete((snapshot, context) => {
     const positionname = `${snapshot.data().level} ${snapshot.data().title} (${snapshot.data().contract})`;
+    const pkey = context.params.positionID;
     const now = new Date();
     const event = {
         eventdate: now.toJSON(),
@@ -35,22 +36,21 @@ exports.deletedPositionEvent = db.document("/positions/{positionID}").onDelete((
         candidatename: positionname
     };
 
-    // delete submitted candidates subcollection. because deleting the position, doesn't delete it's children docs
-    snapshot.ref
-        .collection(`submitted_candidates`)
+    //delete submission
+    fsdb.collection("submissions")
+        .where("position_key", "==", pkey)
         .get()
-        .then(submissions => {
-            const subcollectionbatch = fsdb.batch();
-            submissions.forEach(submission => {
-                const submissionInfo = submission.data();
-                fsdb.collection("candidates").doc(submissionInfo.candidate_id).collection("submitted_positions").doc(submissionInfo.position_key).delete();
-                subcollectionbatch.delete(submission.ref);
+        .then(docs => {
+            docs.forEach(doc => {
+                doc.ref.delete();
             });
-            subcollectionbatch.commit();
+        })
+        .catch(err => {
+            functions.logger.log(err);
         });
 
     return rlt.ref("auditing").push(event).then(()=>{ 
-        console.info(event);
+        functions.logger.info(event);
     }) //prettier-ignore
 });
 
@@ -68,24 +68,12 @@ exports.updatePositionEvent = db.document("/positions/{positionID}").onUpdate(({
             var beforeval = orgInfo[key];
             var afterval = newInfo[key];
             if (!_.isEqual(beforeval, afterval) && key !== "added_on" && key !== "modified_on" && key !== "modified_by" && key !== "added_by") {
-                if (key === "candidates_submitted") {
-                    if (afterval instanceof Object) {
-                        //candidates submitted section
-                        var new_candidates_keys = Object.keys(afterval);
-                        if (beforeval !== undefined) {
-                            new_candidates_keys = _.reduce(afterval, (result, value, key) => (_.isEqual(value, beforeval[key]) ? result : result.concat(key)), []); // https://stackoverflow.com/questions/31683075/how-to-do-a-deep-comparison-between-2-objects-with-lodash
-                        }
-                        return new_candidates_keys.length > 0 ? new_candidates_keys.map(ckey => `submitted ${afterval[ckey].candidate_name} on ${datefns.format(new Date(afterval[ckey].submission_date), "MMM d, yyyy")}`).join(", ") : undefined; //create event description. undefined if no candidates were added. otherwise join returns ""
-                    }
+                if (beforeval !== "" && afterval === "") {
+                    return `erased "${beforeval}" from ${key.replace(/[_]/g, " ").toUpperCase()}`;
+                } else if (beforeval === "" && afterval !== "") {
+                    return `added "${afterval}" to ${key.replace(/[_]/g, " ").toUpperCase()}`;
                 } else {
-                    //other than candidate submissions
-                    if (beforeval !== "" && afterval === "") {
-                        return `erased "${beforeval}" from ${key.replace(/[_]/g, " ").toUpperCase()}`;
-                    } else if (beforeval === "" && afterval !== "") {
-                        return `added "${afterval}" to ${key.replace(/[_]/g, " ").toUpperCase()}`;
-                    } else {
-                        return `updated ${key.replace(/[_]/g, " ").toUpperCase()} to "${afterval}"`;
-                    }
+                    return `updated ${key.replace(/[_]/g, " ").toUpperCase()} to "${afterval}"`;
                 }
             }
         })
@@ -103,9 +91,9 @@ exports.updatePositionEvent = db.document("/positions/{positionID}").onUpdate(({
             candidatename: positionname
         };
         return rlt.ref("auditing").push(event).then(()=>{ 
-            console.info(event);
+            functions.logger.info(event);
         }) //prettier-ignore
-    } else {
-        return () => console.info("No substantial changes.");
     }
+
+    return false;
 });

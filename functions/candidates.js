@@ -22,7 +22,7 @@ exports.addCreatedEvent = db.document("/candidates/{candidateID}").onCreate((sna
     };
 
     return rlt.ref("auditing").push(event).then(()=>{ 
-        console.log(event);
+        functions.logger.log(event);
     }) //prettier-ignore
 });
 
@@ -85,16 +85,16 @@ exports.updateCandidateEvent = db.document("/candidates/{candidateID}").onUpdate
             candidatename
         };
 
-        //return () => console.info("All fields:", changedFields, newInfo);
-
         return rlt.ref("auditing").push(event).then(()=>{ 
-            console.info(event);
+            functions.logger.log(event);
         }) //prettier-ignore
     }
+    return false;
 });
 
 exports.deletedCandidateEvent = db.document("/candidates/{candidateID}").onDelete((snapshot, context) => {
     const candidatename = `${snapshot.data().firstname} ${snapshot.data().lastname}`;
+    const ckey = context.params.candidateID;
     const now = new Date();
     const event = {
         eventdate: now.toJSON(),
@@ -102,21 +102,20 @@ exports.deletedCandidateEvent = db.document("/candidates/{candidateID}").onDelet
         candidatename
     };
 
-    // delete submitted positions subcollection. because deleting the candidate, doesn't delete it's children docs
-    snapshot.ref
-        .collection(`submitted_positions`)
+    //delete submission
+    fsdb.collection("submissions")
+        .where("candidate_key", "==", ckey)
         .get()
-        .then(submissions => {
-            const subcollectionbatch = fsdb.batch();
-            submissions.forEach(submission => {
-                const submissionInfo = submission.data();
-                fsdb.collection("positions").doc(submissionInfo.position_key).collection("submitted_candidates").doc(submissionInfo.candidate_id).delete();
-                subcollectionbatch.delete(submission.ref);
+        .then(docs => {
+            docs.forEach(doc => {
+                doc.ref.delete();
             });
-            subcollectionbatch.commit();
+        })
+        .catch(err => {
+            functions.logger.log(err);
         });
 
     return rlt.ref("auditing").push(event).then(()=>{ 
-        console.info(event);
+        functions.logger.log(event);
     }) //prettier-ignore
 });
