@@ -198,7 +198,7 @@ export default function EditPositionForm() {
                                     <ContractDropdown required selection onChange={HandleContractInput} value={position.contract} />
                                 </div>
                             </Form.Group>
-                            <Header>Candidate submission</Header>
+                            {/* <Header>Candidate submission</Header>
                             {addedCandidates.map(candidate => {
                                 return (
                                     <p key={candidate.key}>
@@ -210,7 +210,7 @@ export default function EditPositionForm() {
                                 );
                             })}
 
-                            <CandidateDropdown selection filters={[{ archived: ["current"] }, { status: ["active", "processing"] }]} removecandidates={addedCandidates} onChange={AddCandidateToPosition} />
+                            <CandidateDropdown selection filters={[{ archived: ["current"] }, { status: ["active", "processing"] }]} removecandidates={addedCandidates} onChange={AddCandidateToPosition} /> */}
                         </Segment>
                         <Segment>
                             {formError && <Message error floating compact icon="warning" header="Required fields missing" content="Title and contract are both required." />}
