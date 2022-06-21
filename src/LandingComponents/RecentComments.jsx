@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { fbComments } from "../firebase.config";
-import { List, Image } from "semantic-ui-react";
+import { List, Image, Comment } from "semantic-ui-react";
 import ComponentPlaceholder from "./ComponentPlaceholder";
 import { formatDistance, differenceInDays } from "date-fns";
 import Markdown from "markdown-to-jsx";
@@ -42,37 +42,39 @@ const RecentComments = () => {
         setFilteredComments(f);
     }, [comments]);
 
+    if (pageloading) {
+        return <ComponentPlaceholder lines="6" />;
+    }
+
+    if (!filteredComments.length) {
+        return false;
+    }
+
     return (
         <>
             <h3>Recent Comments</h3>
-            {pageloading ? (
-                <ComponentPlaceholder lines="6" />
-            ) : filteredComments.length > 0 ? (
-                <>
-                    <List selection divided relaxed>
-                        {filteredComments.map(comment => {
-                            const commentdate = comment.comment_date.toDate();
-                            const comment_date = comment.comment_date ? formatDistance(commentdate, new Date(), { addSuffix: true }) : "";
-                            return (
-                                <List.Item key={comment.id}>
-                                    <Image avatar src={comment.avatar} />
-                                    <List.Content>
-                                        <List.Header>
-                                            {comment.author} commented on <Link to={`/${comment.refurl}`}>{comment.refname}</Link>
-                                        </List.Header>
-                                        <List.Description>
-                                            <Markdown>{comment.text || ""}</Markdown>
-                                        </List.Description>
-                                        {comment_date}
-                                    </List.Content>
-                                </List.Item>
-                            );
-                        })}
-                    </List>
-                </>
-            ) : (
-                "No comments made in past two weeks."
-            )}
+            <Comment.Group style={{ maxWidth: "none" }}>
+                {filteredComments.map(comment => {
+                    const commentdate = comment.comment_date.toDate();
+                    const comment_date = comment.comment_date ? formatDistance(commentdate, new Date(), { addSuffix: true }) : "";
+                    return (
+                        <Comment key={comment.id}>
+                            <Comment.Avatar src={comment.avatar || ""} />
+                            <Comment.Content>
+                                <Comment.Author as="span">
+                                    {comment.author} commented on <Link to={`/${comment.refurl}`}>{comment.refname}</Link>
+                                </Comment.Author>
+                                <Comment.Metadata>
+                                    <div>{comment_date}</div>
+                                </Comment.Metadata>
+                                <Comment.Text>
+                                    <Markdown>{comment.text || ""}</Markdown>
+                                </Comment.Text>
+                            </Comment.Content>
+                        </Comment>
+                    );
+                })}
+            </Comment.Group>
         </>
     );
 };
