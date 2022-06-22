@@ -1,18 +1,18 @@
 import React, { useState, useContext } from "react";
-import { format } from "date-fns";
+// import { format } from "date-fns";
 import history from "../modules/history";
-import { Link } from "react-router-dom";
-import firebase, { fbPositionsDB, fbCandidatesDB, fbStorage } from "../firebase.config";
+// import { Link } from "react-router-dom";
+import firebase, { fbPositionsDB, fbStorage } from "../firebase.config";
 import tmplPosition from "../constants/positionInfo";
 import ContractDropdown from "../CommonComponents/ContractDropdown";
-import CandidateDropdown from "../CandidateComponents/CandidateDropdown";
+// import CandidateDropdown from "../CandidateComponents/CandidateDropdown";
 import UserContext from "../contexts/UserContext";
-import { Form, Container, Icon, Segment, Button, Header, Message } from "semantic-ui-react";
+import { Form, Container, Segment, Button, Header, Message } from "semantic-ui-react";
 
 export default function AddPositionForm() {
     const [position, setposition] = useState(Object.assign({}, tmplPosition));
-    const [addedCandidates, setaddedCandidates] = useState([]); //candidates that are added when using this form
-    const [removedCandidates, setremovedCandidates] = useState([]); //candidates that are removed when using this form
+    // const [addedCandidates, setaddedCandidates] = useState([]); //candidates that are added when using this form
+    // const [removedCandidates, setremovedCandidates] = useState([]); //candidates that are removed when using this form
     const [formError, setformError] = useState(false);
     const [filestoupload, setfilestoupload] = useState([]);
     const currentuser = useContext(UserContext);
@@ -38,21 +38,21 @@ export default function AddPositionForm() {
         setfilestoupload([...files]);
     };
 
-    const AddCandidateToPosition = candidate => {
-        const submission_date = firebase.firestore.Timestamp.fromDate(new Date());
-        const candidate_name = candidate.info.firstname + " " + candidate.info.lastname;
-        const tmpCandidate = { key: candidate.key, info: { submission_date, candidate_name } };
-        setaddedCandidates([{ ...tmpCandidate }, ...addedCandidates]);
-    };
+    // const AddCandidateToPosition = candidate => {
+    //     const submission_date = firebase.firestore.Timestamp.fromDate(new Date());
+    //     const candidate_name = candidate.info.firstname + " " + candidate.info.lastname;
+    //     const tmpCandidate = { key: candidate.key, info: { submission_date, candidate_name } };
+    //     setaddedCandidates([{ ...tmpCandidate }, ...addedCandidates]);
+    // };
 
-    const RemoveCandidateFromPosition = ckey => {
-        const selectedCandidate = addedCandidates.filter(candidate => candidate.key === ckey); //get removed candidate info for prompt and fbCandidate update
-        const remainingCandidates = addedCandidates.filter(candidate => candidate.key !== ckey); //remove the candidate from submission list
-        if (window.confirm(`Are you sure you want to unsubmit ${selectedCandidate[0].info.candidate_name}?`)) {
-            setaddedCandidates([...remainingCandidates]);
-            setremovedCandidates([...selectedCandidate, ...removedCandidates]); //add candidate to to-be-removed list
-        }
-    };
+    // const RemoveCandidateFromPosition = ckey => {
+    //     const selectedCandidate = addedCandidates.filter(candidate => candidate.key === ckey); //get removed candidate info for prompt and fbCandidate update
+    //     const remainingCandidates = addedCandidates.filter(candidate => candidate.key !== ckey); //remove the candidate from submission list
+    //     if (window.confirm(`Are you sure you want to unsubmit ${selectedCandidate[0].info.candidate_name}?`)) {
+    //         setaddedCandidates([...remainingCandidates]);
+    //         setremovedCandidates([...selectedCandidate, ...removedCandidates]); //add candidate to to-be-removed list
+    //     }
+    // };
 
     const AddNewPosition = () => {
         if (position.title && position.contract) {
@@ -62,39 +62,39 @@ export default function AddPositionForm() {
 
             fbPositionsDB.add(position).then(newposition => {
                 const pkey = newposition.id;
-                var batch = firebase.firestore().batch();
+                // var batch = firebase.firestore().batch();
 
                 filestoupload.forEach(file => {
                     fbStorage.child(pkey + "/" + file.name).put(file, { contentType: file.type });
                 });
 
-                addedCandidates.forEach(submission => {
-                    const ckey = submission.key; //candidate key
-                    const candidateRef = fbCandidatesDB.doc(ckey).collection("submitted_positions").doc(pkey);
-                    const positionRef = fbPositionsDB.doc(pkey).collection("submitted_candidates").doc(ckey);
-                    const updatedSubmissionInfo = {
-                        submission_date: submission.info.submission_date,
-                        candidate_id: ckey,
-                        candidate_name: submission.info.candidate_name,
-                        position_id: position.position_id,
-                        position_title: position.title,
-                        position_contract: position.contract
-                    };
-                    batch.set(candidateRef, updatedSubmissionInfo);
-                    batch.set(positionRef, updatedSubmissionInfo);
-                });
+                // addedCandidates.forEach(submission => {
+                //     const ckey = submission.key; //candidate key
+                //     const candidateRef = fbCandidatesDB.doc(ckey).collection("submitted_positions").doc(pkey);
+                //     const positionRef = fbPositionsDB.doc(pkey).collection("submitted_candidates").doc(ckey);
+                //     const updatedSubmissionInfo = {
+                //         submission_date: submission.info.submission_date,
+                //         candidate_id: ckey,
+                //         candidate_name: submission.info.candidate_name,
+                //         position_id: position.position_id,
+                //         position_title: position.title,
+                //         position_contract: position.contract
+                //     };
+                //     batch.set(candidateRef, updatedSubmissionInfo);
+                //     batch.set(positionRef, updatedSubmissionInfo);
+                // });
 
-                batch
-                    .commit()
-                    .then(() => {
-                        if (filestoupload.length > 0) {
-                            window.setTimeout(() => history.push("/positions"), 1000);
-                        } //so that files have time to upload
-                        else {
-                            history.push("/positions");
-                        }
-                    })
-                    .catch(err => console.log(err));
+                // batch
+                //     .commit()
+                //     .then(() => {
+                //         if (filestoupload.length > 0) {
+                //             window.setTimeout(() => history.push("/positions"), 1000);
+                //         } //so that files have time to upload
+                //         else {
+                //             history.push("/positions");
+                //         }
+                //     })
+                //     .catch(err => console.log(err));
             });
         } else {
             setformError(true);

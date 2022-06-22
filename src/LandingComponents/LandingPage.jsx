@@ -1,7 +1,7 @@
 import React from "react";
 import NavBar from "../NavBar";
 import LastCreated from "./LastCreated";
-import LastModified from "./LastModified";
+// import LastModified from "./LastModified";
 import FlaggedCandidates from "./FlaggedCandidates";
 import RecentPositions from "./RecentPositions";
 import RecentSubmissions from "./RecentSubmissions";
