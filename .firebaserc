@@ -1,25 +1,23 @@
 {
-  "projects": {
-    "prod": "new-staffing-pipeline-prod",
-    "test": "new-staffing-pipeline-test"
-  },
-  "targets": {
-    "new-staffing-pipeline-prod": {
-      "hosting": {
-        "portal": [
-          "new-staffing-portal-prod"
-        ],
-        "pipeline": [
-          "new-staffing-pipeline-prod"
-        ]
-      }
+    "projects": {
+        "prod": "new-staffing-pipeline-prod",
+        "test": "new-staffing-pipeline-test",
+        "default": "new-staffing-pipeline-test"
     },
-    "new-staffing-pipeline-test": {
-      "hosting": {
-        "pipeline": [
-          "new-staffing-pipeline-test"
-        ]
-      }
+    "targets": {
+        "new-staffing-pipeline-prod": {
+            "hosting": {
+                "pipeline": [
+                    "new-staffing-pipeline-prod"
+                ]
+            }
+        },
+        "new-staffing-pipeline-test": {
+            "hosting": {
+                "pipeline": [
+                    "new-staffing-pipeline-test"
+                ]
+            }
+        }
     }
-  }
 }
