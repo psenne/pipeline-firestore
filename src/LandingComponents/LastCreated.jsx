@@ -17,7 +17,7 @@ export default class LastCreated extends Component {
     componentDidMount() {
         this.unsub = fbCandidatesDB
             .orderBy("created_date", "desc")
-            .limit(5)
+            .limit(10)
             .onSnapshot(doc => {
                 let tmpitems = [];
                 doc.forEach(function (candidate) {

@@ -13,6 +13,7 @@ const RecentPositions = () => {
     useEffect(() => {
         setpageloading(true);
         const getPositions = fbPositionsDB
+            .where("added_on", "!=", "")
             .orderBy("added_on", "desc")
             .limit(5)
             .onSnapshot(data => {
