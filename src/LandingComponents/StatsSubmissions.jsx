@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Statistic } from "semantic-ui-react";
-import firebase from "../firebase.config";
+import { fbSubmissionsDB } from "../firebase.config";
 import PieChart from "./PieChart";
 
 export default function StatsSubmissions() {
@@ -8,18 +8,15 @@ export default function StatsSubmissions() {
     const [submissionstats, setsubmissionstats] = useState({});
 
     useEffect(() => {
-        const unsub = firebase
-            .firestore()
-            .collectionGroup("submitted_candidates")
-            .onSnapshot(docs => {
-                const tmp = {};
-                docs.forEach(doc => {
-                    const submission = doc.data();
-                    tmp[submission.position_contract] = tmp[submission.position_contract] ? tmp[submission.position_contract] + 1 : 1;
-                });
-                setnumSubmissions(docs.size);
-                setsubmissionstats(tmp);
+        const unsub = fbSubmissionsDB.onSnapshot(docs => {
+            const tmp = {};
+            docs.forEach(doc => {
+                const submission = doc.data();
+                tmp[submission.contract] = tmp[submission.contract] ? tmp[submission.contract] + 1 : 1;
             });
+            setnumSubmissions(docs.size);
+            setsubmissionstats(tmp);
+        });
         return () => {
             unsub();
         };

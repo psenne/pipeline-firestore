@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { fbPositionsDB } from "../firebase.config";
+import { fbPositionsDB, fbSubmissionsDB } from "../firebase.config";
+import { tmplSubmission } from "../constants";
 import { Link } from "react-router-dom";
 import { Segment, Header, Label, Icon, Menu, Accordion, Transition } from "semantic-ui-react";
 import classnames from "classnames";
@@ -13,16 +14,14 @@ function PositionSummary({ position }) {
     const key = position.key;
 
     useEffect(() => {
-        const unsub = fbPositionsDB
-            .doc(key)
-            .collection("submitted_candidates")
-            .onSnapshot(docs => {
-                var tmpitems = [];
-                docs.forEach(candidate => {
-                    tmpitems.push({ key: candidate.id, info: candidate.data() });
-                });
-                setsubmissions(tmpitems);
+        const unsub = fbSubmissionsDB.where("position_key", "==", key).onSnapshot(docs => {
+            var tmpitems = [];
+            docs.forEach(submission => {
+                const info = { ...tmplSubmission, ...submission.data() };
+                tmpitems.push({ id: submission.id, ...info });
             });
+            setsubmissions(tmpitems);
+        });
 
         return () => unsub();
     }, [key]);
@@ -94,10 +93,10 @@ function PositionSummary({ position }) {
                 {submissions.length > 0 && (
                     <Header size="small">
                         Candidates submitted:
-                        {submissions.map(candidate => {
+                        {submissions.map(submission => {
                             return (
-                                <Link key={candidate.key} to={`/candidates/${candidate.key}`}>
-                                    <Label color="blue" key={candidate.key} content={candidate.info.candidate_name} icon="user secret" />
+                                <Link key={submission.id} to={`/candidates/${submission.candidate_key}`}>
+                                    <Label color="blue" content={submission.candidate_name} icon="user secret" />
                                 </Link>
                             );
                         })}

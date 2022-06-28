@@ -33,14 +33,11 @@ export default class FlaggedCandidates extends Component {
         return (
             <>
                 {flags.length > 0 && (
-                    <>
-                        <h3>Flagged candidates</h3>
-                        <Card.Group>
-                            {flags.reverse().map(flag => (
-                                <Flag key={flag.key} flag={flag} />
-                            ))}
-                        </Card.Group>
-                    </>
+                    <Card.Group>
+                        {flags.reverse().map(flag => (
+                            <Flag key={flag.key} flag={flag} />
+                        ))}
+                    </Card.Group>
                 )}
             </>
         );

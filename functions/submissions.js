@@ -9,63 +9,63 @@ var db = functions.firestore;
 var rlt = admin.database();
 var fsdb = admin.firestore();
 
-exports.toggleSubmissionStatusCreate = db.document("/positions/{positionID}/submitted_candidates/{candidateID}").onCreate((data, context) => {
-    const candidateInfo = data.data();
-
-    const ckey = context.params.candidateID;
+exports.toggleSubmissionStatusCreate = db.document("/submissions/{id}").onCreate((data, context) => {
+    const info = data.data();
+    const ckey = info.candidate_key;
     const now = new Date();
 
-    return fsdb
-        .doc(`candidates/${ckey}`)
-        .set({ status: "processing" }, { merge: true })
-        .then(() => {
-            const eventinfo = `${candidateInfo.candidate_name} was submitted to ${candidateInfo.position_title} on ${candidateInfo.position_contract}.`;
-            const event = {
-                eventdate: now.toJSON(),
-                eventinfo,
-                candidatename: candidateInfo.candidate_name
-            };
-
-            return rlt
-                .ref("auditing")
-                .push(event)
-                .then(() => {
-                    console.info(event);
-                });
-        });
-});
-
-// when a candidate has been unsubmitted from a position, then change status back to active (unless they still have other submissions)
-exports.toggleSubmissionStatusDelete = db.document("/positions/{positionID}/submitted_candidates/{candidateID}").onDelete((data, context) => {
-    const candidateInfo = data.data();
-    const ckey = context.params.candidateID;
-    const now = new Date();
-
+    const eventinfo = `${info.candidate_name} was submitted to ${info.position_title} on ${info.contract}.`;
     const event = {
         eventdate: now.toJSON(),
-        eventinfo: `${candidateInfo.candidate_name} was removed from ${candidateInfo.position_title} on ${candidateInfo.position_contract}.`,
-        candidatename: candidateInfo.candidate_name
+        eventinfo,
+        candidatename: info.candidate_name
     };
 
     return rlt
         .ref("auditing")
         .push(event)
         .then(() => {
-            console.info(event);
-            fsdb.doc(`candidates/${ckey}`)
+            functions.logger.log(event);
+            fsdb.doc(`candidates/${ckey}`).set({ status: "processing" }, { merge: true });
+        });
+});
+
+// when a candidate has been unsubmitted from a position, then change status back to active (unless they still have other submissions)
+exports.toggleSubmissionStatusDelete = db.document("/submissions/{id}").onDelete((data, context) => {
+    const info = data.data();
+    const ckey = info.candidate_key;
+    const now = new Date();
+
+    const event = {
+        eventdate: now.toJSON(),
+        eventinfo: `${info.candidate_name} was unsubmitted from ${info.position_title} on ${info.contract}.`,
+        candidatename: info.candidate_name
+    };
+
+    return rlt
+        .ref("auditing")
+        .push(event)
+        .then(() => {
+            functions.logger.log(event);
+
+            fsdb.collection("submissions")
+                .where("candidate_key", "==", ckey)
                 .get()
-                .then(candidate => {
-                    if (candidate.exists) {
-                        candidate.ref
-                            .collection("submitted_positions")
+                .then(docs => {
+                    if (docs.empty) {
+                        fsdb.doc(`candidates/${ckey}`)
                             .get()
-                            .then(submissions => {
-                                var stillsubmitted = false;
-                                submissions.forEach(submission => {
-                                    stillsubmitted = true;
-                                });
-                                if (!stillsubmitted) {
+                            .then(candidate => {
+                                if (candidate.exists) {
                                     candidate.ref.set({ status: "active" }, { merge: true });
+                                }
+                            });
+                    } else {
+                        fsdb.doc(`candidates/${ckey}`)
+                            .get()
+                            .then(candidate => {
+                                if (candidate.exists) {
+                                    candidate.ref.set({ status: "processing" }, { merge: true });
                                 }
                             });
                     }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { fbPositionsDB } from "../firebase.config";
-import { Container, List } from "semantic-ui-react";
+import { Container, List, Header, Icon } from "semantic-ui-react";
 import ComponentPlaceholder from "./ComponentPlaceholder";
 import { format } from "date-fns";
 import tmplPosition from "../constants/positionInfo";
@@ -13,6 +13,7 @@ const RecentPositions = () => {
     useEffect(() => {
         setpageloading(true);
         const getPositions = fbPositionsDB
+            .where("added_on", "!=", "")
             .orderBy("added_on", "desc")
             .limit(5)
             .onSnapshot(data => {
@@ -28,7 +29,10 @@ const RecentPositions = () => {
 
     return (
         <Container>
-            <h3>Recently added positions</h3>
+            <Header>
+                <Icon name="briefcase" />
+                New Positions
+            </Header>
             {pageloading ? (
                 <ComponentPlaceholder lines="6" />
             ) : (

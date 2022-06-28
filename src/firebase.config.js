@@ -32,9 +32,8 @@ const fbStorage = firebase.storage().ref();
 
 const fbCandidatesDB = firebase.firestore().collection("candidates");
 const fbEmployeesDB = firebase.firestore().collection("employees");
-const fbCandidatesOld = firebase.database().ref("candidates");
 const fbPositionsDB = firebase.firestore().collection("positions");
-const fbPositionsOld = firebase.database().ref("positions");
+const fbSubmissionsDB = firebase.firestore().collection("submissions");
 
 const fbComments = firebase.firestore().collection("comments");
 
@@ -75,4 +74,4 @@ const SignInWithMicrosoft = () => {
 };
 
 export default firebase;
-export { fbStorage, fbLoginsDB, fbUsersDB, fbauth, fbComments, fbCandidatesOld, fbCandidatesDB, fbEmployeesDB, fbPositionsDB, fbPositionsOld, fbAuditTrailDB, fbFlagNotes, fbStatusesDB, fbContractsDB, fbLOIStatusesDB, SignInWithGoogle, SignOut, SignInWithMicrosoft };
+export { fbStorage, fbLoginsDB, fbUsersDB, fbauth, fbComments, fbSubmissionsDB, fbCandidatesDB, fbEmployeesDB, fbPositionsDB, fbAuditTrailDB, fbFlagNotes, fbStatusesDB, fbContractsDB, fbLOIStatusesDB, SignInWithGoogle, SignOut, SignInWithMicrosoft };

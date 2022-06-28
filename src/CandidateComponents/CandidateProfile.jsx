@@ -5,10 +5,10 @@ import { Link } from "react-router-dom";
 import { Grid, Header, Segment, Tab, Icon, Button } from "semantic-ui-react";
 import Markdown from "markdown-to-jsx";
 import classnames from "classnames";
-import firebase, { fbFlagNotes, fbAuditTrailDB, fbCandidatesDB, fbPositionsDB } from "../firebase.config";
+import firebase, { fbFlagNotes, fbAuditTrailDB, fbCandidatesDB, fbSubmissionsDB } from "../firebase.config";
 import FlagMessage from "../CommonComponents/FlagMessage";
 import CommentSection from "../CommonComponents/CommentSection";
-import { tmplCandidate } from "../constants/candidateInfo";
+import { tmplCandidate, tmplSubmission } from "../constants";
 import Files from "../CommonComponents/Files";
 import SubmissionModal from "./SubmissionModal";
 
@@ -36,19 +36,17 @@ class CandidateProfile extends Component {
             }
         });
 
-        this.unsubSubmissions = fbCandidatesDB
-            .doc(candidateID)
-            .collection("submitted_positions")
-            .onSnapshot(docs => {
-                var tmpitems = [];
-                docs.forEach(submission => {
-                    tmpitems.push({ key: submission.id, info: submission.data() });
-                });
-
-                this.setState({
-                    submissions: [...tmpitems]
-                });
+        this.unsubSubmissions = fbSubmissionsDB.where("candidate_key", "==", candidateID).onSnapshot(docs => {
+            var tmpitems = [];
+            docs.forEach(submission => {
+                const info = { ...tmplSubmission, ...submission.data() };
+                tmpitems.push({ id: submission.id, ...info });
             });
+
+            this.setState({
+                submissions: [...tmpitems]
+            });
+        });
     }
 
     componentWillUnmount() {
@@ -62,37 +60,29 @@ class CandidateProfile extends Component {
         const candidate_name = candidate.firstname + " " + candidate.lastname;
         const updatedSubmissionInfo = {
             submission_date: firebase.firestore.FieldValue.serverTimestamp(),
-            candidate_id: candidateID,
+            candidate_key: candidateID,
             candidate_name: candidate_name,
             position_id: position.position_id,
             position_key: position.key,
             position_title: position.title,
-            position_contract: position.contract
+            position_level: position.level,
+            contract: position.contract
         };
 
-        const candidateRef = fbCandidatesDB.doc(candidateID).collection("submitted_positions").doc(position.key);
-        const positionRef = fbPositionsDB.doc(position.key).collection("submitted_candidates").doc(candidateID);
-
-        var batch = firebase.firestore().batch();
-        batch.set(positionRef, updatedSubmissionInfo);
-        batch.set(candidateRef, updatedSubmissionInfo);
-        batch.commit().catch(err => console.error(err));
+        //add the submission to the database
+        fbSubmissionsDB.add(updatedSubmissionInfo).catch(error => {
+            console.log(error);
+        });
     };
 
-    RemoveCandidateFromPosition = positionkey => {
-        const { candidate } = this.state;
-        const candidate_name = candidate.firstname + " " + candidate.lastname;
-        const { candidateID } = this.props;
-
-        if (window.confirm(`Are you sure you want to unsubmit ${candidate_name}?`)) {
-            const candidateRef = fbCandidatesDB.doc(candidateID).collection("submitted_positions").doc(positionkey);
-            const positionRef = fbPositionsDB.doc(positionkey).collection("submitted_candidates").doc(candidateID);
-
-            var batch = firebase.firestore().batch();
-            batch.delete(positionRef);
-            batch.delete(candidateRef);
-            batch.commit().catch(err => console.error(err));
-        }
+    RemoveCandidateFromPosition = submissionid => {
+        //remove the submission from the database
+        fbSubmissionsDB
+            .doc(submissionid)
+            .delete()
+            .catch(error => {
+                console.log(error);
+            });
     };
 
     removeFlag = ev => {
@@ -276,22 +266,20 @@ class CandidateProfile extends Component {
                         {(candidate.status === "processing" || candidate.status === "active") && (
                             <Segment vertical>
                                 <h3>
-                                    <Icon name="tasks" /> Position submissions{" "}
+                                    <Icon name="tasks" /> Position submissions
                                 </h3>
                                 {submissions.length === 0 && "This candidate has not been submitted to a position."}
                                 {submissions.length > 0 && (
                                     <div>
                                         {submissions.map(submission => {
-                                            const pkey = submission.key;
-                                            const position = submission.info;
-                                            const pid = position.position_id ? `(${position.position_id})` : "";
-                                            const submission_date = position.submission_date ? `- submitted on ${format(position.submission_date.toDate(), "MMM d, yyyy")}` : "";
+                                            const pid = submission.position_id ? `(${submission.position_id})` : "";
+                                            const submission_date = submission.submission_date ? `- submitted on ${format(submission.submission_date.toDate(), "MMM d, yyyy")}` : "";
                                             return (
-                                                <p key={pkey}>
-                                                    <Link to={`/positions/${pkey}`}>
-                                                        {position.position_contract}, {position.position_title} {pid} {submission_date}
+                                                <p key={submission.id}>
+                                                    <Link to={`/positions/${submission.position_key}`}>
+                                                        {submission.contract}, {submission.position_title} {pid} {submission_date}
                                                     </Link>
-                                                    <Icon name="close" color="red" link onClick={() => this.RemoveCandidateFromPosition(position.position_key)} />
+                                                    <Icon name="close" color="red" link onClick={() => this.RemoveCandidateFromPosition(submission.id)} />
                                                 </p>
                                             );
                                         })}

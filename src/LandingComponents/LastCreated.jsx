@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 
 import { fbCandidatesDB } from "../firebase.config";
-import { Container, List } from "semantic-ui-react";
+import { Container, List, Header, Icon } from "semantic-ui-react";
 import { format } from "date-fns";
 
 export default class LastCreated extends Component {
@@ -17,10 +17,10 @@ export default class LastCreated extends Component {
     componentDidMount() {
         this.unsub = fbCandidatesDB
             .orderBy("created_date", "desc")
-            .limit(5)
+            .limit(10)
             .onSnapshot(doc => {
                 let tmpitems = [];
-                doc.forEach(function(candidate) {
+                doc.forEach(function (candidate) {
                     tmpitems.push({ key: candidate.id, info: candidate.data() });
                 });
                 this.setState({
@@ -38,7 +38,10 @@ export default class LastCreated extends Component {
 
         return (
             <Container>
-                <h3>Recently added candidates</h3>
+                <Header>
+                    <Icon name="user circle" />
+                    New candidates
+                </Header>
                 <List selection verticalAlign="middle" divided relaxed>
                     {candidates
                         .filter(candidate => {
